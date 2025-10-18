@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Agendoo PWA',
-        short_name: 'Agendoo',
+        name: 'NailFinder PWA',
+        short_name: 'NailFinder',
         description: 'A Vite + React progressive web app starter',
         theme_color: '#ffffff',
         icons: [

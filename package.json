@@ -1,5 +1,5 @@
 {
-  "name": "agendoo_pwa",
+  "name": "nailfinder_pwa",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -10,8 +10,12 @@
     "lint": "echo \"No linter configured\""
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^1.9.5",
+    "dayjs": "^1.11.18",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.1.2",
+    "react-router-dom": "^6.14.2"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",

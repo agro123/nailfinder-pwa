@@ -1,4 +1,4 @@
-Agendoo PWA — Vite + React starter
+NailFinder PWA — Vite + React starter
 
 Instalación y comandos rápidos:
 
@@ -28,4 +28,4 @@ Siguientes pasos recomendados:
 - Reemplazar los iconos base por versiones de alta calidad (192x192 y 512x512).
 - Añadir HTTPS y probar en un dispositivo físico para comprobar la instalación PWA.
 - Añadir tests y linting según prefieras (ESLint, Prettier).
-# agendoo-pwa
+# nailfinder-pwa
