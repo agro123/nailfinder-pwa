@@ -1,0 +1,49 @@
+# Node
+node_modules/
+
+# Build output
+/dist/
+/build/
+/.vite/
+
+# Production
+/coverage/
+
+# Environment files
+.env
+.env.*.local
+.env.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Cache
+.cache/
+.parcel-cache/
+.sass-cache/
+
+# Misc
+*.pem
+*.key
+
+# Ignore local history files (if you use some editors/extensions)
+.history/
+
+# Optional: lockfiles are usually committed; uncomment to ignore
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
