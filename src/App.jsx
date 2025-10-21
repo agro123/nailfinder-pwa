@@ -5,6 +5,7 @@ import Other from './pages/home/Other'
 import Login from './pages/auth/Login'
 import ProtectedRoute from './routes/ProtectedRoute'
 import PublicRoute from './routes/PublicRoute'
+import Register from './pages/auth/Register'
 
 export default function App() {
   const [deferredPrompt, setDeferredPrompt] = useState(null)
@@ -51,6 +52,7 @@ export default function App() {
           {/* Public routes (login, register...) */}
           <Route element={<PublicRoute />}>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Route>
 
           {/* Protected routes: require auth */}
