@@ -1,10 +1,12 @@
 // src/pages/auth/Register.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AddressList from "./AddressList";
 import AddressMap from "./AddressMap";
 import { createUser } from "../../services/localDB";
 
 export default function Register() {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -21,6 +23,10 @@ export default function Register() {
   const handleRegister = () => {
     createUser(formData);
     alert("Usuario registrado con éxito ✅");
+    navigate("/login");
+  };
+  const cancelar = () => {
+    navigate("/login");
   };
 
   return (
@@ -57,6 +63,7 @@ export default function Register() {
             }
           />
           <button onClick={nextStep}>Continuar</button>
+          <button onClick={cancelar}>Volver</button>
         </div>
       )}
 

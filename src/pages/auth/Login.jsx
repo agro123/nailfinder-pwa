@@ -78,6 +78,13 @@ export default function Login() {
           Regístrate aquí
         </Link>
       </p>
+      
+      <p style={{ marginTop: "1rem" }}>
+        ¿Tienes en negocio?{" "}
+        <Link to="/registerB" style={{ textDecoration: "none", fontWeight: "bold" }}>
+          Regístrate aquí
+        </Link>
+      </p>
     </div>
   );
 }

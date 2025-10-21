@@ -2,7 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function AddressMap({ address }) {
+export default function AddressMap({ address, onConfirm }) {
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -10,8 +10,11 @@ export default function AddressMap({ address }) {
   };
 
   const handleConfirm = () => {
-    alert("Dirección confirmada correctamente ✅");
-    navigate("/login"); // 👈 Redirige al login después de confirmar
+    if (onConfirm) {
+      onConfirm(address); // pasa la dirección confirmada
+    } else {
+      alert("Dirección confirmada ✅");
+    }
   };
 
   return (
