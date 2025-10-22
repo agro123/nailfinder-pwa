@@ -121,9 +121,9 @@ return (
           </div>
 
           <div className="button-group">
-            <button className="form-button" onClick={nextStep}>
+            <button className="form-button" onClick={handleRegister}>
               Continuar
-            </button>
+            </button> {/* Cambiado de nextStep a handleRegister */}
             <button className="form-button cancel" onClick={cancelar}>
               Volver
             </button>
@@ -131,7 +131,7 @@ return (
         </div>
       )}
 
-      {step === 2 && (
+      {/* {step === 2 && (
         <div className="form-box step2">
           <h2 className="form-title">Configurar negocio</h2>
 
@@ -174,7 +174,7 @@ return (
             onBack={prevStep}
           />
         </div>
-      )}
+      )} */}
     </div>
   );
 }

@@ -63,12 +63,12 @@ export default function Register() {
               setFormData({ ...formData, password: e.target.value })
             }
           />
-          <button onClick={nextStep}>Continuar</button>
+          <button onClick={handleRegister}>Continuar</button> {/* Cambiado de nextStep a handleRegister */}
           <button onClick={cancelar}>Volver</button>
         </div>
       )}
 
-      {step === 2 && (
+      {/* {step === 2 && (
         <div className="step2">
           <AddressList
             onSelect={(address) => {
@@ -91,7 +91,7 @@ export default function Register() {
             onBack={prevStep}
           />
         </div>
-      )}
+      )} */}
     </div>
   );
 }
