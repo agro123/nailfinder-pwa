@@ -1,0 +1,156 @@
+/* --- Contenedor principal --- */
+.register-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* antes estaba 'center' */
+  min-height: 90vh; /* menos rígido que 100vh */
+  padding: 40px 0; /* deja margen arriba y abajo */
+  background-color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- Paso 1: Registro de manicurista --- */
+.form-box.step1 {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: #f8f9fa;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 340px;
+  text-align: center;
+}
+
+.form-box.step1 h2 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 22px;
+}
+
+/* --- Inputs y selects --- */
+.form-box.step1 input,
+.form-box.step1 select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.form-box.step1 input:focus,
+.form-box.step1 select:focus {
+  border-color: #007bff;
+}
+
+/* --- Foto de perfil --- */
+.profile-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-top: 10px;
+  border: 2px solid #007bff;
+}
+
+/* --- Botones paso 1 --- */
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.button-group button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button-group button:first-of-type {
+  background-color: #007bff;
+}
+
+.button-group button:first-of-type:hover {
+  background-color: #0056b3;
+}
+
+.button-group button:last-of-type {
+  background-color: #6c757d;
+}
+
+.button-group button:last-of-type:hover {
+  background-color: #565e64;
+}
+
+/* --- Paso 2 y Paso 3 (configurar negocio y mapa) --- */
+.form-box.step2,
+.form-box.step3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  padding: 30px;
+  border-radius: 12px;
+  width: 340px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-box.step2 h2,
+.form-box.step3 h2 {
+  color: #333;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+/* --- Inputs de los pasos siguientes --- */
+.form-box.step2 input,
+.form-box.step3 input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 100%;
+  margin-bottom: 10px;
+  outline: none;
+}
+
+.form-box.step2 input:focus,
+.form-box.step3 input:focus {
+  border-color: #007bff;
+}
+
+/* --- Botones pasos 2 y 3 --- */
+.register-container button {
+  margin-top: 15px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.register-container button.confirm {
+  background-color: #28a745;
+}
+
+.register-container button.confirm:hover {
+  background-color: #218838;
+}
+
+.register-container button.back {
+  background-color: #6c757d;
+}
+
+.register-container button.back:hover {
+  background-color: #565e64;
+}

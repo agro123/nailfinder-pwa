@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { findUserByEmail } from "../../services/localDB";
+import "./Login.css";
 
 export default function Login() {
   const { login } = useAuth();
@@ -32,30 +33,15 @@ export default function Login() {
   };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div className="login-container">
       {/* Notificación flotante */}
       {message && (
-        <div
-          style={{
-            position: "absolute",
-            top: "-40px",
-            left: 0,
-            right: 0,
-            margin: "auto",
-            backgroundColor: type === "success" ? "#4caf50" : "#f44336",
-            color: "#fff",
-            padding: "10px",
-            borderRadius: "6px",
-            width: "fit-content",
-            textAlign: "center",
-            animation: "fadeInOut 2s ease",
-          }}
-        >
+        <div className={`notification ${type === "error" ? "error" : ""}`}>
           {message}
         </div>
       )}
 
-      <form onSubmit={handleLogin}>
+      <form className="login-form" onSubmit={handleLogin}>
         <h2>Iniciar sesión</h2>
         <input
           type="email"
@@ -72,19 +58,16 @@ export default function Login() {
         <button type="submit">Entrar</button>
       </form>
 
-      <p style={{ marginTop: "1rem" }}>
-        ¿No tienes cuenta?{" "}
-        <Link to="/register" style={{ textDecoration: "none", fontWeight: "bold" }}>
-          Regístrate aquí
-        </Link>
-      </p>
-      
-      <p style={{ marginTop: "1rem" }}>
-        ¿Tienes en negocio?{" "}
-        <Link to="/registerB" style={{ textDecoration: "none", fontWeight: "bold" }}>
-          Regístrate aquí
-        </Link>
-      </p>
+      <div className="login-links">
+        <p>
+          ¿No tienes cuenta?{" "}
+          <Link to="/register">Regístrate aquí</Link>
+        </p>
+        <p>
+          ¿Tienes un negocio?{" "}
+          <Link to="/registerB">Regístrate aquí</Link>
+        </p>
+      </div>
     </div>
   );
 }

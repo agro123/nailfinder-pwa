@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import AddressList from "./AddressList";
 import AddressMap from "./AddressMap";
 import { createUser } from "../../services/localDB";
+import "./Register.css";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -68,24 +69,28 @@ export default function Register() {
       )}
 
       {step === 2 && (
-        <AddressList
-          onSelect={(address) => {
-            setFormData({ ...formData, address });
-            nextStep();
-          }}
-          onBack={prevStep}
-        />
+        <div className="step2">
+          <AddressList
+            onSelect={(address) => {
+              setFormData({ ...formData, address });
+              nextStep();
+            }}
+            onBack={prevStep}
+          />
+        </div>
       )}
 
       {step === 3 && (
-        <AddressMap
-          address={formData.address}
-          onConfirm={(finalAddress) => {
-            setFormData({ ...formData, address: finalAddress });
-            handleRegister();
-          }}
-          onBack={prevStep}
-        />
+        <div className="step3">
+          <AddressMap
+            address={formData.address}
+            onConfirm={(finalAddress) => {
+              setFormData({ ...formData, address: finalAddress });
+              handleRegister();
+            }}
+            onBack={prevStep}
+          />
+        </div>
       )}
     </div>
   );

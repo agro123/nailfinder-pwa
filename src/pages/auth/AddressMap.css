@@ -1,0 +1,87 @@
+/* --- CONTENEDOR PRINCIPAL --- */
+.address-map-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- CUADRO DEL MAPA --- */
+.address-map-box {
+  background-color: #f8f9fa;
+  padding: 40px;
+  border-radius: 12px;
+  width: 340px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* --- TÍTULO Y DIRECCIÓN --- */
+.address-map-box h2 {
+  color: #333;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.address-map-box p {
+  font-size: 15px;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+/* --- CUADRO DEL MAPA (SIMULADO) --- */
+.map-placeholder {
+  height: 200px;
+  width: 100%;
+  background: #eee;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #777;
+  font-size: 14px;
+}
+
+/* --- BOTONES --- */
+.address-map-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.address-map-buttons button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Botón atrás */
+.address-map-buttons .back-btn {
+  background-color: #6c757d;
+}
+
+.address-map-buttons .back-btn:hover {
+  background-color: #565e64;
+  transform: translateY(-2px);
+}
+
+/* Botón confirmar */
+.address-map-buttons .confirm-btn {
+  background-color: #007bff;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+}
+
+.address-map-buttons .confirm-btn:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 123, 255, 0.3);
+}
