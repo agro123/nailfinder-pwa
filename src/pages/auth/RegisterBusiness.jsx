@@ -14,7 +14,7 @@ export default function RegisterBusiness() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    businessName: "",
+    companyname: "",
     nit: "",
     password: "",
     phone: "",
@@ -113,8 +113,8 @@ export default function RegisterBusiness() {
           <input
             type="text"
             placeholder="Nombre del negocio"
-            value={formData.businessName}
-            onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
+            value={formData.companyname}
+            onChange={(e) => setFormData({ ...formData, companyname: e.target.value })}
             className="form-input"
           />
 
