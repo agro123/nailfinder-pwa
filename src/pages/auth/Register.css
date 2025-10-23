@@ -1,0 +1,114 @@
+/* --- Contenedor principal --- */
+.register {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- Paso 1: formulario --- */
+.step1 {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: #f8f9fa;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 340px;
+  text-align: center;
+}
+
+.step1 h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* --- Inputs y selects --- */
+.step1 input,
+.step1 select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.step1 input:focus,
+.step1 select:focus {
+  border-color: #007bff;
+}
+
+/* --- Botones --- */
+.step1 button {
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Botón primario */
+.step1 button:first-of-type {
+  background-color: #007bff;
+}
+
+.step1 button:first-of-type:hover {
+  background-color: #0056b3;
+}
+
+/* Botón secundario (cancelar o volver) */
+.step1 button:last-of-type {
+  background-color: #6c757d;
+}
+
+.step1 button:last-of-type:hover {
+  background-color: #565e64;
+}
+
+/* --- Paso 2 y 3 (Mapas o Listas) --- */
+.register .step2,
+.register .step3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  padding: 30px;
+  border-radius: 12px;
+  width: 340px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Botones en pasos siguientes --- */
+.register button {
+  margin-top: 15px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+}
+
+.register button.confirm {
+  background-color: #28a745;
+}
+
+.register button.confirm:hover {
+  background-color: #218838;
+}
+
+.register button.back {
+  background-color: #6c757d;
+}
+
+.register button.back:hover {
+  background-color: #565e64;
+}

@@ -1,8 +1,9 @@
 // src/pages/auth/AddressMap.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import "./AddressMap.css";
 
-export default function AddressMap({ address }) {
+export default function AddressMap({ address, onConfirm }) {
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -10,34 +11,32 @@ export default function AddressMap({ address }) {
   };
 
   const handleConfirm = () => {
-    alert("Dirección confirmada correctamente ✅");
-    navigate("/login"); // 👈 Redirige al login después de confirmar
+    if (onConfirm) {
+      onConfirm(address); // pasa la dirección confirmada
+    } else {
+      alert("Dirección confirmada ✅");
+    }
   };
 
   return (
-    <div style={{ margin: "2rem" }}>
-      <h2>Confirma tu dirección</h2>
-      <p>📍 {address}</p>
+    <div className="address-map-container">
+      <div className="address-map-box">
+        <h2>Confirma tu dirección</h2>
+        <p>📍 {address}</p>
 
-      <div
-        style={{
-          height: "200px",
-          width: "100%",
-          background: "#eee",
-          border: "1px solid #ccc",
-          borderRadius: "10px",
-          marginBottom: "1rem",
-        }}
-      >
-        <p style={{ textAlign: "center", paddingTop: "80px" }}>
+        <div className="map-placeholder">
           [ Aquí iría el mapa interactivo ]
-        </p>
-      </div>
+        </div>
 
-      <button onClick={handleBack}>Atrás</button>
-      <button onClick={handleConfirm} style={{ marginLeft: "10px" }}>
-        Confirmar dirección
-      </button>
+        <div className="address-map-buttons">
+          <button className="back-btn" onClick={handleBack}>
+            Atrás
+          </button>
+          <button className="confirm-btn" onClick={handleConfirm}>
+            Confirmar dirección
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

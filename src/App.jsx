@@ -6,6 +6,7 @@ import Login from './pages/auth/Login'
 import ProtectedRoute from './routes/ProtectedRoute'
 import PublicRoute from './routes/PublicRoute'
 import Register from './pages/auth/Register'
+import RegisterB from './pages/auth/RegisterBusiness'
 
 export default function App() {
   const [deferredPrompt, setDeferredPrompt] = useState(null)
@@ -33,14 +34,6 @@ export default function App() {
 
   return (
     <div className="app">
-      <header>
-        <h1>NailFinder PWA</h1>
-        <p>Tu aplicación progresiva con Vite + React</p>
-        <nav>
-          <Link to="/">Home</Link> | <Link to="/other">Other (ejemplo redirect)</Link>
-        </nav>
-      </header>
-
       <main>
         {deferredPrompt && !installed && (
           <button onClick={onInstallClick}>Instalar aplicación</button>
@@ -53,6 +46,7 @@ export default function App() {
           <Route element={<PublicRoute />}>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/registerB" element={<RegisterB />} />
           </Route>
 
           {/* Protected routes: require auth */}

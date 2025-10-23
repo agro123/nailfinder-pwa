@@ -1,10 +1,13 @@
 // src/pages/auth/Register.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AddressList from "./AddressList";
 import AddressMap from "./AddressMap";
 import { createUser } from "../../services/localDB";
+import "./Register.css";
 
 export default function Register() {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -21,6 +24,10 @@ export default function Register() {
   const handleRegister = () => {
     createUser(formData);
     alert("Usuario registrado con éxito ✅");
+    navigate("/login");
+  };
+  const cancelar = () => {
+    navigate("/login");
   };
 
   return (
@@ -56,30 +63,35 @@ export default function Register() {
               setFormData({ ...formData, password: e.target.value })
             }
           />
-          <button onClick={nextStep}>Continuar</button>
+          <button onClick={handleRegister}>Continuar</button> {/* Cambiado de nextStep a handleRegister */}
+          <button onClick={cancelar}>Volver</button>
         </div>
       )}
 
-      {step === 2 && (
-        <AddressList
-          onSelect={(address) => {
-            setFormData({ ...formData, address });
-            nextStep();
-          }}
-          onBack={prevStep}
-        />
+      {/* {step === 2 && (
+        <div className="step2">
+          <AddressList
+            onSelect={(address) => {
+              setFormData({ ...formData, address });
+              nextStep();
+            }}
+            onBack={prevStep}
+          />
+        </div>
       )}
 
       {step === 3 && (
-        <AddressMap
-          address={formData.address}
-          onConfirm={(finalAddress) => {
-            setFormData({ ...formData, address: finalAddress });
-            handleRegister();
-          }}
-          onBack={prevStep}
-        />
-      )}
+        <div className="step3">
+          <AddressMap
+            address={formData.address}
+            onConfirm={(finalAddress) => {
+              setFormData({ ...formData, address: finalAddress });
+              handleRegister();
+            }}
+            onBack={prevStep}
+          />
+        </div>
+      )} */}
     </div>
   );
 }
