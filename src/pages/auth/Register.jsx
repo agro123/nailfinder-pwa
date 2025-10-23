@@ -11,19 +11,46 @@ export default function Register() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
+    email: "",
+    password: "",
     phone: "",
-    gender: "",
     address: "",
     reference: "",
-    password: "", // 👈 nuevo campo
   });
 
   const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);
 
   const handleRegister = () => {
-    createUser(formData);
-    alert("Usuario registrado con éxito ✅");
+    // Validar que no haya campos vacíos
+    if (!formData.name.trim() || !formData.email.trim() || !formData.password.trim() || !formData.phone.trim()) {
+      alert("⚠️ Por favor, completa todos los campos antes de continuar.");
+      return;
+    }
+
+    // Validar formato de email básico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert("⚠️ Por favor, ingresa un correo electrónico válido.");
+      return;
+    }
+
+    // Validar longitud mínima de contraseña
+    if (formData.password.length < 6) {
+      alert("⚠️ La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+
+    const userToSave = {
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      password: formData.password,
+      phone: formData.phone.trim(),
+      createdAt: new Date().toISOString(),
+    };
+
+    createUser(userToSave);
+    alert("✅ Registro completado con éxito.");
     navigate("/login");
   };
   const cancelar = () => {
@@ -37,24 +64,19 @@ export default function Register() {
           <h2>Crear cuenta</h2>
           <input
             type="text"
-            placeholder="Nombre y Apellido"
+            placeholder="Nombre completo"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           />
+
           <input
-            type="tel"
-            placeholder="Celular"
-            value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            type="email"
+            placeholder="Correo electrónico"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className="form-input"
           />
-          <select
-            value={formData.gender}
-            onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-          >
-            <option value="">Selecciona género</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Femenino">Femenino</option>
-          </select>
+          
           <input
             type="password"
             placeholder="Contraseña"
@@ -63,6 +85,14 @@ export default function Register() {
               setFormData({ ...formData, password: e.target.value })
             }
           />
+
+          <input
+            type="tel"
+            placeholder="Celular"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+          />
+
           <button onClick={handleRegister}>Continuar</button> {/* Cambiado de nextStep a handleRegister */}
           <button onClick={cancelar}>Volver</button>
         </div>
