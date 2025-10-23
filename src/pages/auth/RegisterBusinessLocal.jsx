@@ -3,13 +3,11 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AddressList from "./AddressList";
 import AddressMap from "./AddressMap";
+import { createUser, findUserByEmail } from "../../services/localDB";
 import "./css/RegisterBusiness.css";
 
-export default function RegisterBusiness() {
+export default function Register() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [type, setType] = useState(""); // "success" | "error"
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -18,18 +16,21 @@ export default function RegisterBusiness() {
     nit: "",
     password: "",
     phone: "",
-    profilePhoto: null,
-    profilePreview: null,
+    profilePhoto: null, // guardamos base64 o nombre según preferencia
+    profilePreview: null, // para mostrar vista previa
   });
-  
+
   const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);
-
-  // --- MANEJAR FOTO ---
+  
+  // --- MANEJAR SELECCIÓN DE IMAGEN (opcional) ---
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-
+    if (!file) {
+      setFormData({ ...formData, profilePhoto: null, profilePreview: null });
+      return;
+    }
+    // Opcional: guardar base64 en localStorage (útil para mostrar después)
     const reader = new FileReader();
     reader.onloadend = () => {
       setFormData({
@@ -41,54 +42,47 @@ export default function RegisterBusiness() {
     reader.readAsDataURL(file);
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      // Validar datos mínimos
-      if (!formData.name || !formData.email || !formData.password || !formData.phone) {
-        setType("error");
-        setMessage("⚠️ Completa todos los campos obligatorios.");
-        setTimeout(() => setMessage(""), 2500);
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch("http://localhost:3000/api/public/signupCompany", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || "Error en el registro de la empresa");
-      }
-
-      setType("success");
-      setMessage("✅ Registro completado con éxito.");
-      navigate("/login")
-      setTimeout(() => {
-        setMessage("");
-        navigate("/login");
-      }, 2000);
-    } catch (error) {
-      console.error("❌ Error de conexión o validación:", error);
-      setType("error");
-      setMessage("❌ No se pudo registrar el negocio.");
-      setTimeout(() => setMessage(""), 2500);
-    } finally {
-      setLoading(false);
+  const handleRegister = () => {
+    // Validar que no haya campos vacíos
+    if (!formData.name.trim() || !formData.email.trim() || !formData.password.trim() || !formData.phone.trim()) {
+      alert("⚠️ Por favor, completa todos los campos antes de continuar.");
+      return;
     }
+
+    // Validar formato de email básico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert("⚠️ Por favor, ingresa un correo electrónico válido.");
+      return;
+    }
+
+    // Validar longitud mínima de contraseña
+    if (formData.password.length < 6) {
+      alert("⚠️ La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+
+    const userToSave = {
+      name: formData.name,
+      email: formData.email,
+      businessName: formData.businessName,
+      nit: formData.nit,
+      password: formData.password,
+      phone: formData.phone,
+      profilePhoto: formData.profilePhoto, // base64 o null
+      createdAt: new Date().toISOString(),
+    };
+
+    createUser(userToSave);
+    alert("✅ Registro completado con éxito.");
+    navigate("/login");
   };
-  
+
   const cancelar = () => {
     navigate("/login");
   };
 
-  return (
+return (
     <div className="register-container">
       {step === 1 && (
         <div className="form-box step1">
@@ -107,22 +101,6 @@ export default function RegisterBusiness() {
             placeholder="Correo electrónico"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="form-input"
-          />
-          
-          <input
-            type="text"
-            placeholder="Nombre del negocio"
-            value={formData.businessName}
-            onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
-            className="form-input"
-          />
-
-          <input
-            type="text"
-            placeholder="NIT"
-            value={formData.nit}
-            onChange={(e) => setFormData({ ...formData, nit: e.target.value })}
             className="form-input"
           />
 

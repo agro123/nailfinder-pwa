@@ -3,7 +3,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AddressList from "./AddressList";
 import AddressMap from "./AddressMap";
-import "./css/Register.css";
+import { createUser } from "../../services/localDB";
+import "./Register.css";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -20,37 +21,38 @@ export default function Register() {
   const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("http://localhost:3000/api/public/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          phone: formData.phone,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        alert("❌ Error: " + (result.message || "Error desconocido"));
-        return;
-      }
-
-      alert("✅ Registro exitoso");
-      navigate("/login");
-    } catch (error) {
-      console.error("Error de conexión:", error);
-      alert("No se pudo conectar con el servidor.");
+  const handleRegister = () => {
+    // Validar que no haya campos vacíos
+    if (!formData.name.trim() || !formData.email.trim() || !formData.password.trim() || !formData.phone.trim()) {
+      alert("⚠️ Por favor, completa todos los campos antes de continuar.");
+      return;
     }
-  };
 
+    // Validar formato de email básico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      alert("⚠️ Por favor, ingresa un correo electrónico válido.");
+      return;
+    }
+
+    // Validar longitud mínima de contraseña
+    if (formData.password.length < 6) {
+      alert("⚠️ La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+
+    const userToSave = {
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      password: formData.password,
+      phone: formData.phone.trim(),
+      createdAt: new Date().toISOString(),
+    };
+
+    createUser(userToSave);
+    alert("✅ Registro completado con éxito.");
+    navigate("/login");
+  };
   const cancelar = () => {
     navigate("/login");
   };
