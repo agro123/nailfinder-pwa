@@ -1,7 +1,7 @@
 // src/pages/auth/AddressMap.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "./AddressMap.css";
+import "./css/AddressMap.css";
 
 export default function AddressMap({ address, onConfirm }) {
   const navigate = useNavigate();
