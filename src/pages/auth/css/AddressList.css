@@ -1,0 +1,97 @@
+/* --- CONTENEDOR PRINCIPAL --- */
+.address-list-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  height: 50vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- CUADRO DEL FORMULARIO --- */
+.address-box {
+  background-color: #f8f9fa;
+  padding: 40px;
+  border-radius: 12px;
+  width: 340px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* --- TÍTULO --- */
+.address-box h2 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 22px;
+}
+
+/* --- CAMPO DE BÚSQUEDA --- */
+.address-box input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 15px;
+  transition: border-color 0.3s;
+}
+
+.address-box input:focus {
+  border-color: #007bff;
+}
+
+/* --- LISTA DE SUGERENCIAS --- */
+.address-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 15px 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.address-box li {
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.address-box li:hover {
+  background-color: #e9f2ff;
+  transform: scale(1.01);
+}
+
+/* --- BOTÓN ATRÁS (Diseño unificado con login) --- */
+.address-box button {
+  background-color: #007bff; /* Azul principal */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 6px rgba(0, 123, 255, 0.25);
+}
+
+/* --- Hover: efecto de profundidad y tono más oscuro --- */
+.address-box button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 86, 179, 0.35);
+}
+
+/* --- Activo: ligera presión visual --- */
+.address-box button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 5px rgba(0, 86, 179, 0.25);
+}

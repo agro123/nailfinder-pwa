@@ -1,0 +1,426 @@
+/* --- Contenedor principal --- */
+.register-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;  
+  height: 100vh; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFF1F3;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- Paso 1: Registro de manicurista --- */
+.form-box.step1 {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: #f8f9fa;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px #f7b7a3;
+  width: 340px;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.form-box.step1 h2 {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 22px;
+}
+
+/* --- Inputs y selects --- */
+.form-box.step1 input,
+.form-box.step1 select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.form-box.step1 input:focus,
+.form-box.step1 select:focus {
+  border-color: #007bff;
+}
+
+.registerbusiness-logo {
+  width: 15%; /* ajusta el tamaño según tu preferencia */
+  margin: 0 auto auto auto;
+  display: block;
+}
+
+/* --- Foto de perfil --- */
+.profile-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-top: 10px;
+  border: 2px solid #007bff;
+}
+
+/* --- Botones paso 1 --- */
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.button-group button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button-group button:first-of-type {
+  background-color: #e25b7a;
+}
+
+.button-group button:first-of-type:hover {
+  background-color: #d21f4d;
+}
+
+.button-group button:last-of-type {
+  background-color: #6c757d;
+}
+
+.button-group button:last-of-type:hover {
+  background-color: #565e64;
+}
+
+/* --- Paso 2 y Paso 3 (configurar negocio y mapa) --- */
+.form-box.step2,
+.form-box.step3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  padding: 30px;
+  border-radius: 12px;
+  width: 340px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-box.step2 h2,
+.form-box.step3 h2 {
+  color: #333;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+/* --- Inputs de los pasos siguientes --- */
+.form-box.step2 input,
+.form-box.step3 input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 100%;
+  margin-bottom: 10px;
+  outline: none;
+}
+
+.form-box.step2 input:focus,
+.form-box.step3 input:focus {
+  border-color: #007bff;
+}
+
+/* --- Botones pasos 2 y 3 --- */
+.register-container button {
+  margin-top: 15px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.register-container button.confirm {
+  background-color: #28a745;
+}
+
+.register-container button.confirm:hover {
+  background-color: #218838;
+}
+
+.register-container button.back {
+  background-color: #6c757d;
+}
+
+.register-container button.back:hover {
+  background-color: #565e64;
+}
+
+
+/* =========================================================
+   MEDIA QUERIES 
+   ========================================================= */
+
+/* --- Pantallas grandes (1920px o más) --- */
+@media screen and (min-width: 1920px) {
+  .register-container {
+    padding: 60px;
+  }
+
+  .form-box.step1,
+  .form-box.step2,
+  .form-box.step3 {
+    width: 450px;
+    padding: 60px;
+    border-radius: 16px;
+  }
+
+  .form-box.step1 h2,
+  .form-box.step2 h2,
+  .form-box.step3 h2 {
+    font-size: 1.8rem;
+  }
+
+  .form-box.step1 input,
+  .form-box.step1 select,
+  .form-box.step2 input,
+  .form-box.step3 input,
+  .button-group button,
+  .register-container button {
+    font-size: 1.1rem;
+    padding: 12px;
+  }
+
+  .registerbusiness-logo {
+    width: 80px;
+    margin-bottom: 20px;
+  }
+
+  .profile-preview {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+/* --- Pantallas medianas (laptops, 1024px a 1919px) --- */
+@media screen and (min-width: 1024px) and (max-width: 1919px) {
+  .form-box.step1,
+  .form-box.step2,
+  .form-box.step3 {
+    width: 380px;
+    padding: 50px;
+  }
+
+  .registerbusiness-logo {
+    width: 70px;
+  }
+
+  .profile-preview {
+    width: 85px;
+    height: 85px;
+  }
+}
+
+/* --- Tablets (768px a 1023px) --- */
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .register-container {
+    padding: 40px;
+    justify-content: center;
+  }
+
+  .form-box.step1,
+  .form-box.step2,
+  .form-box.step3 {
+    width: 80%;
+    max-width: 420px;
+    padding: 40px;
+  }
+
+  .registerbusiness-logo {
+    width: 65px;
+    margin-bottom: 15px;
+  }
+
+  .form-box.step1 h2,
+  .form-box.step2 h2,
+  .form-box.step3 h2 {
+    font-size: 1.4rem;
+  }
+
+  .profile-preview {
+    width: 75px;
+    height: 75px;
+  }
+}
+
+/* --- Celulares (menos de 768px) --- */
+@media screen and (max-width: 767px) {
+  .register-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .form-box.step1,
+  .form-box.step2,
+  .form-box.step3 {
+    width: 88%;                
+    max-width: 340px;          
+    padding: 18px 16px;        
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    margin: 0 auto;
+    gap: 10px;                 
+  }
+
+  .registerbusiness-logo {
+    width: 55px;               
+    margin: 0 auto 8px auto;
+    display: block;
+  }
+
+  .form-box.step1 h2,
+  .form-box.step2 h2,
+  .form-box.step3 h2 {
+    font-size: 1.1rem;         
+    margin-bottom: 10px;
+  }
+
+  .form-box.step1 input,
+  .form-box.step1 select,
+  .form-box.step2 input,
+  .form-box.step3 input {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+
+  .button-group button,
+  .register-container button {
+    font-size: 0.9rem;
+    padding: 9px;
+    margin-top: 8px;
+  }
+
+  .profile-preview {
+    width: 70px;
+    height: 70px;
+  }
+}
+
+/* --- Dispositivos muy anchos y bajos (landscape, plegables, horizontales) --- */
+@media screen and (max-height: 450px) {
+  .register-container {
+    flex-direction: column;           
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 5px 10px;                
+    overflow-y: auto;                 
+  }
+
+  .form-box.step1,
+  .form-box.step2,
+  .form-box.step3 {
+    width: 85%;                       
+    max-width: 480px;                 
+    padding: 8px 20px;                
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    gap: 5px;                         
+  }
+
+  .registerbusiness-logo {
+    width: 35px;               
+    margin: 0 auto 3px auto;   
+  }
+
+  .form-box.step1 h2,
+  .form-box.step2 h2,
+  .form-box.step3 h2 {
+    font-size: 0.9rem;
+    margin-bottom: 4px;        
+    line-height: 1.2;
+  }
+
+  .form-box.step1 input,
+  .form-box.step1 select,
+  .form-box.step2 input,
+  .form-box.step3 input {
+    font-size: 0.8rem;
+    padding: 5px 8px;          
+  }
+
+  .button-group button,
+  .register-container button {
+    font-size: 0.8rem;
+    padding: 6px 10px;         
+    margin-top: 5px;
+  }
+
+  .profile-preview {
+    width: 50px;
+    height: 50px;
+    margin-top: 5px;
+  }
+}
+
+/* --- Dispositivos extremadamente bajos (menos de 400px de alto) --- */
+@media screen and (max-height: 400px) {
+  .register-container {
+    padding: 3px 10px;
+  }
+
+  .form-box.step1,
+  .form-box.step2,
+  .form-box.step3 {
+    padding: 5px 18px;
+    gap: 4px !important;
+    max-width: 520px;          
+  }
+
+  .registerbusiness-logo {
+    width: 30px;               
+    margin-bottom: 2px;
+  }
+
+  .form-box.step1 h2,
+  .form-box.step2 h2,
+  .form-box.step3 h2 {
+    font-size: 0.85rem;
+    margin-bottom: 3px;
+  }
+
+  .form-box.step1 input,
+  .form-box.step1 select,
+  .form-box.step2 input,
+  .form-box.step3 input,
+  .button-group button,
+  .register-container button {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+
+  .register-container button {
+    margin-top: 3px;
+  }
+
+  .profile-preview {
+    width: 45px;
+    height: 45px;
+    margin-top: 3px;
+  }
+}
