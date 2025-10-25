@@ -1,12 +1,23 @@
 /* --- Contenedor principal --- */
 .login-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;  
+  height: 100vh; 
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background-color: white;
+  background-color: #FFF1F3;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- Logo --- */
+.login-logo {
+  width: 90%; /* ajusta el tamaño según tu preferencia */
+  margin: 0 auto 10px auto;
+  display: block;
 }
 
 /* --- Notificación flotante --- */
@@ -35,7 +46,7 @@
   background-color: #f8f9fa;
   padding: 40px;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px #f7b7a3;
   width: 320px;
   text-align: center;
 }
@@ -63,7 +74,7 @@
 /* --- Botón --- */
 .login-form button {
   padding: 10px;
-  background-color: #007bff;
+  background-color: #e25b7a;
   border: none;
   border-radius: 6px;
   color: white;
@@ -73,7 +84,7 @@
 }
 
 .login-form button:hover {
-  background-color: #0056b3;
+  background-color: #d21f4d;
 }
 
 /* --- Enlaces de registro --- */
@@ -86,11 +97,27 @@
 
 .login-links a {
   text-decoration: none;
-  color: #007bff;
+  color: #d21f4d;
   font-weight: bold;
 }
 
 .login-links a:hover {
+  text-decoration: underline;
+}
+
+.forgot-password {
+  text-align: left;
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+
+.forgot-password a {
+  font-size: 0.9rem;
+  color: #d21f4d;
+  text-decoration: none;
+}
+
+.forgot-password a:hover {
   text-decoration: underline;
 }
 

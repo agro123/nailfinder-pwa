@@ -16,6 +16,13 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    if (!username || !password) {
+      setType("error");
+      setMessage("Por favor, completa todos los campos ❎");
+      setTimeout(() => setMessage(""), 2000);
+      return; 
+    }
+
     try {
       // Petición al backend
       const response = await fetch("http://localhost:3000/api/public/login", {
@@ -68,10 +75,15 @@ export default function Login() {
       )}
 
       <form className="login-form" onSubmit={handleLogin}>
+        <img
+          src="/isologo.png"   
+          alt=" Isologo NailFinder"
+          className="login-logo"
+        />
         <h2>Iniciar sesión</h2>
         <input
           type="text"
-          placeholder="Correo o Usuario"
+          placeholder="Correo electrónico"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
@@ -81,6 +93,10 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+
+        <div className="forgot-password">
+          <Link to="/recover">¿Olvidaste tu contraseña?</Link>
+        </div>
         <button type="submit">Entrar</button>
       </form>
 
@@ -92,10 +108,6 @@ export default function Login() {
         <p>
           ¿Tienes un negocio?{" "}
           <Link to="/registerB">Regístrate aquí</Link>
-        </p>
-        <p>
-          ¿Olvidaste tu contraseña?{" "}
-          <Link to="/recover">Recuperar contraseña</Link>
         </p>
       </div>
     </div>

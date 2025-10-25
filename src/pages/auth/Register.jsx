@@ -59,6 +59,11 @@ export default function Register() {
     <div className="register">
       {step === 1 && (
         <div className="step1">
+          <img
+            src="/logo.png"   
+            alt="Logo NailFinder"
+            className="register-logo"
+          />
           <h2>Crear cuenta</h2>
           <input
             type="text"

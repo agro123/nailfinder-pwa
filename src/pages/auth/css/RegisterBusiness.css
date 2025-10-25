@@ -1,12 +1,15 @@
 /* --- Contenedor principal --- */
 .register-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;  
+  height: 100vh; 
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* antes estaba 'center' */
-  min-height: 90vh; /* menos rígido que 100vh */
-  padding: 40px 0; /* deja margen arriba y abajo */
-  background-color: white;
+  justify-content: center;
+  background-color: #FFF1F3;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -18,7 +21,7 @@
   background-color: #f8f9fa;
   padding: 40px;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px #f7b7a3;
   width: 340px;
   text-align: center;
 }
@@ -43,6 +46,12 @@
 .form-box.step1 input:focus,
 .form-box.step1 select:focus {
   border-color: #007bff;
+}
+
+.registerbusiness-logo {
+  width: 15%; /* ajusta el tamaño según tu preferencia */
+  margin: 0 auto auto auto;
+  display: block;
 }
 
 /* --- Foto de perfil --- */
@@ -74,11 +83,11 @@
 }
 
 .button-group button:first-of-type {
-  background-color: #007bff;
+  background-color: #e25b7a;
 }
 
 .button-group button:first-of-type:hover {
-  background-color: #0056b3;
+  background-color: #d21f4d;
 }
 
 .button-group button:last-of-type {
