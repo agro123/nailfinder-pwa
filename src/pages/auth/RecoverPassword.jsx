@@ -13,29 +13,35 @@ export default function Login() {
   const [message, setMessage] = useState(""); // 👈 para mostrar el mensaje
   const [type, setType] = useState(""); // success | error
 
-  const handleRecover = (e) => {
+  const handleRecover = async (e) => {
     e.preventDefault();
 
     if (!email) {
-        setMessage("Por favor ingrese un correo electrónico válido.");
-        setType("error");
-        return;
+      setMessage("Por favor ingrese un correo electrónico válido.");
+      setType("error");
+      return;
     }
 
-    const user = findUserByEmail(email);
+    try {
+      const response = await fetch("http://localhost:3000/api/public/forgotPassword", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
-    if (!user) {
-        setMessage("No se encontró ninguna cuenta con ese correo.");
-        setType("error");
-    } else {
-        // Aquí podrías simular el envío de correo
-        setMessage("Se ha enviado un correo con instrucciones para restablecer la contraseña.");
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(data.message);
         setType("success");
-
-        // Simular "envío" con timeout
-        setTimeout(() => {
-        console.log(`Correo de recuperación enviado a: ${email}`);
-        }, 1000);
+      } else {
+        setMessage(data.message || "No se pudo enviar el correo.");
+        setType("error");
+      }
+    } catch (error) {
+      console.error(error);
+      setMessage("Error al conectar con el servidor.");
+      setType("error");
     }
   };
 
