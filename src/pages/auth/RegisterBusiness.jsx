@@ -1,9 +1,10 @@
 // src/pages/auth/RegisterBusiness.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AddressList from "./AddressList";
 import AddressMap from "./AddressMap";
 import "./css/RegisterBusiness.css";
+import AddressList from "./AddressList";
+import BusinessLocation from "./BusinessLocation";
 
 export default function RegisterBusiness() {
   const navigate = useNavigate();
@@ -18,6 +19,8 @@ export default function RegisterBusiness() {
     nit: "",
     password: "",
     phone: "",
+    address: "",
+    companytype: "", 
     profilePhoto: null,
     profilePreview: null,
   });
@@ -41,24 +44,31 @@ export default function RegisterBusiness() {
     reader.readAsDataURL(file);
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+  const validateStep1 = () => {
+        if (
+          !formData.name.trim() ||
+          !formData.email.trim() ||
+          !formData.password.trim() ||
+          !formData.phone.trim()
+        ) {
+          setType("error");
+          setMessage("⚠️ Completa todos los campos obligatorios.");
+          setTimeout(() => setMessage(""), 2500);
+          setLoading(false);
+          return false; 
+        }
+
+        return true; 
+      };
+
+  const handleRegister = async (dataToSend = formData) => {
     setLoading(true);
-
     try {
-      // Validar datos mínimos
-      if (!formData.name || !formData.email || !formData.password || !formData.phone) {
-        setType("error");
-        setMessage("⚠️ Completa todos los campos obligatorios.");
-        setTimeout(() => setMessage(""), 2500);
-        setLoading(false);
-        return;
-      }
-
+      
       const response = await fetch("http://localhost:3000/api/public/signupCompany", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       });
 
       const result = await response.json();
@@ -69,9 +79,7 @@ export default function RegisterBusiness() {
 
       setType("success");
       setMessage("✅ Registro completado con éxito.");
-      navigate("/login")
       setTimeout(() => {
-        setMessage("");
         navigate("/login");
       }, 2000);
     } catch (error) {
@@ -83,6 +91,7 @@ export default function RegisterBusiness() {
       setLoading(false);
     }
   };
+
   
   const cancelar = () => {
     navigate("/login");
@@ -98,6 +107,11 @@ export default function RegisterBusiness() {
             className="registerbusiness-logo"
           />
           <h2 className="form-title">Registro de Manicurista</h2>
+          {message && (
+            <div className={`notification ${type === "error" ? "error" : ""}`}>
+              {message}
+            </div>
+          )}
 
           <input
             type="text"
@@ -167,9 +181,16 @@ export default function RegisterBusiness() {
           </div>
 
           <div className="button-group">
-            <button className="form-button" onClick={handleRegister}>
+          <button
+              className="form-button"
+              onClick={() => {
+                if (validateStep1()) {
+                  nextStep();
+                }
+              }}
+            >
               Continuar
-            </button> {/* Cambiado de nextStep a handleRegister */}
+            </button>
             <button className="form-button cancel" onClick={cancelar}>
               Volver
             </button>
@@ -177,40 +198,27 @@ export default function RegisterBusiness() {
         </div>
       )}
 
-      {/* {step === 2 && (
+      {step === 2 && (
         <div className="form-box step2">
-          <h2 className="form-title">Configurar negocio</h2>
+          <BusinessLocation
+            onNext={(data) => {
+              // data contiene companytype y address
+              const updatedData = {
+                ...formData,
+                companytype: data.companytype,
+                address: data.address,
+              };
 
-          <input
-            type="text"
-            placeholder="Nombre del negocio"
-            value={formData.businessName}
-            onChange={(e) =>
-              setFormData({ ...formData, businessName: e.target.value })
-            }
-            className="form-input"
-          />
-
-          <input
-            type="text"
-            placeholder="Número de NIT"
-            value={formData.nit}
-            onChange={(e) => setFormData({ ...formData, nit: e.target.value })}
-            className="form-input"
-          />
-
-          <AddressList
-            onSelect={(address) => {
-              setFormData({ ...formData, address });
-              nextStep();
+              setFormData(updatedData);
+              handleRegister(updatedData); // <-- enviamos todo al backend
             }}
             onBack={prevStep}
           />
         </div>
       )}
-
+      {/*
       {step === 3 && (
-        <div >
+        <div>
           <AddressMap
             address={formData.address}
             onConfirm={(finalAddress) => {
@@ -220,7 +228,7 @@ export default function RegisterBusiness() {
             onBack={prevStep}
           />
         </div>
-      )} */}
+      )}  */}
     </div>
   );
 }

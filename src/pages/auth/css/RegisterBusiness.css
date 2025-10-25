@@ -24,6 +24,7 @@
   box-shadow: 0 4px 10px #f7b7a3;
   width: 340px;
   text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .form-box.step1 h2 {
