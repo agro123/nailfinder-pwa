@@ -8,6 +8,7 @@ import PublicRoute from './routes/PublicRoute'
 import Register from './pages/auth/Register'
 import RegisterB from './pages/auth/RegisterBusiness'
 import Recover from './pages/auth/RecoverPassword'
+import ResetPassword from './pages/auth/ResetPassword'
 
 export default function App() {
   const [deferredPrompt, setDeferredPrompt] = useState(null)
@@ -49,6 +50,7 @@ export default function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/registerB" element={<RegisterB />} />
             <Route path="/recover" element={<Recover />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
           </Route>
 
           {/* Protected routes: require auth */}
