@@ -45,21 +45,20 @@ export default function RegisterBusiness() {
   };
 
   const validateStep1 = () => {
-        if (
-          !formData.name.trim() ||
-          !formData.email.trim() ||
-          !formData.password.trim() ||
-          !formData.phone.trim()
-        ) {
-          setType("error");
-          setMessage("⚠️ Completa todos los campos obligatorios.");
-          setTimeout(() => setMessage(""), 2500);
-          setLoading(false);
-          return false; 
-        }
+    if (
+      !formData.name.trim() ||
+      !formData.email.trim() ||
+      !formData.password.trim() ||
+      !formData.phone.trim()
+    ) {
+      setType("error");
+      setMessage("⚠️ Completa todos los campos obligatorios.");
+      setTimeout(() => setMessage(""), 2500);
+      return false; 
+    }
 
-        return true; 
-      };
+    return true; 
+  };
 
   const handleRegister = async (dataToSend = formData) => {
     setLoading(true);
@@ -213,6 +212,10 @@ export default function RegisterBusiness() {
               handleRegister(updatedData); // <-- enviamos todo al backend
             }}
             onBack={prevStep}
+            setType={setType}
+            setMessage={setMessage}
+            message={message}     
+            type={type}           
           />
         </div>
       )}

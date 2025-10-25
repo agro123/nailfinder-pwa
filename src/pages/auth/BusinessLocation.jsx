@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import "./css/BusinessLocation.css";
 
-export default function BusinessLocation({ onNext, onBack }) {
+export default function BusinessLocation({ onNext, onBack, setMessage, setType, message, type }) {
   const [mode, setMode] = useState("local");
   const [address, setAddress] = useState("");
 
   const handleNext = () => {
     if (!address.trim()) {
-      alert("Por favor, ingresa la dirección del negocio");
+      if (setType) setType("error");
+      if (setMessage) setMessage("⚠️ Ingresa la dirección del negocio.");
+      if (setMessage) setTimeout(() => setMessage(""), 2500); 
       return;
     }
     if (onNext) {
@@ -22,6 +24,12 @@ export default function BusinessLocation({ onNext, onBack }) {
   return (
     <div className="business-container">
       <h2 className="business-title">Ubicación del negocio</h2>
+      {message && (
+        <div className={`notification ${type === "error" ? "error" : ""}`}>
+            {message}
+        </div>
+    )}
+
       <p className="business-subtitle">
         Selecciona la manera en la que sueles trabajar
       </p>
