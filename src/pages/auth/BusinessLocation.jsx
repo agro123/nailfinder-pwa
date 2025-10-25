@@ -7,7 +7,9 @@ export default function BusinessLocation({ onNext, onBack }) {
 
   const handleNext = () => {
     if (!address.trim()) {
-      alert("Por favor, ingresa la dirección del negocio");
+      if (setType) setType("error");
+      if (setMessage) setMessage("⚠️ Ingresa la dirección del negocio.");
+      setTimeout(() => setMessage(""), 2500);
       return;
     }
     if (onNext) {
