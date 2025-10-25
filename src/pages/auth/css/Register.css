@@ -123,3 +123,212 @@
 .register button.back:hover {
   background-color: #565e64;
 }
+
+/* =========================================================
+   MEDIA QUERIES 
+   ========================================================= */
+
+/* --- Pantallas grandes (1920px o más) --- */
+@media screen and (min-width: 1920px) {
+  .register {
+    padding: 60px;
+  }
+
+  .step1,
+  .register .step2,
+  .register .step3 {
+    width: 450px;
+    padding: 60px;
+    border-radius: 16px;
+  }
+
+  .step1 h2 {
+    font-size: 1.8rem;
+  }
+
+  .step1 input,
+  .step1 select,
+  .step1 button,
+  .register button {
+    font-size: 1.1rem;
+    padding: 12px;
+  }
+
+  .register-logo {
+    width: 80px;               /* 🔧 Más pequeño */
+    margin-bottom: 15px;
+  }
+}
+
+/* --- Pantallas medianas (laptops, 1024px a 1919px) --- */
+@media screen and (min-width: 1024px) and (max-width: 1919px) {
+  .step1,
+  .register .step2,
+  .register .step3 {
+    width: 380px;
+    padding: 50px;
+  }
+
+  .register-logo {
+    width: 70px;               /* 🔧 Más pequeño */
+  }
+}
+
+/* --- Tablets (768px a 1023px) --- */
+@media screen and (min-width: 768px) and (max-width: 1023px) {
+  .register {
+    padding: 40px;
+    justify-content: center;
+  }
+
+  .step1,
+  .register .step2,
+  .register .step3 {
+    width: 80%;
+    max-width: 420px;
+    padding: 40px;
+  }
+
+  .register-logo {
+    width: 65px;               /* 🔧 Más pequeño */
+    margin-bottom: 12px;
+  }
+
+  .step1 h2 {
+    font-size: 1.4rem;
+  }
+}
+
+/* --- Celulares (menos de 768px) --- */
+@media screen and (max-width: 767px) {
+  .register {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .step1,
+  .register .step2,
+  .register .step3 {
+    width: 88%;                
+    max-width: 340px;          
+    padding: 18px 16px;        
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    margin: 0 auto;
+    gap: 10px;                 
+  }
+
+  .register-logo {
+    width: 55px;               /* 🔧 Más pequeño */
+    margin: 0 auto 8px auto;
+    display: block;
+  }
+
+  .step1 h2 {
+    font-size: 1.1rem;         
+    margin-bottom: 12px;       
+  }
+
+  .step1 input,
+  .step1 select {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+
+  .step1 button,
+  .register button {
+    font-size: 0.9rem;
+    padding: 9px;
+    margin-top: 10px;          
+  }
+}
+
+/* --- Dispositivos muy anchos y bajos (landscape, plegables, horizontales) --- */
+@media screen and (max-height: 450px) {
+  .register {
+    flex-direction: column;           
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 5px 10px;                
+    overflow-y: auto;                 
+  }
+
+  .step1,
+  .register .step2,
+  .register .step3 {
+    width: 85%;                       
+    max-width: 480px;                 
+    padding: 8px 20px;                
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    gap: 5px;                         
+  }
+
+  .register-logo {
+    width: 35px;               /* 🔧 Muy pequeño en landscape */
+    margin: 0 auto 3px auto;   
+  }
+
+  .step1 h2 {
+    font-size: 0.9rem;
+    margin-bottom: 4px;        
+    line-height: 1.2;
+  }
+
+  .step1 input,
+  .step1 select {
+    font-size: 0.8rem;
+    padding: 5px 8px;          
+  }
+
+  .step1 button,
+  .register button {
+    font-size: 0.8rem;
+    padding: 6px 10px;         
+    margin-top: 5px;
+  }
+}
+
+/* --- Dispositivos extremadamente bajos (menos de 400px de alto) --- */
+@media screen and (max-height: 400px) {
+  .register {
+    padding: 3px 10px;
+  }
+
+  .step1,
+  .register .step2,
+  .register .step3 {
+    padding: 5px 18px;
+    gap: 4px !important;
+    max-width: 520px;          
+  }
+
+  .register-logo {
+    width: 30px;               /* 🔧 Mínimo */
+    margin-bottom: 2px;
+  }
+
+  .step1 h2 {
+    font-size: 0.85rem;
+    margin-bottom: 3px;
+  }
+
+  .step1 input,
+  .step1 select,
+  .step1 button,
+  .register button {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+  }
+
+  .register button {
+    margin-top: 3px;
+  }
+}

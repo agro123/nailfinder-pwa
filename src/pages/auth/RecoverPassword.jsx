@@ -1,4 +1,4 @@
-// src/pages/auth/Login.jsx
+
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
@@ -62,7 +62,7 @@ export default function Login() {
         <img
             src="/logo.png"   
             alt="Logo NailFinder"
-            className="recover-logo"
+            className="register-logo"
           />
         <h2>Recuperar contraseña</h2>
         <p>Podemos ayudarte a restablecer tu contraseña y la información de seguridad.</p>
