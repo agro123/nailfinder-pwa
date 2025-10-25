@@ -214,6 +214,8 @@ export default function RegisterBusiness() {
             onBack={prevStep}
             setType={setType}
             setMessage={setMessage}
+            message={message}     
+            type={type}           
           />
         </div>
       )}
