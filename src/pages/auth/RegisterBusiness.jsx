@@ -92,6 +92,11 @@ export default function RegisterBusiness() {
     <div className="register-container">
       {step === 1 && (
         <div className="form-box step1">
+          <img
+            src="/logo.png"   
+            alt="Logo NailFinder"
+            className="registerbusiness-logo"
+          />
           <h2 className="form-title">Registro de Manicurista</h2>
 
           <input

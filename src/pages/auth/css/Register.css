@@ -1,12 +1,23 @@
 /* --- Contenedor principal --- */
 .register {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;  
+  height: 100vh; 
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background-color: white;
+  background-color: #FFF1F3;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- Logo --- */
+.register-logo {
+  width: 15%; /* ajusta el tamaño según tu preferencia */
+  margin: 0 auto auto auto;
+  display: block;
 }
 
 /* --- Paso 1: formulario --- */
@@ -17,7 +28,7 @@
   background-color: #f8f9fa;
   padding: 40px;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px #f7b7a3;
   width: 340px;
   text-align: center;
 }
@@ -56,11 +67,11 @@
 
 /* Botón primario */
 .step1 button:first-of-type {
-  background-color: #007bff;
+  background-color: #e25b7a;
 }
 
 .step1 button:first-of-type:hover {
-  background-color: #0056b3;
+  background-color: #d21f4d;
 }
 
 /* Botón secundario (cancelar o volver) */

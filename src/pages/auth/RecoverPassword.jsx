@@ -53,6 +53,11 @@ export default function Login() {
       )}
 
       <form className="recover-form" onSubmit={handleRecover}>
+        <img
+            src="/logo.png"   
+            alt="Logo NailFinder"
+            className="recover-logo"
+          />
         <h2>Recuperar contraseña</h2>
         <p>Podemos ayudarte a restablecer tu contraseña y la información de seguridad.</p>
         <input
@@ -61,8 +66,10 @@ export default function Login() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <button type="submit">Enviar</button>
-        <button onClick={cancelar}>Volver</button>
+        <button className="enviar-recover" type="submit">Enviar</button>
+        <button className="volver-recover" onClick={cancelar}>
+          Volver
+        </button>
       </form>
     </div>
   );
