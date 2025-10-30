@@ -1,0 +1,60 @@
+.servicios-container {
+  padding: 20px;
+  background-color: #fafafa;
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+}
+
+.servicios-title {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.servicios-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.servicio-card {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 12px 16px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.servicio-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.servicio-imagen {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-right: 16px;
+}
+
+.servicio-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.servicio-nombre {
+  font-size: 1.1rem;
+  color: #222;
+  margin-bottom: 6px;
+}
+
+.servicio-precio {
+  font-size: 0.95rem;
+  color: #666;
+}

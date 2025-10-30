@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import { Routes, Route, Link } from 'react-router-dom'
-import Home from './pages/home/Home'
-import Other from './pages/home/Other'
+import { Routes, Route, useLocation } from 'react-router-dom'
+import FooterNav from './pages/footer/Footer'
+import { useAuth } from './context/AuthContext'
+/* Business */
+import HomeBusines from './pages/home/homeBusiness/Home'
+import CitasBusiness from './pages/home/homeBusiness/Citas'
+import ClienteBusiness from './pages/home/homeBusiness/Clientes'
+import ServiciosBusiness from './pages/home/homeBusiness/Servicios'
+import Other from './pages/home/homeBusiness/Other'
+/* Auth */
 import Login from './pages/auth/Login'
 import ProtectedRoute from './routes/ProtectedRoute'
 import PublicRoute from './routes/PublicRoute'
@@ -10,9 +17,12 @@ import RegisterB from './pages/auth/RegisterBusiness'
 import Recover from './pages/auth/RecoverPassword'
 import ResetPassword from './pages/auth/ResetPassword'
 
+
 export default function App() {
   const [deferredPrompt, setDeferredPrompt] = useState(null)
   const [installed, setInstalled] = useState(false)
+  const { token } = useAuth() // 👈 Obtenemos el token del contexto
+  const location = useLocation() // 👈 Para saber en qué ruta estamos
 
   useEffect(() => {
     function handler(e) {
@@ -33,6 +43,9 @@ export default function App() {
     setDeferredPrompt(null)
     if (choice.outcome === 'accepted') setInstalled(true)
   }
+
+  const hideFooterRoutes = ['/login', '/register', '/registerB', '/recover', '/reset-password']
+  const shouldShowFooter = token && !hideFooterRoutes.some(r => location.pathname.startsWith(r))
 
   return (
     <div className="app">
@@ -55,14 +68,18 @@ export default function App() {
 
           {/* Protected routes: require auth */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<HomeBusines />} />
+            <Route path="/citas" element={<CitasBusiness />} />
+            <Route path="/clientes" element={<ClienteBusiness />} />
+            <Route path="/servicios" element={<ServiciosBusiness />} />
             <Route path="/other" element={<Other />} />
           </Route>
-
+          
           {/* Fallback */}
           <Route path="*" element={<div>404 - Not found</div>} />
         </Routes>
       </main>
+      {shouldShowFooter && <FooterNav />}
     </div>
   )
 }
