@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import { Routes, Route, Link } from 'react-router-dom'
-import Home from './pages/home/Home'
-import Other from './pages/home/Other'
+import { Routes, Route, useLocation } from 'react-router-dom'
+import FooterNav from './pages/footer/Footer'
+import { useAuth } from './context/AuthContext'
+/* Business */
+import SettingsBusines from './pages/home/homeBusiness/Settings'
+import CitasBusiness from './pages/home/homeBusiness/Citas'
+import ClienteBusiness from './pages/home/homeBusiness/Clientes'
+import ServiciosBusiness from './pages/home/homeBusiness/Servicios'
+/*Client*/
+import HomeClient from './pages/home/homeClient/Home'
+import HomeOther from './pages/home/homeClient/Other'
+/* Auth */
 import Login from './pages/auth/Login'
 import ProtectedRoute from './routes/ProtectedRoute'
 import PublicRoute from './routes/PublicRoute'
@@ -10,9 +19,12 @@ import RegisterB from './pages/auth/RegisterBusiness'
 import Recover from './pages/auth/RecoverPassword'
 import ResetPassword from './pages/auth/ResetPassword'
 
+
 export default function App() {
   const [deferredPrompt, setDeferredPrompt] = useState(null)
   const [installed, setInstalled] = useState(false)
+  const { token } = useAuth() // 👈 Obtenemos el token del contexto
+  const location = useLocation() // 👈 Para saber en qué ruta estamos
 
   useEffect(() => {
     function handler(e) {
@@ -33,6 +45,11 @@ export default function App() {
     setDeferredPrompt(null)
     if (choice.outcome === 'accepted') setInstalled(true)
   }
+
+  const hideFooterRoutes = ['/login', '/register', '/registerB', '/recover', '/reset-password', '/', '/other']
+  const businessRoutes = ['/settings', '/citas', '/clientes', '/servicios']
+
+  const shouldShowFooter = token && businessRoutes.some(r => location.pathname.startsWith(r))
 
   return (
     <div className="app">
@@ -55,14 +72,21 @@ export default function App() {
 
           {/* Protected routes: require auth */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/other" element={<Other />} />
+            {/* Business */}
+            <Route path="/settings" element={<SettingsBusines />} />
+            <Route path="/citas" element={<CitasBusiness />} />
+            <Route path="/clientes" element={<ClienteBusiness />} />
+            <Route path="/servicios" element={<ServiciosBusiness />} />
+            {/* Client */}
+            <Route path="/" element={<HomeClient />} />
+            <Route path="/other" element={<HomeOther />} />
           </Route>
-
+          
           {/* Fallback */}
           <Route path="*" element={<div>404 - Not found</div>} />
         </Routes>
       </main>
+      {shouldShowFooter && <FooterNav />}
     </div>
   )
 }

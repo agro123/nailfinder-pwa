@@ -1,0 +1,175 @@
+/* --- Contenedor general --- */
+.clientes-container {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  padding: 80px 20px 100px; /* espacio para header y footer */
+  box-sizing: border-box;
+}
+
+/* --- Barra de búsqueda --- */
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 1rem;
+  margin-left: 8px;
+  color: #333;
+  background: transparent;
+}
+
+.search-bar input::placeholder {
+  color: #888;
+}
+
+/* Título */
+.clientes-container h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+/* --- Lista de clientes --- */
+.clientes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
+
+/* --- Cada cliente como fila --- */
+.cliente-item {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cliente-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Imagen del cliente --- */
+.cliente-foto {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 14px;
+  border: 3px solid #007bff20;
+}
+
+/* --- Información del cliente --- */
+.cliente-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cliente-nombre {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 4px;
+}
+
+.cliente-detalles {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* --- Botón Ver perfil --- */
+.cliente-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.cliente-btn:hover {
+  background-color: #005fcc;
+}
+
+.cliente-btn:active {
+  transform: scale(0.96);
+}
+
+/* === BOTÓN FLOTANTE === */
+.floating-add-btn {
+  position: fixed;
+  bottom: 80px;
+  right: 25px;
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  background-color: #7b4efb;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.floating-add-btn:hover {
+  background-color: #5a36d6;
+  transform: scale(1.05);
+}
+
+/* --- Sin resultados --- */
+.no-results {
+  text-align: center;
+  color: #777;
+  font-size: 1rem;
+  margin-top: 20px;
+}
+
+/* --- Responsivo --- */
+@media (max-width: 600px) {
+  .cliente-item {
+    padding: 10px 12px;
+  }
+
+  .cliente-foto {
+    width: 55px;
+    height: 55px;
+  }
+
+  .cliente-nombre {
+    font-size: 1rem;
+  }
+
+  .cliente-btn {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+}

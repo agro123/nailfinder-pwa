@@ -1,0 +1,201 @@
+.settings-container {
+  background-color: #f9fafb;
+  min-height: 100vh;
+  padding: 20px;
+  padding-bottom: 100px; /* espacio para footer */
+  font-family: 'Inter', sans-serif;
+}
+
+/* --- Header --- */
+.settings-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.settings-header h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #111;
+}
+
+/* --- Perfil --- */
+.profile-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.profile-avatar {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  background-color: #e3e7ff;
+  color: #5a36d6;
+  font-weight: 600;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-info h3 {
+  font-size: 1rem;
+  color: #111;
+  margin-bottom: 4px;
+}
+
+.profile-info p {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.edit-btn {
+  margin-left: auto;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 20px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.2s ease;
+}
+
+.edit-btn:hover {
+  background: #f3f3f3;
+}
+
+/* --- Cuadrícula de opciones --- */
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.grid-item {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 0;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #333;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.grid-item:hover {
+  background: #f1f0ff;
+}
+
+/* --- Historial --- */
+.history-btn {
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+/* --- Notificaciones --- */
+.notifications-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.notif-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.notif-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid #eee;
+}
+
+.notif-item:first-of-type {
+  border-top: none;
+}
+
+/* --- Switch --- */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 22px;
+  transition: 0.4s;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #7b4efb;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* --- Logout --- */
+.logout-btn {
+  width: 100%;
+  background: #f54b4b;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 24px;
+}
+
+.logout-btn:hover {
+  background: #d93f3f;
+}
