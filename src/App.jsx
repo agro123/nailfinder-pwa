@@ -3,11 +3,13 @@ import { Routes, Route, useLocation } from 'react-router-dom'
 import FooterNav from './pages/footer/Footer'
 import { useAuth } from './context/AuthContext'
 /* Business */
-import HomeBusines from './pages/home/homeBusiness/Home'
+import SettingsBusines from './pages/home/homeBusiness/Settings'
 import CitasBusiness from './pages/home/homeBusiness/Citas'
 import ClienteBusiness from './pages/home/homeBusiness/Clientes'
 import ServiciosBusiness from './pages/home/homeBusiness/Servicios'
-import Other from './pages/home/homeBusiness/Other'
+/*Client*/
+import HomeClient from './pages/home/homeClient/Home'
+import HomeOther from './pages/home/homeClient/Other'
 /* Auth */
 import Login from './pages/auth/Login'
 import ProtectedRoute from './routes/ProtectedRoute'
@@ -44,8 +46,10 @@ export default function App() {
     if (choice.outcome === 'accepted') setInstalled(true)
   }
 
-  const hideFooterRoutes = ['/login', '/register', '/registerB', '/recover', '/reset-password']
-  const shouldShowFooter = token && !hideFooterRoutes.some(r => location.pathname.startsWith(r))
+  const hideFooterRoutes = ['/login', '/register', '/registerB', '/recover', '/reset-password', '/', '/other']
+  const businessRoutes = ['/settings', '/citas', '/clientes', '/servicios']
+
+  const shouldShowFooter = token && businessRoutes.some(r => location.pathname.startsWith(r))
 
   return (
     <div className="app">
@@ -68,11 +72,14 @@ export default function App() {
 
           {/* Protected routes: require auth */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<HomeBusines />} />
+            {/* Business */}
+            <Route path="/settings" element={<SettingsBusines />} />
             <Route path="/citas" element={<CitasBusiness />} />
             <Route path="/clientes" element={<ClienteBusiness />} />
             <Route path="/servicios" element={<ServiciosBusiness />} />
-            <Route path="/other" element={<Other />} />
+            {/* Client */}
+            <Route path="/" element={<HomeClient />} />
+            <Route path="/other" element={<HomeOther />} />
           </Route>
           
           {/* Fallback */}

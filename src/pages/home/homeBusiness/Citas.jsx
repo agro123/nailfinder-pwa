@@ -5,78 +5,71 @@ import './css/Citas.css'
 
 export default function Citas() {
   const [date, setDate] = useState(new Date())
-  const [viewMode, setViewMode] = useState('calendar') // "calendar" | "day"
 
-  // Citas de ejemplo
-  const [citas, setCitas] = useState([
-    { fecha: '2025-10-31', hora: '10:00', cliente: 'Ana Torres' },
-    { fecha: '2025-10-31', hora: '14:00', cliente: 'Carlos Gómez' },
-    { fecha: '2025-11-01', hora: '09:30', cliente: 'Lucía Fernández' }
-  ])
+  // Datos de ejemplo
+  const citas = [
+    { id: 1, fecha: '2025-10-31', hora: '8:15', cliente: 'Laura Patricia Quintero', servicio: 'Corte y cepillado' },
+    { id: 2, fecha: '2025-10-31', hora: '14:00', cliente: 'Javier Montoya', servicio: 'Masaje relajante' },
+    { id: 3, fecha: '2025-11-01', hora: '9:30', cliente: 'Lucía Fernández', servicio: 'Manicure' },
+  ]
 
-  // Fecha actual seleccionada (YYYY-MM-DD)
+  // Fecha seleccionada formateada
   const fechaSeleccionada = date.toISOString().split('T')[0]
   const citasDia = citas.filter(c => c.fecha === fechaSeleccionada)
 
-  // Horas del día (de 8:00 a 20:00)
-  const horas = Array.from({ length: 13 }, (_, i) => `${8 + i}:00`)
-
   return (
     <div className="citas-page">
-      <h2>Agenda de Citas</h2>
+      {/* Encabezado */}
+      <header className="citas-header">
+        <h2>Agenda</h2>
+      </header>
 
-      {/* Selector de modo de vista */}
-      <div className="view-toggle">
-        <button
-          className={viewMode === 'calendar' ? 'active' : ''}
-          onClick={() => setViewMode('calendar')}
-        >
-          📅 Calendario
-        </button>
-        <button
-          className={viewMode === 'day' ? 'active' : ''}
-          onClick={() => setViewMode('day')}
-        >
-          ⏰ Día
-        </button>
+      {/* Calendario mensual */}
+      <div className="calendar-wrapper">
+        <Calendar
+          onChange={setDate}
+          value={date}
+          locale="es-ES"
+          className="custom-calendar"
+          tileClassName={({ date }) => {
+            const fecha = date.toISOString().split('T')[0]
+            return citas.some(c => c.fecha === fecha) ? 'has-cita' : null
+          }}
+        />
       </div>
 
-      {/* Vista de calendario */}
-      {viewMode === 'calendar' && (
-        <div className="calendar-container">
-          <Calendar onChange={setDate} value={date} />
-        </div>
-      )}
+      {/* Citas del día */}
+      <section className="day-agenda">
+        <h3>
+          {date.toLocaleDateString('es-ES', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+          })}
+        </h3>
 
-      {/* Vista diaria */}
-      {viewMode === 'day' && (
-        <div className="day-view">
-          <h3>{date.toLocaleDateString()}</h3>
-          <div className="hours-grid">
-            {horas.map((h, i) => {
-              const cita = citasDia.find(c => c.hora === h)
-              return (
-                <div key={i} className={`hour-block ${cita ? 'busy' : ''}`}>
-                  <span className="hour-label">{h}</span>
-                  {cita ? (
-                    <div className="cita">
-                      <strong>{cita.cliente}</strong>
-                      <small>{cita.hora}</small>
-                    </div>
-                  ) : (
-                    <button
-                      className="add-btn"
-                      onClick={() => alert(`Agregar cita a las ${h}`)}
-                    >
-                      + Agendar
-                    </button>
-                  )}
-                </div>
-              )
-            })}
+        {citasDia.length > 0 ? (
+          citasDia.map(cita => (
+            <div key={cita.id} className="cita-card">
+              <div className="cita-hora">{cita.hora}</div>
+              <div className="cita-info">
+                <strong>{cita.cliente}</strong>
+                <p>{cita.servicio}</p>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="sin-citas">
+            <p>No hay citas para este día</p>
+            <button className="add-btn">+ Agendar cita</button>
           </div>
-        </div>
-      )}
+        )}
+      </section>
+
+      {/* Botón flotante */}
+      <button className="boton-flotante" onClick={() => alert('Nueva cita')}>
+        +
+      </button>
     </div>
   )
 }
