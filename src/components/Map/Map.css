@@ -1,0 +1,42 @@
+.custom-marker-icon-container .custom-marker-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    width: 30px;
+    height: 42px;
+  }
+  
+  .custom-marker-icon-container .custom-marker {
+    width: 24px;
+    height: 24px;
+    border-radius: 50% 50% 50% 0;
+    background-color: #007bff;
+    position: absolute;
+    transform: rotate(-45deg);
+    border: 2px solid #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .custom-marker-icon-container .custom-marker::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background-color: #ffffff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(45deg);
+    border-radius: 50%;
+  }
+  
+  .leaflet-popup-content-wrapper {
+    border-radius: 8px;
+  }
+  
+  .leaflet-popup-content {
+    margin: 13px 19px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  

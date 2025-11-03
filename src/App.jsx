@@ -20,6 +20,7 @@ import Register from './pages/auth/Register'
 import RegisterB from './pages/auth/RegisterBusiness'
 import Recover from './pages/auth/RecoverPassword'
 import ResetPassword from './pages/auth/ResetPassword'
+import ExampleMap from './pages/example/ExampleMap'
 
 
 
@@ -76,6 +77,7 @@ export default function App() {
             <Route path="/registerB" element={<RegisterB />} />
             <Route path="/recover" element={<Recover />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/exampleMap" element={<ExampleMap />} />
           </Route>
 
           {/* Protected routes: require auth */}
