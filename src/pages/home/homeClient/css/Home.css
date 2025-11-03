@@ -1,140 +1,145 @@
-/* Estilos generales */
 .home-container {
+  font-family: 'Poppins', sans-serif;
+  background-color: #fff;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f8f9fa;
-  color: #333;
+  padding-bottom: 70px;
 }
 
-/* Contenido principal */
-.main-content {
-  flex: 1;
-  padding: 24px;
-  text-align: center;
-}
-
-.title {
-  font-size: 28px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.description {
-  color: #555;
-  margin-bottom: 24px;
-}
-
-/* Caja del contador */
-.counter-box {
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 16px;
-  display: inline-block;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.subtitle {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-.counter-value {
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-
-/* Botones principales */
-.button-group {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-}
-
-.btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.btn.red {
-  background-color: #e74c3c;
-}
-.btn.red:hover {
-  background-color: #c0392b;
-}
-
-.btn.green {
-  background-color: #27ae60;
-}
-.btn.green:hover {
-  background-color: #1e8449;
-}
-
-.btn.blue {
-  background-color: #3498db;
-}
-.btn.blue:hover {
-  background-color: #2e86c1;
-}
-
-.btn.purple {
-  background-color: #9b59b6;
-  margin-top: 16px;
-}
-.btn.purple:hover {
-  background-color: #884ea0;
-}
-
-/* Links */
-.links {
-  margin-top: 20px;
-}
-
-.link {
-  color: #2980b9;
-  text-decoration: none;
-}
-.link:hover {
-  text-decoration: underline;
-}
-
-/* Footer */
-.footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: #fff;
-  border-top: 1px solid #ddd;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
-}
-
-.footer-btn {
-  background: none;
-  border: none;
-  color: #555;
-  font-size: 18px;
-  cursor: pointer;
+/* Header */
+.header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: color 0.2s ease;
+  padding: 16px;
 }
 
-.footer-btn:hover {
-  color: #007bff;
+.logo {
+  font-weight: 600;
+  font-size: 20px;
+  color: #0bb397;
+  margin-bottom: 8px;
 }
 
-.footer-btn span {
+.search-input {
+  width: 100%;
+  max-width: 420px;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 15px;
+  background-color: #f9f9f9;
+}
+
+/* Filtros */
+.filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 16px 12px;
+}
+
+.filter-btn {
+  background-color: #e9f6f4;
+  color: #00a890;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-weight: 500;
+  flex-shrink: 0;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.filter-btn:hover {
+  background-color: #d9f1ed;
+}
+
+/* Secciones */
+.section {
+  padding: 0 16px;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* Emoji genérico (sustituto de imagen) */
+.emoji-box {
+  font-size: 60px;
+  text-align: center;
+  background: #e9f6f4;
+  border-radius: 16px;
+  width: 100%;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.emoji-box.small {
+  font-size: 40px;
+  height: 100px;
+}
+
+.highlight-card {
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.highlight-info {
+  padding: 10px;
+}
+
+.highlight-info h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Recomendados */
+.recommended-list {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+}
+
+.recommended-card {
+  flex: 0 0 auto;
+  width: 160px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.recommended-card:hover {
+  transform: scale(1.03);
+}
+
+.recommended-card h4 {
+  font-size: 14px;
+  margin: 6px 10px 0;
+  color: #333;
+}
+
+.recommended-card p {
   font-size: 12px;
-  margin-top: 4px;
+  color: #777;
+  margin: 4px 10px 10px;
 }
+
+
+

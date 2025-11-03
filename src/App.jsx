@@ -8,8 +8,10 @@ import CitasBusiness from './pages/home/homeBusiness/Citas'
 import ClienteBusiness from './pages/home/homeBusiness/Clientes'
 import ServiciosBusiness from './pages/home/homeBusiness/Servicios'
 /*Client*/
-import HomeClient from './pages/home/homeClient/Home'
+import Home from './pages/home/homeClient/Home'
 import HomeOther from './pages/home/homeClient/Other'
+import CitasUsuario from './pages/home/homeClient/CitasUsuario'
+import PerfilUsuario from './pages/home/homeClient/PerfilUsuario'
 /* Auth */
 import Login from './pages/auth/Login'
 import ProtectedRoute from './routes/ProtectedRoute'
@@ -18,6 +20,7 @@ import Register from './pages/auth/Register'
 import RegisterB from './pages/auth/RegisterBusiness'
 import Recover from './pages/auth/RecoverPassword'
 import ResetPassword from './pages/auth/ResetPassword'
+
 
 
 export default function App() {
@@ -48,8 +51,13 @@ export default function App() {
 
   const hideFooterRoutes = ['/login', '/register', '/registerB', '/recover', '/reset-password', '/', '/other']
   const businessRoutes = ['/settings', '/citas', '/clientes', '/servicios']
+  const clientRoutes = ['/home', '/citasusuario', '/perfilusuario']
 
-  const shouldShowFooter = token && businessRoutes.some(r => location.pathname.startsWith(r))
+  //const shouldShowFooter = token && businessRoutes.some(r => location.pathname.startsWith(r))
+
+  const shouldShowFooterBusiness = token && businessRoutes.includes(location.pathname)
+  const shouldShowFooterClient = token && clientRoutes.includes(location.pathname)
+
 
   return (
     <div className="app">
@@ -78,15 +86,21 @@ export default function App() {
             <Route path="/clientes" element={<ClienteBusiness />} />
             <Route path="/servicios" element={<ServiciosBusiness />} />
             {/* Client */}
-            <Route path="/" element={<HomeClient />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/other" element={<HomeOther />} />
+            <Route path="/perfilusuario" element={<PerfilUsuario />} />
+            <Route path="/citasusuario" element={<CitasUsuario />} /> 
           </Route>
           
           {/* Fallback */}
           <Route path="*" element={<div>404 - Not found</div>} />
         </Routes>
       </main>
-      {shouldShowFooter && <FooterNav />}
+      {/* Footers */}
+      {/* {shouldShowFooter && <FooterNav />} */}
+      {shouldShowFooterBusiness && <FooterNav tipo="business" />}
+      {shouldShowFooterClient && <FooterNav tipo="client" />}
+
     </div>
   )
 }

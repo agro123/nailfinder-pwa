@@ -1,33 +1,92 @@
-import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '../../../redux/hooks'
-import { increment, decrement, incrementByAmount } from '../../../redux/slices/counterSlice'
-import './css/Home.css' // 👈 Importamos los estilos
+import React, { useState } from "react";
+import "./css/Home.css";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Home() {
-  const navigate = useNavigate()
-  const dispatch = useAppDispatch()
-  const count = useAppSelector((state) => state.counter.value)
+  const navigate = useNavigate();
+  const [search, setSearch] = useState("");
 
-  const goToOther = () => {
-    navigate('/other')
-  }
+  // Servicios populares (para los filtros)
+  const servicios = [
+    "Manicure clásico",
+    "Pedicure clásico",
+    "Esmaltado en gel",
+    "Uñas acrílicas",
+    "Uñas en gel",
+    "Manicure francés",
+    "Decoración de uñas",
+    "Retiro de gel o acrílico",
+  ];
+
+  
+  const recomendados = [
+    {
+      id: 1,
+      name: "Barber shop Capri 💈",
+      address: "Capri, Cra 77a # 5-49",
+      emoji: "💈",
+    },
+    {
+      id: 2,
+      name: "Spa el Altar de Relax 💆‍♀️",
+      address: "Centro Comercial Unicentro",
+      emoji: "💆‍♀️",
+    },
+    {
+      id: 3,
+      name: "Salon Beauty 💅",
+      address: "Valle del Lili, Jardín Plaza",
+      emoji: "💅",
+    },
+  ];
+
+  const handleNavigate = (id) => {
+    navigate(`/detalle/${id}`);
+  };
 
   return (
     <div className="home-container">
-      {/* Contenido principal */}
-      <main className="main-content">
-        <h2 className="title">Home</h2>
-        <p className="description">
-          Esta es la página Home. Puedes navegar con Links o programáticamente.
-        </p>
+      {/* Header con logo y búsqueda */}
+      <header className="header">
+        <div className="logo">NailFinder</div>
+        <input
+          type="text"
+          placeholder="Buscar servicios o negocios"
+          className="search-input"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </header>
 
-        <div className="links">
-          <Link to="/other" className="link">Ir a Other con Link</Link>
+      {/* Filtros con servicios */}
+      <div className="filters">
+        {servicios.map((s, index) => (
+          <button key={index} className="filter-btn">
+            {s}
+          </button>
+        ))}
+      </div>
+
+
+      {/* Recomendados */}
+      <section className="section">
+        <h3 className="section-title">Recomendado cerca de ti</h3>
+        <div className="recommended-list">
+          {recomendados.map((r) => (
+            <div
+              key={r.id}
+              className="recommended-card"
+              onClick={() => handleNavigate(r.id)}
+            >
+              <div className="emoji-box small">{r.emoji}</div>
+              <h4>{r.name}</h4>
+              <p>{r.address}</p>
+            </div>
+          ))}
         </div>
+      </section>
 
-        <button className="btn purple" onClick={goToOther}>Ir a Other (programático)</button>
-      </main>
+      
     </div>
-  )
+  );
 }
