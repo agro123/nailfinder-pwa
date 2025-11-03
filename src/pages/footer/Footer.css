@@ -53,6 +53,36 @@
   transform: scale(0.95);
 }
 
+
+.footercliente {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 0;
+}
+
+.footercliente-btn {
+  border: none;
+  background: none;
+  font-size: 14px;
+  color: #777;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.footercliente-btn.active {
+  color: #0bb397;
+  font-weight: 600;
+}
+
+
 /* Responsivo: para pantallas pequeñas */
 @media (max-width: 500px) {
   .footer-nav {

@@ -1,0 +1,74 @@
+.citasusuario-container {
+  font-family: 'Poppins', sans-serif;
+  background-color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 70px;
+}
+
+.citasusuario-header {
+  text-align: center;
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.citasusuario-header h2 {
+  font-size: 20px;
+  color: #0bb397;
+  margin: 0;
+}
+
+.no-citasusuario {
+  text-align: center;
+  margin-top: 50px;
+  color: #777;
+}
+
+.citasusuario-list {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.citasusuario-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 14px;
+}
+
+.citasusuario-info h3 {
+  margin: 0;
+  font-size: 17px;
+  color: #333;
+}
+
+.servicio {
+  font-size: 14px;
+  color: #0bb397;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.fecha, .hora {
+  font-size: 13px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.estado {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.confirmada {
+  color: #00a890;
+}
+
+.pendiente {
+  color: #f0ad4e;
+}
+
