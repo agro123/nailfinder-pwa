@@ -7,6 +7,8 @@ import SettingsBusines from './pages/home/homeBusiness/Settings'
 import CitasBusiness from './pages/home/homeBusiness/Citas'
 import ClienteBusiness from './pages/home/homeBusiness/Clientes'
 import ServiciosBusiness from './pages/home/homeBusiness/Servicios'
+import AddService from './pages/home/homeBusiness/AddService'
+import EditService from './pages/home/homeBusiness/EditService'
 /*Client*/
 import Home from './pages/home/homeClient/Home'
 import HomeOther from './pages/home/homeClient/Other'
@@ -52,7 +54,7 @@ export default function App() {
 
   const hideFooterRoutes = ['/login', '/register', '/registerB', '/recover', '/reset-password', '/', '/other']
   const businessRoutes = ['/settings', '/citas', '/clientes', '/servicios']
-  const clientRoutes = ['/home', '/citasusuario', '/perfilusuario']
+  const clientRoutes = ['/', '/citasusuario', '/perfilusuario']
 
   //const shouldShowFooter = token && businessRoutes.some(r => location.pathname.startsWith(r))
 
@@ -87,8 +89,10 @@ export default function App() {
             <Route path="/citas" element={<CitasBusiness />} />
             <Route path="/clientes" element={<ClienteBusiness />} />
             <Route path="/servicios" element={<ServiciosBusiness />} />
+            <Route path="/add_service" element={<AddService />} />
+            <Route path="/edit_service" element={<EditService />} />
             {/* Client */}
-            <Route path="/home" element={<Home />} />
+            <Route path="/" element={<Home />} />
             <Route path="/other" element={<HomeOther />} />
             <Route path="/perfilusuario" element={<PerfilUsuario />} />
             <Route path="/citasusuario" element={<CitasUsuario />} /> 
