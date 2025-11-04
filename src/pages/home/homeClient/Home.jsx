@@ -70,7 +70,7 @@ export default function Home() {
 
       {/* Recomendados */}
       <section className="section">
-        <h3 className="section-title">Recomendado cerca de ti</h3>
+        <h3 className="section-title">Recomendado</h3>
         <div className="recommended-list">
           {recomendados.map((r) => (
             <div
