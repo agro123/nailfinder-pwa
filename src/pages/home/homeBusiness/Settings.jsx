@@ -1,18 +1,36 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { BarChart2, Home, Users, Share2, Clock, Bell } from 'lucide-react'
 import './css/Settings.css'
 
 export default function Settings() {
-  const { logout } = useAuth()
+  const { logout, user } = useAuth()
   const navigate = useNavigate()
   const [notifCitas, setNotifCitas] = useState(true)
   const [notifReprogramadas, setNotifReprogramadas] = useState(true)
+  const [authUser, setAuthUser] = useState(null)
+
+  useEffect(() => {
+    // 1️⃣ Intenta obtener el usuario desde el contexto
+    if (user) {
+      setAuthUser(user)
+    } else {
+      // 2️⃣ Si no hay contexto, obténlo desde localStorage
+      const storedUser = localStorage.getItem('auth_user')
+      if (storedUser) {
+        setAuthUser(JSON.parse(storedUser))
+      }
+    }
+  }, [user])
 
   const handleLogout = () => {
     logout()
     navigate('/')
+  }
+
+  if (!authUser) {
+    return <div className="settings-container">Cargando configuración...</div>
   }
 
   return (
@@ -23,10 +41,20 @@ export default function Settings() {
 
       {/* Perfil */}
       <section className="profile-section">
-        <div className="profile-avatar">J</div>
+        <div className="profile-avatar">
+          {authUser.name?.charAt(0).toUpperCase() || 'U'}
+        </div>
         <div className="profile-info">
-          <h3>Juan MozTasa</h3>
-          <p>Administrador de Barber shop</p>
+          <h3>
+            {authUser.name} {authUser.lastname || ''}
+          </h3>
+          {authUser.isCompany ? (
+            <p>Administrador de empresa</p>
+          ) : (
+            <p>Usuario registrado</p>
+          )}
+          <p className="profile-email">{authUser.email}</p>
+          {authUser.phone && <p>📞 {authUser.phone}</p>}
         </div>
         <button className="edit-btn">Editar negocio ✏️</button>
       </section>
