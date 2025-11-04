@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import FooterNav from './pages/footer/Footer'
 import { useAuth } from './context/AuthContext'
 /* Business */
@@ -72,6 +72,7 @@ export default function App() {
         {installed && <div className="installed">Aplicación instalada ✅</div>}
 
         <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
           {/* Public routes (login, register...) */}
           <Route element={<PublicRoute />}>
             <Route path="/login" element={<Login />} />
