@@ -9,6 +9,7 @@ import ClienteBusiness from './pages/home/homeBusiness/Clientes'
 import ServiciosBusiness from './pages/home/homeBusiness/Servicios'
 import AddService from './pages/home/homeBusiness/AddService'
 import EditService from './pages/home/homeBusiness/EditService'
+import AddCategoria from './pages/home/homeBusiness/AddCategoria'
 /*Client*/
 import Home from './pages/home/homeClient/Home'
 import HomeOther from './pages/home/homeClient/Other'
@@ -91,6 +92,7 @@ export default function App() {
             <Route path="/servicios" element={<ServiciosBusiness />} />
             <Route path="/add_service" element={<AddService />} />
             <Route path="/edit_service" element={<EditService />} />
+            <Route path="/add_categoria" element={<AddCategoria />} />
             {/* Client */}
             <Route path="/" element={<Home />} />
             <Route path="/other" element={<HomeOther />} />
