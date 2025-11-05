@@ -41,9 +41,9 @@ export default function Login() {
         setTimeout(() => setMessage(""), 2000);
         return;
       }
-
-      // ✅ Login correcto
       const { token, user } = result.data || {};
+      const isCompany = user?.isCompany || false;
+      console.log(isCompany);
 
       if (token && user) {
         // Guarda en contexto global
@@ -51,10 +51,12 @@ export default function Login() {
 
         setType("success");
         setMessage("Inicio de sesión exitoso 🎉");
-        setTimeout(() => {
-          setMessage("");
+        if (isCompany){
+          navigate("/settings");
+        }else{
           navigate("/"); // Redirige al home
-        }, 1500);
+        }
+        
       } else {
         throw new Error("Respuesta del servidor inválida");
       }

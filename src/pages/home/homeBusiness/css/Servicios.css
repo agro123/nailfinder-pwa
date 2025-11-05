@@ -1,0 +1,139 @@
+.servicios-container {
+  padding: 90px 20px 100px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+.servicios-title {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* === Barra de búsqueda === */
+.servicios-busqueda {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.servicios-busqueda input {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 1rem;
+  margin-left: 8px;
+  color: #333;
+  background: transparent;
+}
+
+/* === Tarjetas de servicio === */
+.servicios-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.servicio-card {
+  background: #fff;
+  padding: 14px 16px;
+  border-radius: 14px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.servicio-nombre {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.servicio-precio {
+  color: #555;
+  font-weight: 500;
+}
+
+/* === Botones flotantes === */
+.floating-buttons {
+  position: fixed;
+  bottom: 80px;
+  right: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* separación entre los dos botones */
+  z-index: 1000;
+}
+
+.floating-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* Botón principal (azul) */
+.floating-btn.primary {
+  background-color: #007bff;
+}
+
+.floating-btn.primary:hover {
+  background-color: #005fcc;
+  transform: scale(1.05);
+}
+
+/* Botón secundario (morado o gris azulado) */
+.floating-btn.secondary {
+  background-color: #7b4efb;
+}
+
+.floating-btn.secondary:hover {
+  background-color: #5a36d6;
+  transform: scale(1.05);
+}
+
+.servicio-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.btn-edit,
+.btn-delete {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+.btn-edit {
+  color: #007bff;
+}
+
+.btn-edit:hover {
+  background-color: #e0f0ff;
+}
+
+.btn-delete {
+  color: #dc3545;
+}
+
+.btn-delete:hover {
+  background-color: #fde8e8;
+}
