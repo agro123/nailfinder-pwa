@@ -60,7 +60,7 @@ export default function ServiciosBusiness() {
 
   // ➕ Crear nuevo servicio
   const handleAddServicio = () => navigate('/add_service')
-  const handleAddCategoria = () => console.log('Agregar nueva categoría')
+  const handleAddCategoria = () => navigate('/add_categoria')
 
   // ✏️ Editar servicio
   const handleEdit = (servicio, companyId) => {
