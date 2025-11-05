@@ -4,6 +4,7 @@ import FooterNav from './pages/footer/Footer'
 import { useAuth } from './context/AuthContext'
 /* Business */
 import SettingsBusines from './pages/home/homeBusiness/Settings'
+import EditProfile from './pages/home/homeBusiness/EditProfile'
 import CitasBusiness from './pages/home/homeBusiness/Citas'
 import ClienteBusiness from './pages/home/homeBusiness/Clientes'
 import ServiciosBusiness from './pages/home/homeBusiness/Servicios'
@@ -73,7 +74,6 @@ export default function App() {
         {installed && <div className="installed">Aplicación instalada ✅</div>}
 
         <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
           {/* Public routes (login, register...) */}
           <Route element={<PublicRoute />}>
             <Route path="/login" element={<Login />} />
@@ -88,6 +88,7 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             {/* Business */}
             <Route path="/settings" element={<SettingsBusines />} />
+            <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/citas" element={<CitasBusiness />} />
             <Route path="/clientes" element={<ClienteBusiness />} />
             <Route path="/servicios" element={<ServiciosBusiness />} />
