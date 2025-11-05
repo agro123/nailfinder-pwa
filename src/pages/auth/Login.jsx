@@ -54,7 +54,7 @@ export default function Login() {
         if (isCompany){
           navigate("/settings");
         }else{
-          navigate("/home"); // Redirige al home
+          navigate("/"); // Redirige al home
         }
         
       } else {
