@@ -74,6 +74,7 @@ export default function App() {
         {installed && <div className="installed">Aplicación instalada ✅</div>}
 
         <Routes>
+          {/* <Route path="/" element={<Navigate to="/login" replace />} /> */}
           {/* Public routes (login, register...) */}
           <Route element={<PublicRoute />}>
             <Route path="/login" element={<Login />} />
