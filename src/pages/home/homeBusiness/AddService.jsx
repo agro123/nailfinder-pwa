@@ -13,8 +13,32 @@ export default function NuevoServicioForm() {
   const [personalSeleccionado, setPersonalSeleccionado] = useState([])
   const [guardando, setGuardando] = useState(false)
   const [companyId, setCompanyId] = useState(null)
+  const [categorias, setCategorias] = useState([]) // ✅ lista dinámica de categorías
 
   const personal = ['Andrea Cuéllar', 'Juan Ruiz', 'Sofía Montenegro', 'Luis López']
+
+  // ✅ Obtener categorías desde backend
+  useEffect(() => {
+    if (!companyId) return;
+    const obtenerCategorias = async () => {
+      try {
+        const resp = await fetch(`http://localhost:3000/api/public/showCategorias?idCompany=${companyId}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        })
+        const data = await resp.json()
+        if (data.success && data.data?.data) {
+          setCategorias(data.data.data)
+        } else {
+          console.warn('⚠️ No se encontraron categorías o formato inválido.')
+        }
+      } catch (err) {
+        console.error('Error obteniendo categorías:', err)
+      }
+    }
+
+    obtenerCategorias()
+  }, [companyId])
 
   // ✅ Obtener el ID de la empresa del usuario autenticado
   useEffect(() => {
@@ -78,7 +102,7 @@ export default function NuevoServicioForm() {
       title: nombre,
       description: descripcion,
       companyid: companyId,        // ✅ ahora dinámico
-      servicecategoryid: 17,       // ⚠️ puedes hacerlo dinámico si lo deseas
+      servicecategoryid: Number(categoria),       // ✅ toma la categoría seleccionada
       price: Number(precio),
       duration: 60                 // minutos de ejemplo
     }
@@ -137,12 +161,15 @@ export default function NuevoServicioForm() {
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
           />
-          <input
-            type="text"
-            placeholder="Categoría (ej: Uñas, Cabello)"
-            value={categoria}
-            onChange={(e) => setCategoria(e.target.value)}
-          />
+          {/* ✅ Selector dinámico de categorías */}
+          <select value={categoria} onChange={(e) => setCategoria(e.target.value)}>
+            <option value="">Selecciona una categoría</option>
+            {categorias.map(cat => (
+              <option key={cat.category_id} value={cat.category_id}>
+                {cat.category_name}
+              </option>
+            ))}
+          </select>
           <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
             <option value="">Tipo de atención</option>
             <option value="En el estudio">En el estudio</option>
