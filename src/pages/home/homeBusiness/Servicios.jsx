@@ -1,175 +1,215 @@
 import React, { useState, useEffect } from 'react'
+import { useAuth } from '../../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Layers, Search, Edit, Trash2 } from 'lucide-react'
-import './css/Servicios.css'
+import './css/EditProfile.css'
 
-export default function ServiciosBusiness() {
+export default function EditProfile() {
+  const { user } = useAuth()
   const navigate = useNavigate()
-  const [busqueda, setBusqueda] = useState('')
-  const [servicios, setServicios] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
   const [companyId, setCompanyId] = useState(null)
 
-  // 🔁 Llamar al backend al montar el componente
+  const [formData, setFormData] = useState({
+    fullname: '',
+    description: '',
+    profilePhoto: null,
+    gallery: [],
+    schedule: {
+      monday: { start: '', end: '' },
+      tuesday: { start: '', end: '' },
+      wednesday: { start: '', end: '' },
+      thursday: { start: '', end: '' },
+      friday: { start: '', end: '' },
+      saturday: { start: '', end: '' },
+      sunday: { start: '', end: '' },
+    },
+  })
+
+  // Obtener companyId desde el backend según el usuario logueado
   useEffect(() => {
-    const fetchServicios = async () => {
+    const obtenerCompanyId = async () => {
       try {
-        // ✅ Obtener usuario autenticado
         const authUser = JSON.parse(localStorage.getItem('auth_user'))
         const userId = authUser?.id
+        console.log('🟩 userId:', userId)
 
-        // ✅ Obtener negocios del usuario
-        const negocios = await fetch('http://localhost:3000/api/public/getCompanys', {
+        if (!userId) return
+
+        const resp = await fetch('http://localhost:3000/api/public/getCompanys', {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         })
-        const neg = await negocios.json()
-        const negocio = neg?.data?.negocios || []
-        const company = negocio.find(c => c.user_id === userId)
-        const companyIdFound = company?.company_id || company?.id
-        setCompanyId(companyIdFound)
+        const data = await resp.json()
 
-        // ✅ Obtener servicios de esa empresa
-        const response = await fetch(`http://localhost:3000/api/public/verServicios?idCompany=${companyIdFound}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        })
-        const data = await response.json()
+        console.log('🟦 Respuesta de getCompanys:', data)
 
-        if (data.success && data.data?.servicios) {
-          setServicios(data.data.servicios)
+        const negocios = data?.data?.negocios
+        if (!negocios) {
+          console.warn('⚠️ No hay lista de negocios en la respuesta.')
+          return
+        }
+
+        const company = negocios.find((c) => c.user_id === userId)
+        console.log('🟨 company encontrado:', company)
+
+        if (company) {
+          setCompanyId(company.company_id)
+          setFormData({
+            fullname: company.company_name || '',
+            description: company.description || '',
+            profilePhoto: company.profile_photo || null,
+            gallery: company.gallery || [],
+            schedule: company.schedule || formData.schedule,
+          })
         } else {
-          setError(data.message || 'Error al obtener servicios')
+          console.warn('⚠️ No se encontró negocio asociado al usuario.')
         }
       } catch (err) {
-        console.error('Error al conectar con el backend:', err)
-        setError('Error de conexión con el servidor')
-      } finally {
-        setCargando(false)
+        console.error('❌ Error obteniendo companyId:', err)
       }
     }
 
-    fetchServicios()
+    obtenerCompanyId()
   }, [])
 
-  // 🔍 Filtro de búsqueda
-  const serviciosFiltrados = servicios.filter((s) =>
-    s.title.toLowerCase().includes(busqueda.toLowerCase())
-  )
 
-  // ➕ Crear nuevo servicio
-  const handleAddServicio = () => navigate('/add_service')
-  const handleAddCategoria = () => navigate('/add_categoria')
-
-  // ✏️ Editar servicio
-  const handleEdit = (servicio, companyId) => {
-    navigate('/edit_service', { state: { servicio, companyId } });
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  // ❌ Eliminar servicio
-  const handleDelete = async (servicio) => {
-    if (!window.confirm(`¿Eliminar el servicio "${servicio.title}"?`)) return
+  const handleProfilePhoto = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => {
+      setFormData((prev) => ({ ...prev, profilePhoto: reader.result }))
+    }
+  }
+
+  const handleGalleryUpload = async (e) => {
+    const files = e.target.files
+    if (!files) return
+    const convertToBase64 = (file) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = () => resolve(reader.result)
+        reader.onerror = reject
+      })
+    const images = await Promise.all(Array.from(files).map(convertToBase64))
+    setFormData((prev) => ({ ...prev, gallery: [...prev.gallery, ...images] }))
+  }
+
+  const handleScheduleChange = (day, field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      schedule: {
+        ...prev.schedule,
+        [day]: { ...prev.schedule[day], [field]: value },
+      },
+    }))
+  }
+
+  const handleGuardar = async () => {
+    if (!companyId) {
+      alert('❌ No se encontró el negocio asociado al usuario.')
+      return
+    }
 
     try {
-      const authUser = JSON.parse(localStorage.getItem('auth_user'))
-      const userId = authUser?.id
+      const payload = {
+        id_company: companyId,
+        fullname: formData.fullname,
+        description: formData.description,
+        profilePhoto: formData.profilePhoto,
+        gallery: formData.gallery,
+        schedule: formData.schedule,
+      }
 
-      // Obtener el idCompany del negocio del usuario
-      const negocios = await fetch('http://localhost:3000/api/public/getCompanys', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      })
-      const neg = await negocios.json()
-      const company = neg?.data?.negocios?.find(c => c.user_id === userId)
-      const companyId = company.company_id
-
-      const res = await fetch('http://localhost:3000/api/public/deleteServicio', {
+      const resp = await fetch('http://localhost:3000/api/public/editCompany', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id_company: companyId,
-          id_servicio: servicio.service_id
-        }),
+        body: JSON.stringify(payload),
       })
 
-      const data = await res.json()
+      const data = await resp.json()
       if (data.success) {
-        alert('✅ Servicio eliminado correctamente')
-        setServicios(prev => prev.filter(s => s.service_id !== servicio.service_id))
+        alert('✅ Perfil del negocio actualizado correctamente')
+        navigate(-1)
       } else {
-        alert('❌ Error al eliminar el servicio')
+        alert(`⚠️ Error al actualizar: ${data.message || 'Desconocido'}`)
       }
     } catch (err) {
-      console.error('Error eliminando servicio:', err)
-      alert('Error al conectar con el servidor')
+      console.error('❌ Error al actualizar perfil:', err)
+      alert('❌ Error al actualizar el perfil del negocio.')
     }
   }
 
   return (
-    <div className="servicios-container">
-      <h2 className="servicios-title">Lista de servicios</h2>
+    <div className="edit-profile-container">
+      <h2>Editar Perfil del Negocio</h2>
 
-      {/* 🔍 Barra de búsqueda */}
-      <div className="servicios-busqueda">
-        <Search size={20} color="#555" />
+      <div className="form-group">
+        <label>Nombre completo</label>
         <input
           type="text"
-          placeholder="Buscar servicio..."
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
+          name="fullname"
+          value={formData.fullname}
+          onChange={handleChange}
         />
       </div>
 
-      {/* 🧾 Contenido dinámico */}
-      {cargando ? (
-        <p>Cargando servicios...</p>
-      ) : error ? (
-        <p className="error">{error}</p>
-      ) : serviciosFiltrados.length > 0 ? (
-        <div className="servicios-list">
-          {serviciosFiltrados.map((servicio) => (
-            <div key={servicio.service_id} className="servicio-card">
-              <div className="servicio-info">
-                <h3 className="servicio-nombre">{servicio.title}</h3>
-                <p className="servicio-precio">
-                  💰 {servicio.price.toLocaleString('es-CO')} COP
-                </p>
-                <p className="servicio-categoria">
-                  Categoría: {servicio.category_name}
-                </p>
-              </div>
+      <div className="form-group">
+        <label>Descripción personal/profesional</label>
+        <textarea
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+        />
+      </div>
 
-              {/* 🧩 Botones de acción */}
-              <div className="servicio-actions">
-                <button
-                  className="btn-edit"
-                  onClick={() => handleEdit(servicio, companyId)}
-                >
-                  <Edit size={18} />
-                </button>
-                <button
-                  className="btn-delete"
-                  onClick={() => handleDelete(servicio)}
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            </div>
+      <div className="form-group">
+        <label>Foto de perfil</label>
+        <input type="file" accept="image/*" onChange={handleProfilePhoto} />
+        {formData.profilePhoto && (
+          <img src={formData.profilePhoto} alt="Perfil" className="banner-preview" />
+        )}
+      </div>
+
+      <div className="form-group">
+        <label>Galería de trabajos</label>
+        <input type="file" accept="image/*" multiple onChange={handleGalleryUpload} />
+        <div className="preview-container">
+          {formData.gallery.map((img, idx) => (
+            <img key={idx} src={img} alt={`gal-${idx}`} className="banner-preview" />
           ))}
         </div>
-      ) : (
-        <p className="sin-resultados">No se encontraron servicios</p>
-      )}
+      </div>
 
-      {/* 🚀 Botones flotantes */}
-      <div className="floating-buttons">
-        <button className="floating-btn secondary" onClick={handleAddCategoria}>
-          <Layers size={22} />
-        </button>
-        <button className="floating-btn primary" onClick={handleAddServicio}>
-          <Plus size={24} />
-        </button>
+      <div className="form-group">
+        <label>Horarios de atención</label>
+        {Object.keys(formData.schedule).map((day) => (
+          <div key={day} className="schedule-row">
+            <span>{day.charAt(0).toUpperCase() + day.slice(1)}</span>
+            <input
+              type="time"
+              value={formData.schedule[day].start}
+              onChange={(e) => handleScheduleChange(day, 'start', e.target.value)}
+            />
+            <span>-</span>
+            <input
+              type="time"
+              value={formData.schedule[day].end}
+              onChange={(e) => handleScheduleChange(day, 'end', e.target.value)}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div className="buttons">
+        <button className="btn-guardar" onClick={handleGuardar}>Guardar cambios</button>
+        <button className="btn-cancelar" onClick={() => navigate(-1)}>Cancelar</button>
       </div>
     </div>
   )
