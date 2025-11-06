@@ -65,6 +65,7 @@
   font-size: 14px;
   outline: none;
   transition: border-color 0.3s;
+  box-sizing: border-box;
 }
 
 .login-form input:focus {
