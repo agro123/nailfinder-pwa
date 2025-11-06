@@ -1,215 +1,203 @@
 import React, { useState, useEffect } from 'react'
-import { useAuth } from '../../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
-import './css/EditProfile.css'
+import { Plus, Layers, Search, Edit, Trash2 } from 'lucide-react'
+import './css/Servicios.css'
 
-export default function EditProfile() {
-  const { user } = useAuth()
+export default function ServiciosBusiness() {
   const navigate = useNavigate()
+  const [busqueda, setBusqueda] = useState('')
+  const [servicios, setServicios] = useState([])
+  const [categorias, setCategorias] = useState([])
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('Todas')
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState(null)
   const [companyId, setCompanyId] = useState(null)
 
-  const [formData, setFormData] = useState({
-    fullname: '',
-    description: '',
-    profilePhoto: null,
-    gallery: [],
-    schedule: {
-      monday: { start: '', end: '' },
-      tuesday: { start: '', end: '' },
-      wednesday: { start: '', end: '' },
-      thursday: { start: '', end: '' },
-      friday: { start: '', end: '' },
-      saturday: { start: '', end: '' },
-      sunday: { start: '', end: '' },
-    },
-  })
-
-  // Obtener companyId desde el backend según el usuario logueado
+  // 🔁 Cargar servicios y categorías
   useEffect(() => {
-    const obtenerCompanyId = async () => {
+    const fetchData = async () => {
       try {
         const authUser = JSON.parse(localStorage.getItem('auth_user'))
         const userId = authUser?.id
-        console.log('🟩 userId:', userId)
 
-        if (!userId) return
-
-        const resp = await fetch('http://localhost:3000/api/public/getCompanys', {
+        // ✅ Obtener los negocios del usuario
+        const negocios = await fetch('http://localhost:3000/api/public/getCompanys', {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         })
-        const data = await resp.json()
+        const neg = await negocios.json()
+        const negocio = neg?.data?.negocios || []
+        const company = negocio.find((c) => c.user_id === userId)
+        const companyIdFound = company?.company_id || company?.id
+        setCompanyId(companyIdFound)
 
-        console.log('🟦 Respuesta de getCompanys:', data)
+        // ✅ Obtener servicios de la empresa
+        const resServicios = await fetch(
+          `http://localhost:3000/api/public/verServicios?idCompany=${companyIdFound}`,
+          {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          }
+        )
+        const data = await resServicios.json()
 
-        const negocios = data?.data?.negocios
-        if (!negocios) {
-          console.warn('⚠️ No hay lista de negocios en la respuesta.')
-          return
-        }
-
-        const company = negocios.find((c) => c.user_id === userId)
-        console.log('🟨 company encontrado:', company)
-
-        if (company) {
-          setCompanyId(company.company_id)
-          setFormData({
-            fullname: company.company_name || '',
-            description: company.description || '',
-            profilePhoto: company.profile_photo || null,
-            gallery: company.gallery || [],
-            schedule: company.schedule || formData.schedule,
-          })
+        if (data.success && data.data?.servicios) {
+          const lista = data.data.servicios
+          setServicios(lista)
+          // Extraer categorías únicas
+          const cats = [...new Set(lista.map((s) => s.category_name || 'Sin categoría'))]
+          setCategorias(['Todas', ...cats])
         } else {
-          console.warn('⚠️ No se encontró negocio asociado al usuario.')
+          setError(data.message || 'Error al obtener servicios')
         }
       } catch (err) {
-        console.error('❌ Error obteniendo companyId:', err)
+        console.error('Error al conectar con el backend:', err)
+        setError('Error de conexión con el servidor')
+      } finally {
+        setCargando(false)
       }
     }
 
-    obtenerCompanyId()
+    fetchData()
   }, [])
 
+  // 🔍 Filtrar por texto y categoría
+  const serviciosFiltrados = servicios.filter((s) => {
+    const coincideTexto = s.title.toLowerCase().includes(busqueda.toLowerCase())
+    const coincideCategoria =
+      categoriaSeleccionada === 'Todas' || s.category_name === categoriaSeleccionada
+    return coincideTexto && coincideCategoria
+  })
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  // Agrupar servicios por categoría
+  const serviciosPorCategoria = serviciosFiltrados.reduce((acc, servicio) => {
+    const cat = servicio.category_name || 'Sin categoría'
+    if (!acc[cat]) acc[cat] = []
+    acc[cat].push(servicio)
+    return acc
+  }, {})
 
-  const handleProfilePhoto = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => {
-      setFormData((prev) => ({ ...prev, profilePhoto: reader.result }))
-    }
-  }
+  // 🚀 Navegación
+  const handleAddServicio = () => navigate('/add_service')
+  const handleAddCategoria = () => navigate('/add_categoria')
 
-  const handleGalleryUpload = async (e) => {
-    const files = e.target.files
-    if (!files) return
-    const convertToBase64 = (file) =>
-      new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.readAsDataURL(file)
-        reader.onload = () => resolve(reader.result)
-        reader.onerror = reject
-      })
-    const images = await Promise.all(Array.from(files).map(convertToBase64))
-    setFormData((prev) => ({ ...prev, gallery: [...prev.gallery, ...images] }))
-  }
+  const handleEdit = (servicio, companyId) =>
+    navigate('/edit_service', { state: { servicio, companyId } })
 
-  const handleScheduleChange = (day, field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      schedule: {
-        ...prev.schedule,
-        [day]: { ...prev.schedule[day], [field]: value },
-      },
-    }))
-  }
-
-  const handleGuardar = async () => {
-    if (!companyId) {
-      alert('❌ No se encontró el negocio asociado al usuario.')
-      return
-    }
-
+  // ❌ Eliminar servicio
+  const handleDelete = async (servicio) => {
+    if (!window.confirm(`¿Eliminar el servicio "${servicio.title}"?`)) return
     try {
-      const payload = {
-        id_company: companyId,
-        fullname: formData.fullname,
-        description: formData.description,
-        profilePhoto: formData.profilePhoto,
-        gallery: formData.gallery,
-        schedule: formData.schedule,
-      }
+      const authUser = JSON.parse(localStorage.getItem('auth_user'))
+      const userId = authUser?.id
 
-      const resp = await fetch('http://localhost:3000/api/public/editCompany', {
+      const negocios = await fetch('http://localhost:3000/api/public/getCompanys', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      const neg = await negocios.json()
+      const company = neg?.data?.negocios?.find((c) => c.user_id === userId)
+      const companyId = company.company_id
+
+      const res = await fetch('http://localhost:3000/api/public/deleteServicio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          id_company: companyId,
+          id_servicio: servicio.service_id,
+        }),
       })
 
-      const data = await resp.json()
+      const data = await res.json()
       if (data.success) {
-        alert('✅ Perfil del negocio actualizado correctamente')
-        navigate(-1)
+        alert('✅ Servicio eliminado correctamente')
+        setServicios((prev) => prev.filter((s) => s.service_id !== servicio.service_id))
       } else {
-        alert(`⚠️ Error al actualizar: ${data.message || 'Desconocido'}`)
+        alert('❌ Error al eliminar el servicio')
       }
     } catch (err) {
-      console.error('❌ Error al actualizar perfil:', err)
-      alert('❌ Error al actualizar el perfil del negocio.')
+      console.error('Error eliminando servicio:', err)
+      alert('Error al conectar con el servidor')
     }
   }
 
   return (
-    <div className="edit-profile-container">
-      <h2>Editar Perfil del Negocio</h2>
+    <div className="servicios-container">
+      <h2 className="servicios-title">Servicios por Categoría</h2>
 
-      <div className="form-group">
-        <label>Nombre completo</label>
+      {/* 🔍 Barra de búsqueda */}
+      <div className="servicios-busqueda">
+        <Search size={20} color="#555" />
         <input
           type="text"
-          name="fullname"
-          value={formData.fullname}
-          onChange={handleChange}
+          placeholder="Buscar servicio..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
         />
       </div>
 
-      <div className="form-group">
-        <label>Descripción personal/profesional</label>
-        <textarea
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-        />
-      </div>
-
-      <div className="form-group">
-        <label>Foto de perfil</label>
-        <input type="file" accept="image/*" onChange={handleProfilePhoto} />
-        {formData.profilePhoto && (
-          <img src={formData.profilePhoto} alt="Perfil" className="banner-preview" />
-        )}
-      </div>
-
-      <div className="form-group">
-        <label>Galería de trabajos</label>
-        <input type="file" accept="image/*" multiple onChange={handleGalleryUpload} />
-        <div className="preview-container">
-          {formData.gallery.map((img, idx) => (
-            <img key={idx} src={img} alt={`gal-${idx}`} className="banner-preview" />
-          ))}
-        </div>
-      </div>
-
-      <div className="form-group">
-        <label>Horarios de atención</label>
-        {Object.keys(formData.schedule).map((day) => (
-          <div key={day} className="schedule-row">
-            <span>{day.charAt(0).toUpperCase() + day.slice(1)}</span>
-            <input
-              type="time"
-              value={formData.schedule[day].start}
-              onChange={(e) => handleScheduleChange(day, 'start', e.target.value)}
-            />
-            <span>-</span>
-            <input
-              type="time"
-              value={formData.schedule[day].end}
-              onChange={(e) => handleScheduleChange(day, 'end', e.target.value)}
-            />
-          </div>
+      {/* 🔘 Botones de categorías */}
+      <div className="categorias-filtros">
+        {categorias.map((cat) => (
+          <button
+            key={cat}
+            className={`categoria-btn ${categoriaSeleccionada === cat ? 'activa' : ''}`}
+            onClick={() => setCategoriaSeleccionada(cat)}
+          >
+            {cat}
+          </button>
         ))}
       </div>
 
-      <div className="buttons">
-        <button className="btn-guardar" onClick={handleGuardar}>Guardar cambios</button>
-        <button className="btn-cancelar" onClick={() => navigate(-1)}>Cancelar</button>
+      {/* 🧾 Lista agrupada */}
+      {cargando ? (
+        <p>Cargando servicios...</p>
+      ) : error ? (
+        <p className="error">{error}</p>
+      ) : Object.keys(serviciosPorCategoria).length > 0 ? (
+        <div className="servicios-list">
+          {Object.entries(serviciosPorCategoria).map(([categoria, lista]) => (
+            <div key={categoria} className="categoria-section">
+              <h3 className="categoria-titulo">{categoria}</h3>
+              {lista.map((servicio) => (
+                <div key={servicio.service_id} className="servicio-card">
+                  <div>
+                    <h4 className="servicio-nombre">{servicio.title}</h4>
+                    <p className="servicio-precio">
+                      💰 {servicio.price.toLocaleString('es-CO')} COP
+                    </p>
+                  </div>
+                  <div className="servicio-actions">
+                    <button
+                      className="btn-edit"
+                      onClick={() => handleEdit(servicio, companyId)}
+                    >
+                      <Edit size={18} />
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDelete(servicio)}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="sin-resultados">No se encontraron servicios</p>
+      )}
+
+      {/* 🚀 Botones flotantes (igual que tu diseño) */}
+      <div className="floating-buttons">
+        <button className="floating-btn secondary" onClick={handleAddCategoria}>
+          <Layers size={22} />
+        </button>
+        <button className="floating-btn primary" onClick={handleAddServicio}>
+          <Plus size={24} />
+        </button>
       </div>
     </div>
   )
