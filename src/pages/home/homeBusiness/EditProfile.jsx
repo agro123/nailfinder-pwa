@@ -11,17 +11,12 @@ export default function EditProfile() {
   const [formData, setFormData] = useState({
     companyname: '',
     description: '',
-    profilePhoto: null,
-    workGallery: [],
-    schedule: {
-      lunes: { open: '', close: '' },
-      martes: { open: '', close: '' },
-      miercoles: { open: '', close: '' },
-      jueves: { open: '', close: '' },
-      viernes: { open: '', close: '' },
-      sabado: { open: '', close: '' },
-      domingo: { open: '', close: '' },
-    },
+    phone: '',
+    companytype: '',
+    address: '',
+    latitude: '',
+    longitude: '',
+    bannerGalery: [],
   })
 
   // ✅ Obtener datos del negocio según el usuario logueado
@@ -42,25 +37,22 @@ export default function EditProfile() {
         console.log('🟦 Respuesta de getCompanys:', data)
 
         const negocios = data?.data?.negocios
-        if (!negocios) {
-          console.warn('⚠️ No hay lista de negocios en la respuesta.')
-          return
-        }
+        if (!negocios) return
 
         const company = negocios.find((c) => c.user_id === userId)
-        console.log('🟨 company encontrado:', company)
-
         if (company) {
           setCompanyId(company.company_id)
-          setFormData({
+          setFormData((prev) => ({
+            ...prev,
             companyname: company.company_name || '',
-            description: company.description || '',
-            profilePhoto: company.profile_photo || null,
-            workGallery: company.gallery || [],
-            schedule: company.schedule || formData.schedule,
-          })
-        } else {
-          console.warn('⚠️ No se encontró negocio asociado al usuario.')
+            phone: company.company_phone || '',
+            description: company.company_description || '',
+            companytype: company.business_type || '',
+            address: company.address || '',
+            latitude: company.latitude || '',
+            longitude: company.longitude || '',
+            bannerGalery: company.bannersgalery || [],
+          }))
         }
       } catch (err) {
         console.error('❌ Error obteniendo companyId:', err)
@@ -70,21 +62,10 @@ export default function EditProfile() {
     obtenerCompanyId()
   }, [])
 
-  // ✅ Inputs simples
+  // ✅ Cambiar inputs
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  // ✅ Cambiar horario
-  const handleScheduleChange = (day, field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      schedule: {
-        ...prev.schedule,
-        [day]: { ...prev.schedule[day], [field]: value },
-      },
-    }))
   }
 
   // ✅ Conversión base64
@@ -96,29 +77,29 @@ export default function EditProfile() {
       reader.onerror = (error) => reject(error)
     })
 
-  // ✅ Foto de perfil
-  const handleProfilePhoto = async (e) => {
-    const file = e.target.files[0]
-    if (!file) return
-    const base64 = await toBase64(file)
-    setFormData((prev) => ({ ...prev, profilePhoto: base64 }))
-  }
-
-  // ✅ Galería de trabajos
-  const handleGalleryUpload = async (e) => {
+  // ✅ Subir banners a la galería
+  const handleBannerUpload = async (e) => {
     const files = Array.from(e.target.files)
     if (!files.length) return
-    const base64Images = await Promise.all(files.map(toBase64))
+
+    const base64Images = await Promise.all(
+      files.map(async (file) => ({
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        description: `Imagen subida: ${file.name}`,
+        data: await toBase64(file),
+      }))
+    )
+
     setFormData((prev) => ({
       ...prev,
-      workGallery: [...prev.workGallery, ...base64Images],
+      bannerGalery: [...prev.bannerGalery, ...base64Images],
     }))
   }
 
   // ✅ Guardar cambios
   const handleGuardar = async () => {
-    console.log('🟢 Ejecutando handleGuardar...')
-
     if (!companyId) {
       alert('⚠️ No se ha encontrado el negocio del usuario.')
       return
@@ -127,11 +108,14 @@ export default function EditProfile() {
     try {
       const payload = {
         id_company: companyId,
-        company_name: formData.companyname,
-        company_description: formData.description,
-        logo_uri: formData.profilePhoto,
-        gallery: formData.workGallery,
-        schedule: formData.schedule,
+        phone: formData.phone,
+        companyname: formData.companyname,
+        nit: null, // si no manejas el nit aún
+        companytype: formData.companytype || 'local',
+        latitude: Number(formData.latitude) || null,
+        longitude: Number(formData.longitude) || null,
+        address: formData.address,
+        bannerGalery: formData.bannerGalery,
       }
 
       console.log('📦 Payload enviado:', payload)
@@ -166,7 +150,6 @@ export default function EditProfile() {
     <div className="edit-profile-container">
       <h2>Editar Perfil del Negocio</h2>
 
-      {/* Nombre */}
       <div className="form-group">
         <label>Nombre del negocio</label>
         <input
@@ -178,66 +161,76 @@ export default function EditProfile() {
         />
       </div>
 
-      {/* Descripción */}
       <div className="form-group">
-        <label>Descripción profesional</label>
-        <textarea
-          name="description"
-          value={formData.description}
+        <label>Teléfono</label>
+        <input
+          type="text"
+          name="phone"
+          value={formData.phone}
           onChange={handleChange}
-          placeholder="Describe brevemente tu negocio y los servicios que ofreces..."
+          placeholder="Ej: 3178751490"
         />
       </div>
 
-      {/* Foto de perfil */}
       <div className="form-group">
-        <label>Foto de perfil</label>
-        <input type="file" accept="image/*" onChange={handleProfilePhoto} />
-        {formData.profilePhoto && (
-          <div className="image-preview">
-            <img
-              src={formData.profilePhoto}
-              alt="Foto de perfil"
-              className="profile-preview"
-            />
-          </div>
-        )}
+        <label>Tipo de empresa</label>
+        <input
+          type="text"
+          name="companytype"
+          value={formData.companytype}
+          onChange={handleChange}
+          placeholder="Ej: local / online"
+        />
       </div>
 
-      {/* Galería */}
       <div className="form-group">
-        <label>Galería de trabajos realizados</label>
-        <input type="file" accept="image/*" multiple onChange={handleGalleryUpload} />
+        <label>Dirección</label>
+        <input
+          type="text"
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+          placeholder="Ej: Calle 5 #10-20"
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Latitud</label>
+        <input
+          type="number"
+          name="latitude"
+          value={formData.latitude}
+          onChange={handleChange}
+          step="any"
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Longitud</label>
+        <input
+          type="number"
+          name="longitude"
+          value={formData.longitude}
+          onChange={handleChange}
+          step="any"
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Galería de Banners</label>
+        <input type="file" accept="image/*" multiple onChange={handleBannerUpload} />
         <div className="preview-container">
-          {formData.workGallery.length > 0 ? (
-            formData.workGallery.map((img, i) => (
-              <img key={i} src={img} alt={`work-${i}`} className="gallery-preview" />
+          {formData.bannerGalery.length > 0 ? (
+            formData.bannerGalery.map((img, i) => (
+              <div key={i} className="banner-item">
+                <p>{img.name}</p>
+                <img src={img.data} alt={img.name} className="gallery-preview" />
+              </div>
             ))
           ) : (
             <p className="no-images">No hay imágenes cargadas.</p>
           )}
         </div>
-      </div>
-
-      {/* Horarios */}
-      <div className="form-group schedule">
-        <label>Horarios de atención</label>
-        {Object.keys(formData.schedule).map((day) => (
-          <div key={day} className="schedule-row">
-            <span className="day">{day.charAt(0).toUpperCase() + day.slice(1)}</span>
-            <input
-              type="time"
-              value={formData.schedule[day].open || ''}
-              onChange={(e) => handleScheduleChange(day, 'open', e.target.value)}
-            />
-            <span>a</span>
-            <input
-              type="time"
-              value={formData.schedule[day].close || ''}
-              onChange={(e) => handleScheduleChange(day, 'close', e.target.value)}
-            />
-          </div>
-        ))}
       </div>
 
       <div className="buttons">
