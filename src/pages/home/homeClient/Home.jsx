@@ -113,7 +113,7 @@ export default function Home() {
             item.status ? "active" : "inactive"
           }`}
         ></span>
-        <span>{item.status ? "Activo" : "Inactivo"}</span>
+        <span>{item.status ? "Abierto" : "Cerrado"}</span>
       </div>
     </div>
   );
