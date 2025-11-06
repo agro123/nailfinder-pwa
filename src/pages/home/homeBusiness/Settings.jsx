@@ -56,7 +56,9 @@ export default function Settings() {
           <p className="profile-email">{authUser.email}</p>
           {authUser.phone && <p>📞 {authUser.phone}</p>}
         </div>
-        <button className="edit-btn">Editar negocio ✏️</button>
+        <button className="edit-btn" onClick={() => navigate('/edit-profile')}>
+          Editar negocio ✏️
+        </button>
       </section>
 
       {/* Opciones principales */}
