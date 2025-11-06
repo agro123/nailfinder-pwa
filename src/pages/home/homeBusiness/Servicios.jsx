@@ -7,38 +7,46 @@ export default function ServiciosBusiness() {
   const navigate = useNavigate()
   const [busqueda, setBusqueda] = useState('')
   const [servicios, setServicios] = useState([])
+  const [categorias, setCategorias] = useState([])
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('Todas')
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   const [companyId, setCompanyId] = useState(null)
 
-  // 🔁 Llamar al backend al montar el componente
+  // 🔁 Cargar servicios y categorías
   useEffect(() => {
-    const fetchServicios = async () => {
+    const fetchData = async () => {
       try {
-        // ✅ Obtener usuario autenticado
         const authUser = JSON.parse(localStorage.getItem('auth_user'))
         const userId = authUser?.id
 
-        // ✅ Obtener negocios del usuario
+        // ✅ Obtener los negocios del usuario
         const negocios = await fetch('http://localhost:3000/api/public/getCompanys', {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         })
         const neg = await negocios.json()
         const negocio = neg?.data?.negocios || []
-        const company = negocio.find(c => c.user_id === userId)
+        const company = negocio.find((c) => c.user_id === userId)
         const companyIdFound = company?.company_id || company?.id
         setCompanyId(companyIdFound)
 
-        // ✅ Obtener servicios de esa empresa
-        const response = await fetch(`http://localhost:3000/api/public/verServicios?idCompany=${companyIdFound}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        })
-        const data = await response.json()
+        // ✅ Obtener servicios de la empresa
+        const resServicios = await fetch(
+          `http://localhost:3000/api/public/verServicios?idCompany=${companyIdFound}`,
+          {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          }
+        )
+        const data = await resServicios.json()
 
         if (data.success && data.data?.servicios) {
-          setServicios(data.data.servicios)
+          const lista = data.data.servicios
+          setServicios(lista)
+          // Extraer categorías únicas
+          const cats = [...new Set(lista.map((s) => s.category_name || 'Sin categoría'))]
+          setCategorias(['Todas', ...cats])
         } else {
           setError(data.message || 'Error al obtener servicios')
         }
@@ -50,38 +58,45 @@ export default function ServiciosBusiness() {
       }
     }
 
-    fetchServicios()
+    fetchData()
   }, [])
 
-  // 🔍 Filtro de búsqueda
-  const serviciosFiltrados = servicios.filter((s) =>
-    s.title.toLowerCase().includes(busqueda.toLowerCase())
-  )
+  // 🔍 Filtrar por texto y categoría
+  const serviciosFiltrados = servicios.filter((s) => {
+    const coincideTexto = s.title.toLowerCase().includes(busqueda.toLowerCase())
+    const coincideCategoria =
+      categoriaSeleccionada === 'Todas' || s.category_name === categoriaSeleccionada
+    return coincideTexto && coincideCategoria
+  })
 
-  // ➕ Crear nuevo servicio
+  // Agrupar servicios por categoría
+  const serviciosPorCategoria = serviciosFiltrados.reduce((acc, servicio) => {
+    const cat = servicio.category_name || 'Sin categoría'
+    if (!acc[cat]) acc[cat] = []
+    acc[cat].push(servicio)
+    return acc
+  }, {})
+
+  // 🚀 Navegación
   const handleAddServicio = () => navigate('/add_service')
   const handleAddCategoria = () => navigate('/add_categoria')
 
-  // ✏️ Editar servicio
-  const handleEdit = (servicio, companyId) => {
-    navigate('/edit_service', { state: { servicio, companyId } });
-  }
+  const handleEdit = (servicio, companyId) =>
+    navigate('/edit_service', { state: { servicio, companyId } })
 
   // ❌ Eliminar servicio
   const handleDelete = async (servicio) => {
     if (!window.confirm(`¿Eliminar el servicio "${servicio.title}"?`)) return
-
     try {
       const authUser = JSON.parse(localStorage.getItem('auth_user'))
       const userId = authUser?.id
 
-      // Obtener el idCompany del negocio del usuario
       const negocios = await fetch('http://localhost:3000/api/public/getCompanys', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       })
       const neg = await negocios.json()
-      const company = neg?.data?.negocios?.find(c => c.user_id === userId)
+      const company = neg?.data?.negocios?.find((c) => c.user_id === userId)
       const companyId = company.company_id
 
       const res = await fetch('http://localhost:3000/api/public/deleteServicio', {
@@ -89,14 +104,14 @@ export default function ServiciosBusiness() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id_company: companyId,
-          id_servicio: servicio.service_id
+          id_servicio: servicio.service_id,
         }),
       })
 
       const data = await res.json()
       if (data.success) {
         alert('✅ Servicio eliminado correctamente')
-        setServicios(prev => prev.filter(s => s.service_id !== servicio.service_id))
+        setServicios((prev) => prev.filter((s) => s.service_id !== servicio.service_id))
       } else {
         alert('❌ Error al eliminar el servicio')
       }
@@ -108,7 +123,7 @@ export default function ServiciosBusiness() {
 
   return (
     <div className="servicios-container">
-      <h2 className="servicios-title">Lista de servicios</h2>
+      <h2 className="servicios-title">Servicios por Categoría</h2>
 
       {/* 🔍 Barra de búsqueda */}
       <div className="servicios-busqueda">
@@ -121,40 +136,53 @@ export default function ServiciosBusiness() {
         />
       </div>
 
-      {/* 🧾 Contenido dinámico */}
+      {/* 🔘 Botones de categorías */}
+      <div className="categorias-filtros">
+        {categorias.map((cat) => (
+          <button
+            key={cat}
+            className={`categoria-btn ${categoriaSeleccionada === cat ? 'activa' : ''}`}
+            onClick={() => setCategoriaSeleccionada(cat)}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* 🧾 Lista agrupada */}
       {cargando ? (
         <p>Cargando servicios...</p>
       ) : error ? (
         <p className="error">{error}</p>
-      ) : serviciosFiltrados.length > 0 ? (
+      ) : Object.keys(serviciosPorCategoria).length > 0 ? (
         <div className="servicios-list">
-          {serviciosFiltrados.map((servicio) => (
-            <div key={servicio.service_id} className="servicio-card">
-              <div className="servicio-info">
-                <h3 className="servicio-nombre">{servicio.title}</h3>
-                <p className="servicio-precio">
-                  💰 {servicio.price.toLocaleString('es-CO')} COP
-                </p>
-                <p className="servicio-categoria">
-                  Categoría: {servicio.category_name}
-                </p>
-              </div>
-
-              {/* 🧩 Botones de acción */}
-              <div className="servicio-actions">
-                <button
-                  className="btn-edit"
-                  onClick={() => handleEdit(servicio, companyId)}
-                >
-                  <Edit size={18} />
-                </button>
-                <button
-                  className="btn-delete"
-                  onClick={() => handleDelete(servicio)}
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
+          {Object.entries(serviciosPorCategoria).map(([categoria, lista]) => (
+            <div key={categoria} className="categoria-section">
+              <h3 className="categoria-titulo">{categoria}</h3>
+              {lista.map((servicio) => (
+                <div key={servicio.service_id} className="servicio-card">
+                  <div>
+                    <h4 className="servicio-nombre">{servicio.title}</h4>
+                    <p className="servicio-precio">
+                      💰 {servicio.price.toLocaleString('es-CO')} COP
+                    </p>
+                  </div>
+                  <div className="servicio-actions">
+                    <button
+                      className="btn-edit"
+                      onClick={() => handleEdit(servicio, companyId)}
+                    >
+                      <Edit size={18} />
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDelete(servicio)}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           ))}
         </div>
@@ -162,7 +190,7 @@ export default function ServiciosBusiness() {
         <p className="sin-resultados">No se encontraron servicios</p>
       )}
 
-      {/* 🚀 Botones flotantes */}
+      {/* 🚀 Botones flotantes (igual que tu diseño) */}
       <div className="floating-buttons">
         <button className="floating-btn secondary" onClick={handleAddCategoria}>
           <Layers size={22} />
