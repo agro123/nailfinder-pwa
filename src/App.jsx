@@ -16,6 +16,7 @@ import Home from './pages/home/homeClient/Home'
 import HomeOther from './pages/home/homeClient/Other'
 import CitasUsuario from './pages/home/homeClient/CitasUsuario'
 import PerfilUsuario from './pages/home/homeClient/PerfilUsuario'
+import DetalleNegocio from './pages/home/homeClient/DetalleNegocio'
 /* Auth */
 import Login from './pages/auth/Login'
 import ProtectedRoute from './routes/ProtectedRoute'
@@ -101,6 +102,8 @@ export default function App() {
             <Route path="/other" element={<HomeOther />} />
             <Route path="/perfilusuario" element={<PerfilUsuario />} />
             <Route path="/citasusuario" element={<CitasUsuario />} /> 
+            <Route path="/detalle/:id" element={<DetalleNegocio />} />
+
           </Route>
           
           {/* Fallback */}
