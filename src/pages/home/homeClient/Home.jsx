@@ -17,6 +17,7 @@ export default function Home() {
         const res = await axios.get(
           "http://localhost:3000/api/public/getCompanys"
         );
+        console.log("📦 Datos recibidos del backend:", res.data);
         if (res.data.success) {
           setEmpresas(res.data.data.negocios || []);
         } else {
@@ -33,8 +34,8 @@ export default function Home() {
     fetchEmpresas();
   }, []);
 
-  const handleNavigate = (id) => {
-    navigate(`/detalle/${id}`);
+  const handleNavigate = (item) => {
+    navigate(`/detalle/${item.company_id}`, { state: { negocio: item } });
   };
 
   // Filtros de ejemplo (puedes mantenerlos)
@@ -68,7 +69,7 @@ export default function Home() {
     <div
       key={item.company_id}
       className="recommended-card"
-      onClick={() => handleNavigate(item.company_id)}
+      onClick={() => handleNavigate(item)}
     >
       {item.logo_uri && item.logo_uri.trim() !== "" ? (
         <img
