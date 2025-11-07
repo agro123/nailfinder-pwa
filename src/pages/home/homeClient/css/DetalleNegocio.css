@@ -86,18 +86,92 @@
   margin-bottom: 8px;
 }
 
+/* 🔍 Efecto al pasar sobre el logo*/
+.clickable-logo {
+  cursor: zoom-in;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clickable-logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2);
+}
+
+
 /* 📄 Contenido general */
 .detalle-descripcion p,
 .detalle-ubicacion p,
 .detalle-categorias p,
 .detalle-galeria p {
-  background: #f9f9f9; 
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid #eee;
+  background: none;        /* sin fondo */
+  border: none;            /* sin borde */
+  padding: 0;              /* sin espacio extra */
+  color: #555;             /* mantén el color del texto */
   font-size: 14px;
   line-height: 1.5;
+}
+
+
+/* ⭐ Rating general */
+.detalle-rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 15px;
   color: #555;
+  margin-top: 4px;
+}
+
+.detalle-rating .estrella {
+  color: #e91e63;
+  font-size: 16px;
+}
+
+.rating-valor {
+  font-weight: 600;
+  color: #333;
+}
+
+.rating-total {
+  font-size: 14px;
+  color: #777;
+}
+
+.sin-reseñas {
+  font-size: 14px;
+  color: #999;
+  font-style: sans-serif;
+}
+
+
+
+
+/* 🌸 Estado del negocio */
+.estado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #444;
+}
+
+/* 🔵 Círculo de estado (abierto/cerrado) */
+.estado::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* Verde si está abierto */
+.estado.abierto::before {
+  background-color: #4caf50;
+}
+
+/* Rojo si está cerrado */
+.estado.cerrado::before {
+  background-color: #f44336;
 }
 
 /* 🌸 Lista de categorías */
@@ -123,6 +197,47 @@
 .detalle-categorias li:hover {
   background: #ffd1e1;
 }
+
+/* 🕒 Horarios */
+.detalle-horarios {
+  margin-top: 25px;
+  border-top: 1px solid #ffe2ec;
+  padding-top: 15px;
+}
+
+.detalle-horarios h3 {
+  color: #e91e63;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.detalle-horarios ul {
+  list-style: none;
+  padding: 0;
+}
+
+.detalle-horarios li {
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #555;
+}
+
+/* 🗺️ Mapa */
+.map-container {
+  margin-top: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+}
+
+.map-container iframe {
+  width: 100%;
+  height: 250px;
+  border: none;
+  border-radius: 12px;
+}
+
 
 /* 🖼️ Galería */
 .galeria-imagenes {
@@ -154,38 +269,153 @@
   margin-top: 6px;
 }
 
-/* 🌐 Scrollable cuando hay más de 2 imágenes */
-.galeria-imagenes.scrollable {
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 8px; /* espacio para barra scroll */
+
+
+/* Modal */
+.modal-imagen {
+  position: fixed;
+  inset: 0;                 /* top:0; right:0; bottom:0; left:0 */
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  cursor: zoom-out;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.18s ease-in-out;
 }
 
-/* Scrollbar visible pequeña */
-.galeria-imagenes.scrollable::-webkit-scrollbar {
+/* Imagen ampliada */
+.imagen-ampliada {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 14px;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.5);
+  object-fit: contain;
+  transition: transform 180ms ease;
+  transform-origin: center center; /* importante */
+  will-change: transform;          /* ayuda al navegador */
+}
+
+/* Solo escalar cuando el cursor está sobre la imagen */
+.imagen-ampliada:hover {
+  transform: scale(1.02);
+}
+
+.clickable-img {
+  cursor: zoom-in;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border-radius: 12px;
+}
+
+.clickable-img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2);
+  z-index: 5;
+}
+
+/* Animación */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
+
+
+
+
+
+
+/* ⭐ Reseñas */
+.detalle-resenas {
+  margin-top: 25px;
+  border-top: 1px solid #ffe2ec;
+  padding-top: 15px;
+}
+
+.detalle-resenas h3 {
+  color: #e91e63;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.resenas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.resena-item {
+  background: #fff6fa;
+  border: 1px solid #ffd6e0;
+  border-radius: 12px;
+  padding: 10px 15px;
+  box-shadow: 0 2px 8px rgba(233, 30, 99, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.resena-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 12px rgba(233, 30, 99, 0.08);
+}
+
+.resena-autor {
+  font-weight: 600;
+  color: #e91e63;
+  margin: 0;
+}
+
+.resena-texto {
+  font-style: italic;
+  color: #555;
+  margin: 5px 0;
+}
+
+.resena-rating {
+  font-size: 13px;
+  color: #777;
+}
+
+
+/* 🌐 Scroll minimalista estilo Home */
+.galeria-imagenes {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 6px;
+}
+
+/* Scroll estilo “locales” (gris y minimalista) */
+.galeria-imagenes::-webkit-scrollbar {
   height: 6px;
 }
 
-.galeria-imagenes.scrollable::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
+.galeria-imagenes::-webkit-scrollbar-track {
+  background: #f1f1f1; /* gris muy claro */
+  border-radius: 10px;
 }
 
-.galeria-imagenes.scrollable::-webkit-scrollbar-thumb {
-  background: #d6c7c2;
-  border-radius: 3px;
+.galeria-imagenes::-webkit-scrollbar-thumb {
+  background: #cfcfcf; /* gris medio */
+  border-radius: 10px;
 }
 
-.galeria-imagenes.scrollable::-webkit-scrollbar-thumb:hover {
-  background: #b8b2b0;
+.galeria-imagenes::-webkit-scrollbar-thumb:hover {
+  background: #b3b3b3; /* gris un poco más oscuro al pasar */
 }
 
 /* Firefox */
-.galeria-imagenes.scrollable {
-  scrollbar-width: thin;
-  scrollbar-color: #d6c7c2 #f1f1f1;
+.galeria-imagenes {
+  scrollbar-width: thin; 
+  scrollbar-color: #cfcfcf #f1f1f1; 
 }
+
+
 
 /* 🌸 Emoji Box */
 .emoji-box.big {
