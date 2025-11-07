@@ -324,8 +324,39 @@
 
 
 
+/*Navegacion de imagenes ampliadas*/
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  /* sin fondo */
+  border: none;
+  /* sin borde */
+  color: #fff;
+  /* blanco */
+  font-size: 50px;
+  /* tamaño grande para visibilidad */
+  cursor: pointer;
+  z-index: 10000;
+  padding: 0;
+  /* sin padding */
+  user-select: none;
+  /* evita que se seleccione al hacer click */
+}
 
+.nav-btn:hover {
+  color: #f0f0f0;
+  /* un ligero cambio al pasar el mouse */
+}
 
+.nav-btn.prev {
+  left: 20px;
+}
+
+.nav-btn.next {
+  right: 20px;
+}
 
 
 
