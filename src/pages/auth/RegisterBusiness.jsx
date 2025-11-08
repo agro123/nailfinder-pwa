@@ -37,7 +37,12 @@ export default function RegisterBusiness() {
     reader.onloadend = () => {
       setFormData({
         ...formData,
-        profilePhoto: reader.result, // base64
+        profilePhoto: {
+          nombre: file.name,
+          type: file.type,
+          size: file.size,
+          data: reader.result.split(",")[1], 
+        },
         profilePreview: reader.result,
       });
     };
@@ -63,11 +68,32 @@ export default function RegisterBusiness() {
   const handleRegister = async (dataToSend = formData) => {
     setLoading(true);
     try {
+      console.log("📦 Datos enviados al backend:", {
+        name: dataToSend.name,
+        email: dataToSend.email.toLowerCase(),
+        password: dataToSend.password,
+        phone: dataToSend.phone,
+        companyname: dataToSend.companyname,
+        nit: dataToSend.nit || null,
+        companytype: dataToSend.companytype,
+        address: dataToSend.address,
+        logo: dataToSend.profilePhoto || null,
+      });
       
       const response = await fetch("http://localhost:3000/api/public/signupCompany", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataToSend),
+        body: JSON.stringify({
+          name: dataToSend.name,
+          email: dataToSend.email.toLowerCase(),
+          password: dataToSend.password,
+          phone: dataToSend.phone,
+          companyname: dataToSend.companyname,
+          nit: dataToSend.nit || null,
+          companytype: dataToSend.companytype,
+          address: dataToSend.address,
+          logo: dataToSend.profilePhoto || null, // 👈 el logo que el backend espera
+        }),
       });
 
       const result = await response.json();
@@ -124,7 +150,7 @@ export default function RegisterBusiness() {
             type="email"
             placeholder="Correo electrónico"
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value.toLowerCase() })}
             className="form-input"
           />
           
@@ -184,6 +210,17 @@ export default function RegisterBusiness() {
               className="form-button"
               onClick={() => {
                 if (validateStep1()) {
+                  console.log("🧾 Datos actuales del formulario (antes de enviar):", {
+                  ...formData,
+                  profilePhoto: formData.profilePhoto
+                    ? {
+                        ...formData.profilePhoto,
+                        data: formData.profilePhoto.data
+                          ? formData.profilePhoto.data.substring(0, 100) + "..." // solo una parte del base64
+                          : "Sin base64 (no seleccionada)",
+                      }
+                    : "Sin imagen seleccionada",
+                });
                   nextStep();
                 }
               }}

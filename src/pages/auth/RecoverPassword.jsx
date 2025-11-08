@@ -70,7 +70,7 @@ export default function Login() {
           type="email"
           placeholder="Ingrese su correo electrónico"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value.toLowerCase())}
         />
         <button className="enviar-recover" type="submit">Enviar</button>
         <button className="volver-recover" onClick={cancelar}>

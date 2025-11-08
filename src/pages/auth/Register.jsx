@@ -30,7 +30,7 @@ export default function Register() {
         },
         body: JSON.stringify({
           name: formData.name,
-          email: formData.email,
+          email: formData.email.toLowerCase(),
           password: formData.password,
           phone: formData.phone,
         }),
@@ -85,7 +85,7 @@ export default function Register() {
             placeholder="Contraseña"
             value={formData.password}
             onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
+              setFormData({ ...formData, password: e.target.value.toLowerCase() })
             }
           />
 
