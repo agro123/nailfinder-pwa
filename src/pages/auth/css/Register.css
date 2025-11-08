@@ -47,6 +47,7 @@
   font-size: 14px;
   outline: none;
   transition: border-color 0.3s;
+  box-sizing: border-box;
 }
 
 .step1 input:focus,
@@ -187,6 +188,7 @@
     width: 80%;
     max-width: 420px;
     padding: 40px;
+    
   }
 
   .register-logo {
@@ -208,6 +210,7 @@
     align-items: center;
     min-height: 100vh;
     padding: 0;
+    box-sizing: border-box;
   }
 
   .step1,
@@ -220,7 +223,8 @@
     border-radius: 10px;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
     margin: 0 auto;
-    gap: 10px;                 
+    gap: 10px;   
+    box-sizing: border-box;              
   }
 
   .register-logo {
@@ -238,6 +242,7 @@
   .step1 select {
     font-size: 0.85rem;
     padding: 8px;
+    box-sizing: border-box;
   }
 
   .step1 button,
@@ -285,7 +290,8 @@
   .step1 input,
   .step1 select {
     font-size: 0.8rem;
-    padding: 5px 8px;          
+    padding: 5px 8px;
+    box-sizing: border-box;
   }
 
   .step1 button,
@@ -326,6 +332,7 @@
   .register button {
     font-size: 0.75rem;
     padding: 4px 8px;
+    box-sizing: border-box;
   }
 
   .register button {
