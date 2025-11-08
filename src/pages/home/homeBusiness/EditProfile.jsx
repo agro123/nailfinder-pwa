@@ -16,11 +16,10 @@ export default function EditProfile() {
     latitude: '',
     longitude: '',
   })
-
   const [logoFile, setLogoFile] = useState(null)
-  const [bannerFiles, setBannerFiles] = useState([]) // varias imágenes
+  const [logoPreview, setLogoPreview] = useState(null)
+  const [bannerFiles, setBannerFiles] = useState([])
 
-  // 🔹 Conversor a base64 sin prefijo "data:image"
   const fileToBase64 = (file, renameKey = false) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader()
@@ -32,13 +31,13 @@ export default function EditProfile() {
           type: file.type,
           size: file.size,
           data: base64Data,
-          preview: reader.result, // para mostrar en pantalla
+          preview: reader.result,
         })
       }
       reader.onerror = (error) => reject(error)
     })
 
-  // 🔹 Cargar datos actuales del negocio
+  // 🔹 Cargar empresa y logo
   useEffect(() => {
     const obtenerEmpresa = async () => {
       try {
@@ -62,6 +61,11 @@ export default function EditProfile() {
             latitude: company.latitude || '',
             longitude: company.longitude || '',
           })
+
+          // ✅ Mostrar logo actual desde logo_uri si existe
+          if (company.logo_uri) {
+            setLogoPreview(company.logo_uri)
+          }
         }
       } catch (error) {
         console.error('Error obteniendo empresa:', error)
@@ -70,37 +74,23 @@ export default function EditProfile() {
     obtenerEmpresa()
   }, [])
 
-  // 🔹 Manejador de cambios
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  // 🔹 Logo (único)
+  // 🔹 Al cambiar logo, previsualizarlo
   const handleLogoChange = (e) => {
     const file = e.target.files[0]
-    if (file) setLogoFile(file)
+    if (file) {
+      setLogoFile(file)
+      setLogoPreview(URL.createObjectURL(file)) // Vista previa inmediata
+    }
   }
 
-  // 🔹 Agregar varias imágenes a la galería
-  const handleBannerChange = async (e) => {
-    const files = Array.from(e.target.files)
-    const convertedFiles = await Promise.all(
-      files.map((f) => fileToBase64(f, true))
-    )
-    setBannerFiles((prev) => [...prev, ...convertedFiles]) // 🔸 agregamos, no reemplazamos
-  }
-
-  // 🔹 Eliminar imagen de la galería
-  const handleRemoveBanner = (index) => {
-    setBannerFiles((prev) => prev.filter((_, i) => i !== index))
-  }
-
-  // 🔹 Guardar cambios
   const handleGuardar = async () => {
     try {
       const isEdit = !!companyData?.company_id
-
       const body = {
         id_company: companyData?.company_id || null,
         companyname: formData.companyname,
@@ -111,12 +101,11 @@ export default function EditProfile() {
         longitude: formData.longitude || null,
       }
 
-      // 🔸 Logo mantiene su estructura original
+      // Si cambió logo, incluirlo como base64
       if (logoFile) {
         body.logo = await fileToBase64(logoFile)
       }
 
-      // 🔸 Galería usa `name`
       if (bannerFiles.length > 0) {
         body.bannerGalery = bannerFiles.map((f) => ({
           name: f.name,
@@ -127,7 +116,6 @@ export default function EditProfile() {
         }))
       }
 
-      // 🔸 Eliminar campos vacíos
       Object.keys(body).forEach((key) => {
         if (
           body[key] === null ||
@@ -137,8 +125,6 @@ export default function EditProfile() {
           delete body[key]
         }
       })
-
-      console.log('📦 Datos enviados:', body)
 
       const url = isEdit
         ? 'http://localhost:3000/api/public/editCompany'
@@ -151,12 +137,10 @@ export default function EditProfile() {
       })
 
       const data = await resp.json()
-
       if (resp.ok && data.success) {
         alert(isEdit ? '✅ Cambios guardados con éxito' : '🏗️ Negocio creado')
         navigate('/settings')
       } else {
-        console.error('Error al guardar cambios:', data)
         alert('❌ Error al guardar: ' + (data.message || 'Error desconocido'))
       }
     } catch (error) {
@@ -169,6 +153,33 @@ export default function EditProfile() {
     <div className="edit-profile-container">
       <h2>{companyData ? 'Editar Negocio' : 'Registrar Negocio'}</h2>
 
+      {/* 🔹 Logo del negocio */}
+      <div className="logo-section">
+        <div className="logo-preview-container">
+          {logoPreview ? (
+            <img
+              src={logoPreview}
+              alt="Logo del negocio"
+              className="logo-preview"
+            />
+          ) : (
+            <div className="logo-placeholder">Sin logo</div>
+          )}
+        </div>
+
+        <label htmlFor="logoInput" className="btn-editar-logo">
+          {logoPreview ? 'Cambiar Logo' : 'Subir Logo'}
+        </label>
+        <input
+          id="logoInput"
+          type="file"
+          accept="image/*"
+          onChange={handleLogoChange}
+          style={{ display: 'none' }}
+        />
+      </div>
+
+      {/* 🔹 Campos de texto */}
       <div className="form-group">
         <label>Nombre del negocio</label>
         <input
@@ -228,43 +239,6 @@ export default function EditProfile() {
             onChange={handleChange}
           />
         </div>
-      </div>
-
-      <div className="form-group">
-        <label>Logo</label>
-        <input type="file" accept="image/*" onChange={handleLogoChange} />
-      </div>
-
-      <div className="form-group">
-        <label>Galería de banners</label>
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={handleBannerChange}
-        />
-
-        {/* 🔹 Vista previa de las imágenes agregadas */}
-        {bannerFiles.length > 0 && (
-          <div className="preview-gallery">
-            {bannerFiles.map((img, index) => (
-              <div key={index} className="preview-item">
-                <img
-                  src={img.preview}
-                  alt={`banner-${index}`}
-                  className="preview-image"
-                />
-                <button
-                  type="button"
-                  className="remove-btn"
-                  onClick={() => handleRemoveBanner(index)}
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       <button className="save-button" onClick={handleGuardar}>
