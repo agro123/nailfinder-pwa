@@ -7,21 +7,63 @@ import './css/Settings.css'
 export default function Settings() {
   const { logout, user } = useAuth()
   const navigate = useNavigate()
+
+  const [authUser, setAuthUser] = useState(null)
+  const [company, setCompany] = useState(null)
   const [notifCitas, setNotifCitas] = useState(true)
   const [notifReprogramadas, setNotifReprogramadas] = useState(true)
-  const [authUser, setAuthUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // 1️⃣ Intenta obtener el usuario desde el contexto
-    if (user) {
-      setAuthUser(user)
-    } else {
-      // 2️⃣ Si no hay contexto, obténlo desde localStorage
-      const storedUser = localStorage.getItem('auth_user')
-      if (storedUser) {
-        setAuthUser(JSON.parse(storedUser))
+    const fetchData = async () => {
+      try {
+        // 1️⃣ Cargar usuario
+        let activeUser = user
+        if (!activeUser) {
+          const storedUser = localStorage.getItem('auth_user')
+          if (storedUser) {
+            activeUser = JSON.parse(storedUser)
+          }
+        }
+        setAuthUser(activeUser)
+
+        if (!activeUser) {
+          console.warn('⚠️ No se encontró usuario autenticado.')
+          setLoading(false)
+          return
+        }
+
+        // 2️⃣ Obtener negocios desde el backend
+        const resp = await fetch('http://localhost:3000/api/public/getCompanys', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        })
+
+        const data = await resp.json()
+        if (!data?.data?.negocios) {
+          console.warn('⚠️ No se recibieron negocios del backend.')
+          setLoading(false)
+          return
+        }
+
+        // 3️⃣ Buscar el negocio del usuario autenticado
+        const foundCompany = data.data.negocios.find(
+          (c) => c.user_id === activeUser.id
+        )
+        if (foundCompany) {
+          setCompany(foundCompany)
+          console.log('✅ Empresa encontrada:', foundCompany)
+        } else {
+          console.warn('⚠️ No se encontró empresa asociada a este usuario.')
+        }
+      } catch (error) {
+        console.error('❌ Error obteniendo la empresa:', error)
+      } finally {
+        setLoading(false)
       }
     }
+
+    fetchData()
   }, [user])
 
   const handleLogout = () => {
@@ -29,7 +71,7 @@ export default function Settings() {
     navigate('/')
   }
 
-  if (!authUser) {
+  if (loading) {
     return <div className="settings-container">Cargando configuración...</div>
   }
 
@@ -41,21 +83,34 @@ export default function Settings() {
 
       {/* Perfil */}
       <section className="profile-section">
+        {/* Foto de perfil o logo */}
         <div className="profile-avatar">
-          {authUser.name?.charAt(0).toUpperCase() || 'U'}
+          {company?.logo_uri ? (
+            <img
+              src={company.logo_uri}
+              alt="Logo de la empresa"
+              className="profile-logo"
+            />
+          ) : (
+            <span>{authUser?.name?.charAt(0).toUpperCase() || 'U'}</span>
+          )}
         </div>
+
+        {/* Info del usuario */}
         <div className="profile-info">
           <h3>
-            {authUser.name} {authUser.lastname || ''}
+            {authUser?.name} {authUser?.lastname || ''}
           </h3>
-          {authUser.isCompany ? (
+          {authUser?.isCompany ? (
             <p>Administrador de empresa</p>
           ) : (
             <p>Usuario registrado</p>
           )}
-          <p className="profile-email">{authUser.email}</p>
-          {authUser.phone && <p>📞 {authUser.phone}</p>}
+          <p className="profile-email">{authUser?.email}</p>
+          {authUser?.phone && <p>📞 {authUser.phone}</p>}
+
         </div>
+
         <button className="edit-btn" onClick={() => navigate('/edit-profile')}>
           Editar negocio ✏️
         </button>
