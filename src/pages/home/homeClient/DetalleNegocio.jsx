@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./css/DetalleNegocio.css";
 import ReactDOM from "react-dom";
+import { ChevronLeft } from "lucide-react";
 
 export default function DetalleNegocio() {
   const { id } = useParams();
@@ -9,6 +10,16 @@ export default function DetalleNegocio() {
   const navigate = useNavigate();
   const [imagenAmpliada, setImagenAmpliada] = useState(null);
   const [imagenIndex, setImagenIndex] = useState(null);
+  const [esGaleria, setEsGaleria] = useState(false);
+  const [zoomActivo, setZoomActivo] = useState(false); //  nuevo estado para el zoom
+  const [posicionZoom, setPosicionZoom] = useState({ x: 0, y: 0 }); //  posición del mouse
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+  const minSwipeDistance = 50; // distancia mínima para considerar un swipe
+  const [posicionImagen, setPosicionImagen] = useState({ x: 0, y: 0 });
+  const [ultimoToque, setUltimoToque] = useState(null);
+
+
 
   const negocio = state?.negocio;
 
@@ -23,6 +34,95 @@ export default function DetalleNegocio() {
     };
   }, [imagenAmpliada]);
 
+
+
+
+
+      // --- CONTROL DE ZOOM Y MOVIMIENTO (PC y móvil) ---
+      const handleZoomClick = (e) => {
+        e.stopPropagation();
+        setZoomActivo((prev) => !prev);
+        setPosicionZoom({ x: 50, y: 50 }); // reinicia la posición al centro
+        setPosicionImagen({ x: 0, y: 0 }); // reinicia desplazamiento
+      };
+
+      // 🖱️ PC: mover con el mouse cuando el zoom está activo
+      const handleMouseMove = (e) => {
+        if (!zoomActivo) return;
+        const { left, top, width, height } = e.target.getBoundingClientRect();
+        const x = ((e.clientX - left) / width) * 100;
+        const y = ((e.clientY - top) / height) * 100;
+        setPosicionZoom({ x, y });
+      };
+
+      const handleMouseUp = () => {
+        // Nada por ahora, pero evita errores
+      };
+
+      // 📱 GESTOS TÁCTILES (swipe + desplazamiento con zoom)
+      const handleTouchStart = (e) => {
+        if (zoomActivo && e.touches.length === 1) {
+          // Guardar posición del dedo para mover la imagen
+          const touch = e.touches[0];
+          setUltimoToque({ x: touch.clientX, y: touch.clientY });
+        } else {
+          // Si no está en zoom, detectar inicio del swipe
+          setTouchStart(e.touches[0].clientX);
+        }
+      };
+
+      const handleTouchMove = (e) => {
+        if (zoomActivo && e.touches.length === 1 && ultimoToque) {
+          // Movimiento dentro del zoom (desplazar imagen)
+          const touch = e.touches[0];
+          const dx = touch.clientX - ultimoToque.x;
+          const dy = touch.clientY - ultimoToque.y;
+          setUltimoToque({ x: touch.clientX, y: touch.clientY });
+
+          setPosicionImagen((prev) => ({
+            x: prev.x + dx,
+            y: prev.y + dy,
+          }));
+        } else {
+          // Swipe normal para cambiar de imagen
+          setTouchEnd(e.touches[0].clientX);
+        }
+      };
+
+      const handleTouchEnd = () => {
+        if (zoomActivo) {
+          setUltimoToque(null);
+          return;
+        }
+
+        if (!touchStart || !touchEnd) return;
+        const distance = touchStart - touchEnd;
+
+        if (Math.abs(distance) > minSwipeDistance) {
+          if (distance > 0) {
+            const newIndex = (imagenIndex + 1) % negocio.bannersgalery.length;
+            setImagenIndex(newIndex);
+            setImagenAmpliada(negocio.bannersgalery[newIndex].uri);
+          } else {
+            const newIndex =
+              (imagenIndex - 1 + negocio.bannersgalery.length) %
+              negocio.bannersgalery.length;
+            setImagenIndex(newIndex);
+            setImagenAmpliada(negocio.bannersgalery[newIndex].uri);
+          }
+        }
+
+        setTouchStart(null);
+        setTouchEnd(null);
+      };
+
+
+
+
+
+
+
+
   // Si no hay datos (por ejemplo, si el usuario entra directo por URL)
   if (!negocio) {
     return (
@@ -30,7 +130,7 @@ export default function DetalleNegocio() {
         <h2>⚠️ No se encontró información del negocio</h2>
         <p>Es posible que hayas ingresado directamente al enlace.</p>
         <button className="back-btn" onClick={() => navigate(-1)}>
-          ⬅ Volver
+          <ChevronLeft size={28} strokeWidth={2} />
         </button>
       </div>
     );
@@ -39,10 +139,9 @@ export default function DetalleNegocio() {
   return (
     <div className="detalle-container">
       {/* Botón para volver */}
-      <button className="back-btn" onClick={() => navigate(-1)}>
-        ⬅ Volver
-      </button>
-
+        <button className="back-btn" onClick={() => navigate(-1)}>
+          <ChevronLeft size={28} strokeWidth={2} />
+        </button>
       {/* Logo del negocio */}
       <div className="detalle-header">
         {negocio.logo_uri ? (
@@ -50,7 +149,10 @@ export default function DetalleNegocio() {
             src={negocio.logo_uri}
             alt={negocio.company_name}
             className="detalle-logo clickable-logo"
-            onClick={() => setImagenAmpliada(negocio.logo_uri)} // 👈 abre el modal
+            onClick={() => {
+              setImagenAmpliada(negocio.logo_uri);
+              setEsGaleria(false); //  no es galería
+            }}
             onError={(e) => {
               e.target.onerror = null;
               e.target.replaceWith(
@@ -182,6 +284,7 @@ export default function DetalleNegocio() {
                   onClick={() => {
                     setImagenAmpliada(img.uri);
                     setImagenIndex(i);
+                    setEsGaleria(true); // sí es galería
                   }}
                 />
                 {img.descripcion && (
@@ -195,10 +298,31 @@ export default function DetalleNegocio() {
         )}
       </div>
 
-      {/* 🖼️ Modal de imagen ampliada */}
-      {imagenAmpliada &&
-        ReactDOM.createPortal(
-          <div className="modal-imagen" onClick={() => setImagenAmpliada(null)}>
+
+
+    {/* 🖼️ Modal de imagen ampliada */}
+    {imagenAmpliada &&
+      ReactDOM.createPortal(
+        <div
+          className="modal-imagen"
+          onClick={() => {
+            setImagenAmpliada(null);
+            setZoomActivo(false);
+          }}
+        >
+          {/* ❌ Botón de cerrar */}
+          <button
+            className="cerrar-btn"
+            onClick={(e) => {
+              e.stopPropagation(); // evita cerrar al hacer clic en el modal
+              setImagenAmpliada(null);
+              setZoomActivo(false);
+            }}
+          >
+            ✕
+          </button>
+
+          {esGaleria && (
             <button
               className="nav-btn prev"
               onClick={(e) => {
@@ -212,14 +336,40 @@ export default function DetalleNegocio() {
             >
               ‹
             </button>
+          )}
 
+          
             <img
               src={imagenAmpliada}
               alt="Vista ampliada"
-              className="imagen-ampliada"
-              onClick={(e) => e.stopPropagation()}
+              className={`imagen-ampliada ${zoomActivo ? "zoom" : ""}`}
+              onClick={handleZoomClick}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              style={
+                zoomActivo
+                  ? {
+                      transform: `scale(2) translate(${posicionImagen.x / 5}px, ${posicionImagen.y / 5}px)`,
+                      transformOrigin: `${posicionZoom.x}% ${posicionZoom.y}%`,
+                      cursor: "zoom-out",
+                      transition: "transform 0.15s ease",
+                    }
+                  : {
+                      transform: "scale(1)",
+                      cursor: "zoom-in",
+                      transition: "transform 0.3s ease",
+                    }
+              }
             />
 
+
+
+
+          {esGaleria && (
             <button
               className="nav-btn next"
               onClick={(e) => {
@@ -232,9 +382,11 @@ export default function DetalleNegocio() {
             >
               ›
             </button>
-          </div>,
-          document.body
-        )}
+          )}
+        </div>,
+        document.body
+      )}
+
 
       {/* ⭐ Reseñas */}
       <div className="detalle-resenas">
@@ -253,6 +405,7 @@ export default function DetalleNegocio() {
           <p>Este negocio aún no tiene reseñas.</p>
         )}
       </div>
-    </div>
+    </div> 
   );
 }
+
