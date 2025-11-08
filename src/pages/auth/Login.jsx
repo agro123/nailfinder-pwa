@@ -82,10 +82,10 @@ export default function Login() {
           alt=" Isologo NailFinder"
           className="login-logo"
         />
-        <h2>Iniciar sesión</h2>
+        <h2>Inicia Sesión</h2>
         <input
           type="text"
-          placeholder="Correo electrónico"
+          placeholder="Correo Electrónico"
           value={username}
           onChange={(e) => setUsername(e.target.value.toLowerCase())}
         />
@@ -102,14 +102,22 @@ export default function Login() {
         <button type="submit">Entrar</button>
       </form>
 
-      <div className="login-links">
+        <div className="login-links user-register">
         <p>
           ¿No tienes cuenta?{" "}
-          <Link to="/register">Regístrate aquí</Link>
+          <Link to="/register" className="business-link">
+            Regístrate aquí
+          </Link>
         </p>
+      </div>
+
+            {/* 🔽 Registro de negocio (parte inferior de la pantalla) */}
+      <div className="business-register">
         <p>
           ¿Tienes un negocio?{" "}
-          <Link to="/registerB">Regístrate aquí</Link>
+          <Link to="/registerB" className="business-link">
+            Regístralo aquí
+          </Link>
         </p>
       </div>
     </div>
