@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./css/DetalleNegocio.css";
 
@@ -8,6 +8,53 @@ export default function DetalleNegocio() {
     const navigate = useNavigate();
 
     const negocio = state?.negocio;
+
+    const [servicios, setServicios] = useState([]);
+    const [loadingServicios, setLoadingServicios] = useState(true);
+
+    useEffect(() => {
+        const idCompany = negocio?.company_id;
+
+        console.log("🧠 ID de empresa detectado:", idCompany);
+
+        if (idCompany) {
+            const fetchServicios = async () => {
+            try {
+                console.log("🚀 Solicitando servicios para empresa:", idCompany);
+                const response = await fetch(
+                `http://localhost:3000/api/public/verServicios?idCompany=${idCompany}`
+                );
+                const text = await response.text();
+                console.log("📄 Respuesta completa:", text);
+
+                let data;
+                try {
+                data = JSON.parse(text);
+                } catch (e) {
+                console.error("❌ Respuesta no es JSON válido.");
+                setServicios([]);
+                return;
+                }
+
+                if (data.success && data.data?.servicios) {
+                console.log("💅 Servicios recibidos:", data.data.servicios);
+                setServicios(data.data.servicios);
+                } else {
+                console.warn("⚠️ No se encontraron servicios.");
+                setServicios([]);
+                }
+            } catch (error) {
+                console.error("🚨 Error cargando servicios:", error);
+            } finally {
+                setLoadingServicios(false);
+            }
+            };
+            fetchServicios();
+        } else {
+            console.warn("⚠️ No hay company_id, no se hará fetch.");
+        }
+        }, [negocio]);
+
 
     // Si no hay datos (por ejemplo, si el usuario entra directo por URL)
     if (!negocio) {
@@ -86,6 +133,44 @@ export default function DetalleNegocio() {
             </ul>
             ) : (
             <p>Aún no se ha categorizado el negocio.</p>
+            )}
+        </div>
+
+        {/* Servicios */}
+        <div className="detalle-servicios">
+            <h3>Servicios</h3>
+            {loadingServicios ? (
+            <p>Cargando servicios...</p>
+            ) : servicios.length > 0 ? (
+            <div className="servicios-grid">
+                {servicios.map((serv, i) => (
+                <div key={i} className="servicio-card">
+                    <div className="servicio-header">
+                    {serv.images?.length > 0 ? (
+                        <img
+                        src={serv.images[0].uri}
+                        alt={serv.title}
+                        className="servicio-img"
+                        onError={(e) => (e.target.style.display = "none")}
+                        />
+                    ) : (
+                        <div className="emoji-box">💅</div>
+                    )}
+                    </div>
+                    <div className="servicio-body">
+                    <h4>{serv.title}</h4>
+                    <p>{serv.description || "Sin descripción."}</p>
+                    <p><strong>Precio:</strong> {serv.price ? `$${serv.price}` : "No especificado"}</p>
+                    <p>
+                        <strong>⏱ Duración:</strong>{" "}
+                        {serv.duration ? `${serv.duration} min` : "N/A"}
+                    </p>
+                    </div>
+                </div>
+                ))}
+            </div>
+            ) : (
+            <p>Este negocio aún no tiene servicios registrados.</p>
             )}
         </div>
 
