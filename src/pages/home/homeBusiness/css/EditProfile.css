@@ -146,3 +146,53 @@ textarea:focus {
     font-size: 14px;
   }
 }
+
+/* === LOGO DEL NEGOCIO === */
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.logo-preview-container {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #ffe6eb;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background-color: #fdfdfd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.logo-placeholder {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.btn-editar-logo {
+  margin-top: 0.8rem;
+  background-color: #e25b7a;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-editar-logo:hover {
+  background-color: #d34669;
+  transform: translateY(-1px);
+}
+

@@ -118,23 +118,31 @@ export default function Settings() {
 
       {/* Opciones principales */}
       <section className="settings-grid">
-        <div className="grid-item">
+        <div
+          className="grid-item"
+          onClick={() => navigate('/gallery')}
+          style={{ cursor: 'pointer' }}
+        >
           <BarChart2 size={22} />
-          <span>Reportes</span>
+          <span>Galería</span>
         </div>
+
         <div className="grid-item">
           <Home size={22} />
           <span>Sedes</span>
         </div>
+
         <div className="grid-item">
           <Users size={22} />
           <span>Equipo</span>
         </div>
+
         <div className="grid-item">
           <Share2 size={22} />
           <span>Compartir</span>
         </div>
       </section>
+
 
       {/* Historial */}
       <div className="history-btn">
