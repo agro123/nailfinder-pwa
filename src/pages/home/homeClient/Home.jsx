@@ -52,6 +52,7 @@ const filterCategory = async (categoria) => {
   
 const fetchEmpresas = async (nuevaCategoria) => {
   try {
+     setCategoriaSeleccionada(nuevaCategoria);
     const res = await axios.get(`http://localhost:3000/api/public/getCompanys?id_category=${encodeURIComponent(nuevaCategoria)}`);
     console.log("📦 Datos recibidos del backend:", res.data);
     if (res.data.success) {
