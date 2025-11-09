@@ -186,7 +186,17 @@ export default function DetalleNegocio() {
     return (
         <div className="detalle-container">
         {/* 🔙 Botón para volver */}
-        <button className="back-btn" onClick={() => navigate(-1)}>
+        <button
+        className="back-btn"
+            onClick={() => {
+                if (state?.desdeAgenda || state?.desdeConfirmacion) {
+                // Si viene desde Agenda o desde una confirmación de cita
+                navigate("/", { replace: true });
+                } else {
+                navigate(-1);
+                }
+            }}
+        >
             <ChevronLeft size={28} strokeWidth={2} />
         </button>
 
