@@ -210,7 +210,14 @@
 
 
 
-
+/* --- Errores --- */
+.error {
+  color: #d93025;
+  font-size: 0.9rem;
+  margin-top: -8px;
+  margin-bottom: 10px;
+  display: block;
+}
 
 
 /* --- Animación del mensaje --- */
