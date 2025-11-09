@@ -25,22 +25,10 @@ export default function Agenda() {
     // 🔹 Generar disponibilidad con lógica de cierre y agenda llena
     const generarDisponibilidad = (fecha) => {
         const clave = `${idProfesional}-${fecha.toDateString()}`;
-        if (disponibilidadesGuardadas[clave]) {
-            return disponibilidadesGuardadas[clave];
-        }
 
-        const horas = [
-            "8:00 a.m.", "9:00 a.m.", "10:00 a.m.", "11:00 a.m.",
-            "1:00 p.m.", "2:00 p.m.", "3:00 p.m.", "4:00 p.m.", "5:00 p.m."
-        ];
-
-        // Simular disponibilidad aleatoria
-        const copia = [...horas];
-        copia.sort(() => 0.5 - Math.random());
-        const cantidad = Math.floor(Math.random() * (horas.length - 3)) + 3;
-        let seleccionadas = copia
-            .slice(0, cantidad)
-            .sort((a, b) => horas.indexOf(a) - horas.indexOf(b));
+        // Si ya tenemos horas guardadas, las usamos,
+        // PERO igual evaluamos el mensajeEstado.
+        let seleccionadas = disponibilidadesGuardadas[clave];
 
         const hoy = new Date();
         const esHoy =
@@ -48,10 +36,26 @@ export default function Agenda() {
             fecha.getMonth() === hoy.getMonth() &&
             fecha.getFullYear() === hoy.getFullYear();
 
+        if (!seleccionadas) {
+            const horas = [
+                "8:00 a.m.", "9:00 a.m.", "10:00 a.m.", "11:00 a.m.",
+                "1:00 p.m.", "2:00 p.m.", "3:00 p.m.", "4:00 p.m.", "5:00 p.m."
+            ];
+
+            const copia = [...horas];
+            copia.sort(() => 0.5 - Math.random());
+            const cantidad = Math.floor(Math.random() * (horas.length - 3)) + 3;
+
+            seleccionadas = copia
+                .slice(0, cantidad)
+                .sort((a, b) => horas.indexOf(a) - horas.indexOf(b));
+
+            disponibilidadesGuardadas[clave] = seleccionadas;
+        }
+
+        // ✅ Este bloque SIEMPRE se ejecuta al seleccionar la fecha
         if (esHoy) {
             const horaActual = hoy.getHours() + hoy.getMinutes() / 60;
-
-            // 🔸 Filtrar horas pasadas
             seleccionadas = seleccionadas.filter((horaStr) => {
                 const match = horaStr.match(/(\d+):(\d+)\s?(a\.m\.|p\.m\.)/i);
                 if (!match) return true;
@@ -64,24 +68,19 @@ export default function Agenda() {
                 return horaDecimal > horaActual;
             });
 
-            // 🔹 Mostrar mensaje si todas las horas pasaron
             if (seleccionadas.length === 0 && horaActual >= 17.5) {
                 setMensajeEstado("Ya no atendemos hoy. Agenda para mañana 💅");
-            } 
-            // 🔹 Mostrar mensaje si el filtro aleatorio eliminó todas
-            else if (seleccionadas.length === 0) {
+            } else if (seleccionadas.length === 0) {
                 setMensajeEstado("Ya tenemos agenda llena hoy. Intenta mañana 🕓");
             } else {
                 setMensajeEstado("");
             }
         } else {
-            // Si es otro día, limpiar cualquier mensaje
             setMensajeEstado("");
         }
+            return seleccionadas;
+        };
 
-        disponibilidadesGuardadas[clave] = seleccionadas;
-        return seleccionadas;
-    };
 
     const horasDisponibles = useMemo(
         () => generarDisponibilidad(fechaSeleccionada),
