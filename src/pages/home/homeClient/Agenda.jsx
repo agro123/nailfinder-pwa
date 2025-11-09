@@ -1,11 +1,9 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./css/Agenda.css";
 import { ChevronLeft } from "lucide-react";
-
-const disponibilidadesGuardadas = {};
 
 export default function Agenda() {
     const { idProfesional } = useParams();
@@ -17,81 +15,84 @@ export default function Agenda() {
     const negocio = state?.negocio;
 
     const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date());
+    const [disponibilidad, setDisponibilidad] = useState(null);
     const [horaSeleccionada, setHoraSeleccionada] = useState(null);
     const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
     const [mostrarExito, setMostrarExito] = useState(false);
     const [mensajeEstado, setMensajeEstado] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    // 🔹 Generar disponibilidad con lógica de cierre y agenda llena
-    const generarDisponibilidad = (fecha) => {
-        const clave = `${idProfesional}-${fecha.toDateString()}`;
-
-        // Si ya tenemos horas guardadas, las usamos,
-        // PERO igual evaluamos el mensajeEstado.
-        let seleccionadas = disponibilidadesGuardadas[clave];
-
-        const hoy = new Date();
-        const esHoy =
-            fecha.getDate() === hoy.getDate() &&
-            fecha.getMonth() === hoy.getMonth() &&
-            fecha.getFullYear() === hoy.getFullYear();
-
-        if (!seleccionadas) {
-            const horas = [
-                "8:00 a.m.", "9:00 a.m.", "10:00 a.m.", "11:00 a.m.",
-                "1:00 p.m.", "2:00 p.m.", "3:00 p.m.", "4:00 p.m.", "5:00 p.m."
-            ];
-
-            const copia = [...horas];
-            copia.sort(() => 0.5 - Math.random());
-            const cantidad = Math.floor(Math.random() * (horas.length - 3)) + 3;
-
-            seleccionadas = copia
-                .slice(0, cantidad)
-                .sort((a, b) => horas.indexOf(a) - horas.indexOf(b));
-
-            disponibilidadesGuardadas[clave] = seleccionadas;
-        }
-
-        // ✅ Este bloque SIEMPRE se ejecuta al seleccionar la fecha
-        if (esHoy) {
-            const horaActual = hoy.getHours() + hoy.getMinutes() / 60;
-            seleccionadas = seleccionadas.filter((horaStr) => {
-                const match = horaStr.match(/(\d+):(\d+)\s?(a\.m\.|p\.m\.)/i);
-                if (!match) return true;
-                let h = parseInt(match[1]);
-                const m = parseInt(match[2]);
-                const ampm = match[3].toLowerCase();
-                if (ampm === "p.m." && h !== 12) h += 12;
-                if (ampm === "a.m." && h === 12) h = 0;
-                const horaDecimal = h + m / 60;
-                return horaDecimal > horaActual;
-            });
-
-            if (seleccionadas.length === 0 && horaActual >= 17.5) {
-                setMensajeEstado("Ya no atendemos hoy. Agenda para mañana 💅");
-            } else if (seleccionadas.length === 0) {
-                setMensajeEstado("Ya tenemos agenda llena hoy. Intenta mañana 🕓");
-            } else {
-                setMensajeEstado("");
-            }
-        } else {
+    // 🔹 Cargar disponibilidad desde el backend
+    const obtenerDisponibilidad = async (fecha) => {
+        try {
+            setLoading(true);
             setMensajeEstado("");
+            setError(null);
+            setDisponibilidad(null);
+            setHoraSeleccionada(null);
+
+            const fechaISO = fecha.toISOString().split("T")[0]; // yyyy-mm-dd
+
+            // Validaciones mínimas
+            if (!servicio?.service_id || !profesional?.id || !negocio?.company_id) {
+                setMensajeEstado("Faltan datos del servicio, trabajador o empresa.");
+                return;
+            }
+
+            const url = `http://localhost:3000/api/public/getAvailableHours?date=${fechaISO}&serviceId=${servicio.service_id}&userId=${profesional.id}&companyId=${negocio.company_id}`;
+
+            console.log("🗓️ Solicitando disponibilidad:", url);
+
+            const response = await fetch(url);
+            const result = await response.json();
+
+            // Log para depuración: ver la estructura completa que regresa el backend
+            console.log("📥 Respuesta getAvailableHours:", result);
+
+            if (!result.success) {
+                throw new Error(result.message || "Error al obtener disponibilidad");
+            }
+
+            const diaData = (result.data || []).find((d) => d.date === fechaISO);
+
+            if (!diaData) {
+                // No viene información para ese día
+                setDisponibilidad({ morning: [], afternoon: [], night: [] });
+                setMensajeEstado("No hay disponibilidad para esta fecha.");
+                return;
+            }
+
+            const { morning = [], afternoon = [], night = [] } = diaData.periods || {};
+
+            // Si todas las franjas están vacías -> mensaje
+            const totalHoras = (morning.length + afternoon.length + night.length);
+            if (totalHoras === 0) {
+                setDisponibilidad({ morning: [], afternoon: [], night: [] });
+                setMensajeEstado("No hay horas disponibles para esta fecha.");
+                return;
+            }
+
+            // Si hay horas, guardarlas y limpiar mensaje
+            setDisponibilidad({ morning, afternoon, night });
+            setMensajeEstado("");
+        } catch (err) {
+            console.error("❌ Error obteniendo disponibilidad:", err);
+            setError("No se pudo obtener la disponibilidad.");
+            setMensajeEstado("No se pudo obtener la disponibilidad.");
+            setDisponibilidad({ morning: [], afternoon: [], night: [] });
+        } finally {
+            setLoading(false);
         }
-            return seleccionadas;
-        };
+    };
 
-
-    const horasDisponibles = useMemo(
-        () => generarDisponibilidad(fechaSeleccionada),
-        [fechaSeleccionada, idProfesional]
-    );
-
+    // 🔹 Llamar al cargar y al cambiar fecha / profesional / servicio / negocio
     useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
+        obtenerDisponibilidad(fechaSeleccionada);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fechaSeleccionada, profesional, servicio, negocio]);
 
-    // 🔹 Bloquea retroceso luego de confirmar
+    // 🔹 Bloquear retroceso luego de confirmar
     useEffect(() => {
         const handlePopState = (event) => {
             event.preventDefault();
@@ -103,20 +104,103 @@ export default function Agenda() {
 
     const handleContinuar = () => setMostrarConfirmacion(true);
 
-    const handleConfirmar = () => {
-        setMostrarConfirmacion(false);
-        setMostrarExito(true);
-        setTimeout(() => {
-            navigate(`/detalle/${negocio.company_id}`, {
-                state: { negocio, desdeConfirmacion: true },
-                replace: true,
-            });
-        }, 2000);
+    const calcularHoraFin = (horaInicio, duracionMinutos) => {
+        const [h, m] = horaInicio.split(":").map(Number);
+        const fecha = new Date();
+        fecha.setHours(h);
+        fecha.setMinutes(m + (duracionMinutos || 30)); // por defecto 30 minutos
+        const finH = fecha.getHours().toString().padStart(2, "0");
+        const finM = fecha.getMinutes().toString().padStart(2, "0");
+        return `${finH}:${finM}`;
     };
 
-    const handleVolver = () => {
-        navigate(`/detalle/${negocio?.company_id}`, { state: { negocio }, replace: true });
+
+    const handleConfirmarCita = async () => {
+        if (!fechaSeleccionada || !horaSeleccionada) {
+            alert("Selecciona una fecha y hora antes de confirmar.");
+            return;
+        }
+
+        try {
+            const body = {
+                clientId: 1, // ⚠️ cambia esto por el id real del cliente autenticado
+                employeeId: profesional.id, // id del trabajador seleccionado
+                branchId: negocio.branch_id || negocio.id_branch || 14, // ajusta según tu estructura
+                date: fechaSeleccionada, // formato YYYY-MM-DD
+                startAt: horaSeleccionada, // hora seleccionada, ej: "10:00"
+                endAt: calcularHoraFin(horaSeleccionada, servicio.duration), // función auxiliar abajo 👇
+                services: [servicio.service_id], // el id del servicio que se agenda
+            };
+
+            console.log("📤 Enviando cita:", body);
+
+            const response = await fetch("http://localhost:3000/api/public/createAppointment", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                setMostrarConfirmacion(false);
+                setMostrarExito(true);
+
+                // 🔹 Espera 2 segundos mostrando el modal de éxito y luego vuelve al detalle del negocio
+                setTimeout(() => {
+                    navigate(`/detalle/${negocio.company_id}`, {
+                        state: { negocio, desdeConfirmacion: true },
+                        replace: true,
+                    });
+                }, 2000);
+            } else {
+                alert(`❌ Error: ${result.message || "No se pudo crear la cita."}`);
+            }
+        } catch (err) {
+            console.error("Error al crear la cita:", err);
+            alert("Ocurrió un error al intentar registrar la cita.");
+        }
     };
+
+
+    const handleVolver = () => {
+        navigate(`/detalle/${negocio?.company_id}`, { 
+            state: { negocio, desdeAgenda: true }, 
+            replace: true 
+        });
+    };
+
+    // 🟢 Vista previa del JSON antes de confirmar cita
+    useEffect(() => {
+        if (!fechaSeleccionada || !horaSeleccionada || !servicio?.service_id || !profesional?.id || !negocio?.company_id) {
+            console.log("⚠️ Faltan datos para construir el JSON de cita");
+            return;
+        }
+
+        const fechaISO = fechaSeleccionada.toISOString().split("T")[0];
+        const citaPreview = {
+            clientId: 1, // ⚠️ Cambiar por el ID real del cliente autenticado
+            employeeId: profesional.id,
+            branchId: negocio.branch_id || negocio.id_branch || 14,
+            date: fechaISO,
+            startAt: horaSeleccionada,
+            endAt: (() => {
+                const [h, m] = horaSeleccionada.split(":").map(Number);
+                const f = new Date();
+                f.setHours(h);
+                f.setMinutes(m + (servicio.duration || 30));
+                const finH = f.getHours().toString().padStart(2, "0");
+                const finM = f.getMinutes().toString().padStart(2, "0");
+                return `${finH}:${finM}`;
+            })(),
+            services: [servicio.service_id],
+        };
+
+        console.log("🟢 Vista previa del JSON que se enviará:", citaPreview);
+    }, [fechaSeleccionada, horaSeleccionada, servicio, profesional, negocio]);
+
 
     return (
         <div className="agenda-container">
@@ -124,7 +208,7 @@ export default function Agenda() {
                 <ChevronLeft size={28} strokeWidth={2} />
             </button>
 
-            <h2>📅 Agenda de {profesional?.nombre}</h2>
+            <h2>📅 Agenda de {profesional?.nombre || profesional?.name}</h2>
 
             <div className="calendar-section">
                 <Calendar
@@ -137,22 +221,45 @@ export default function Agenda() {
             <div className="horarios-section">
                 <h3>Selecciona una hora para {fechaSeleccionada.toLocaleDateString()}</h3>
 
-                {mensajeEstado ? (
+                {loading ? (
+                    <p>Cargando disponibilidad...</p>
+                ) : error ? (
+                    <p className="mensaje-estado">{mensajeEstado || error}</p>
+                ) : mensajeEstado ? (
                     <div className="mensaje-estado-container">
                         <p className="mensaje-estado">{mensajeEstado}</p>
                     </div>
-                ) : (
-                    <div className="horarios-grid">
-                        {horasDisponibles.map((hora, i) => (
-                            <button
-                                key={i}
-                                className={`hora-btn ${hora === horaSeleccionada ? "seleccionada" : ""}`}
-                                onClick={() => setHoraSeleccionada(hora)}
-                            >
-                                {hora}
-                            </button>
+                ) : disponibilidad ? (
+                    <>
+                        {["morning", "afternoon", "night"].map((periodo) => (
+                            disponibilidad[periodo]?.length > 0 && (
+                                <div key={periodo}>
+                                    <h4 className="titulo-periodo">
+                                        {periodo === "morning"
+                                            ? "☀️ Mañana"
+                                            : periodo === "afternoon"
+                                            ? "🌇 Tarde"
+                                            : "🌙 Noche"}
+                                    </h4>
+                                    <div className="horarios-grid">
+                                        {disponibilidad[periodo].map((hora, i) => (
+                                            <button
+                                                key={i}
+                                                className={`hora-btn ${
+                                                    hora === horaSeleccionada ? "seleccionada" : ""
+                                                }`}
+                                                onClick={() => setHoraSeleccionada(hora)}
+                                            >
+                                                {hora}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )
                         ))}
-                    </div>
+                    </>
+                ) : (
+                    <p>No hay horarios disponibles.</p>
                 )}
             </div>
 
@@ -183,7 +290,7 @@ export default function Agenda() {
                         </div>
 
                         <div className="detalle-cita">
-                            <p><strong>👩 Profesional:</strong> {profesional?.nombre}</p>
+                            <p><strong>👩 Profesional:</strong> {profesional?.nombre || profesional?.name}</p>
                             <p><strong>📅 Fecha:</strong> {fechaSeleccionada.toLocaleDateString()}</p>
                             <p><strong>⏰ Hora:</strong> {horaSeleccionada}</p>
                             <p><strong>🕓 Duración:</strong> {servicio?.duration ? `${servicio.duration} min` : "60 min"}</p>
@@ -205,7 +312,7 @@ export default function Agenda() {
 
                         <div className="modal-actions">
                             <button className="cancelar-btn" onClick={() => setMostrarConfirmacion(false)}>Cancelar</button>
-                            <button className="confirmar-btn" onClick={handleConfirmar}>Confirmar Cita</button>
+                            <button className="confirmar-btn" onClick={handleConfirmarCita}>Confirmar Cita</button>
                         </div>
                     </div>
                 </div>
