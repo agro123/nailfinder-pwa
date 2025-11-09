@@ -1,12 +1,15 @@
 .agenda-container {
-  font-family: 'Poppins', sans-serif;
-  background-color: #fff;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 20px 16px 70px;
-  color: #333;
+  align-items: center;
+  padding: 40px 0;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
+
+
 
 /* Encabezado */
 .agenda-container h2 {
