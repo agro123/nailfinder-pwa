@@ -65,6 +65,7 @@ export default function Home() {
   );
 
   // Render de tarjeta
+  
   const renderCard = (item) => (
     <div
       key={item.company_id}
