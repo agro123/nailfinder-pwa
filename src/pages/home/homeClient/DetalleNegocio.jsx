@@ -22,6 +22,17 @@ export default function DetalleNegocio() {
     const negocio = state?.negocio;
     const [servicios, setServicios] = useState([]);
     const [loadingServicios, setLoadingServicios] = useState(true);
+    const [categorias, setCategorias] = useState([]);
+    const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('Todas');
+    const [loadingCategorias, setLoadingCategorias] = useState(true);
+
+
+
+  
+
+    const serviciosFiltrados = categoriaSeleccionada === 'Todas'
+  ? servicios
+  : servicios.filter(s => s.category_name === categoriaSeleccionada);
 
     // 🔒 Bloqueo de retroceso si viene desde una confirmación de cita
     useEffect(() => {
@@ -71,9 +82,18 @@ export default function DetalleNegocio() {
             if (data.success && data.data?.servicios) {
                 console.log("💅 Servicios recibidos:", data.data.servicios);
                 setServicios(data.data.servicios);
+
+                // EXTRAER CATEGORÍAS
+                const cats = [...new Set(data.data.servicios.map(s => s.category_name || 'Sin categoría'))];
+                setCategorias(['Todas', ...cats]);
+
+                // ✅ Indicar que ya cargaron las categorías
+                setLoadingCategorias(false);
             } else {
                 console.warn("⚠️ No se encontraron servicios.");
                 setServicios([]);
+                setCategorias(['Todas']); // Por si acaso
+                setLoadingCategorias(false);
             }
             } catch (error) {
             console.error("🚨 Error cargando servicios:", error);
@@ -263,16 +283,25 @@ export default function DetalleNegocio() {
         {/* 🏷️ Categorías */}
         <div className="detalle-categorias">
             <h3>Categorías</h3>
-            {negocio.categories?.length > 0 ? (
-            <ul>
-                {negocio.categories.map((cat, i) => (
-                <li key={i}>💅 {cat.category_name}</li>
+            {loadingCategorias ? (
+                <p>Cargando categorías...</p>
+            ) : categorias.length > 0 ? (
+                <div className="categorias-filtros">
+                {categorias.map((cat) => (
+                    <button
+                    key={cat}
+                    className={`categoria-btn ${categoriaSeleccionada === cat ? 'activa' : ''}`}
+                    onClick={() => setCategoriaSeleccionada(cat)}
+                    >
+                    {cat}
+                    </button>
                 ))}
-            </ul>
+                </div>
             ) : (
-            <p>Aún no se ha categorizado el negocio.</p>
+                <p>Aún no se ha categorizado el negocio.</p>
             )}
-        </div>
+            </div>
+
 
         {/* 💅 Servicios */}
         <div className="detalle-servicios">
@@ -281,40 +310,45 @@ export default function DetalleNegocio() {
             <p>Cargando servicios...</p>
             ) : servicios.length > 0 ? (
             <div className="servicios-grid">
-                {servicios.map((serv, i) => (
-                    console.log("🧩 Servicio:", serv),
-                <div
-                    key={i}
-                    className="servicio-card"
-                    onClick={() => navigate(`/profesionales/${serv.service_id}`, { state: { servicio: serv, negocio } })}
-                    style={{ cursor: "pointer" }}
-                >
-                    <div className="servicio-header">
-                    {serv.images?.length > 0 ? (
-                        <img
-                        src={serv.images[0].uri}
-                        alt={serv.title}
-                        className="servicio-img"
-                        onError={(e) => (e.target.style.display = "none")}
-                        />
-                    ) : (
-                        <div className="emoji-box">💅</div>
-                    )}
+                {serviciosFiltrados.map((serv, i) => {
+                // Si quieres ver los datos en consola
+                console.log("🧩 Servicio:", serv);
+
+                return (
+                    <div
+                        key={i}
+                        className="servicio-card"
+                        onClick={() =>
+                            navigate(`/profesionales/${serv.service_id}`, { state: { servicio: serv, negocio } })
+                        }
+                        style={{ cursor: "pointer" }}
+                    >
+                        <div className="servicio-header">
+                            {serv.images?.length > 0 ? (
+                                <img
+                                    src={serv.images[0].uri}
+                                    alt={serv.title}
+                                    className="servicio-img"
+                                    onError={(e) => (e.target.style.display = "none")}
+                                />
+                            ) : (
+                                <div className="emoji-box">💅</div>
+                            )}
+                        </div>
+                        <div className="servicio-body">
+                            <h4>{serv.title}</h4>
+                            <p>{serv.description || "Sin descripción."}</p>
+                            <p>
+                                <strong>Precio:</strong> {serv.price ? `$${serv.price}` : "No especificado"}
+                            </p>
+                            <p>
+                                <strong>⏱ Duración:</strong> {serv.duration ? `${serv.duration} min` : "N/A"}
+                            </p>
+                        </div>
                     </div>
-                    <div className="servicio-body">
-                    <h4>{serv.title}</h4>
-                    <p>{serv.description || "Sin descripción."}</p>
-                    <p>
-                        <strong>Precio:</strong>{" "}
-                        {serv.price ? `$${serv.price}` : "No especificado"}
-                    </p>
-                    <p>
-                        <strong>⏱ Duración:</strong>{" "}
-                        {serv.duration ? `${serv.duration} min` : "N/A"}
-                    </p>
-                    </div>
-                </div>
-                ))}
+                );
+            })}
+
             </div>
             ) : (
             <p>Este negocio aún no tiene servicios registrados.</p>

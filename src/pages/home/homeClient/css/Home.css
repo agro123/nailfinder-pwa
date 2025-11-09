@@ -51,28 +51,38 @@ body {
 /* Filtros */
 .filters {
   display: flex;
-  gap: 9px;
+  gap: 12px;
   overflow-x: auto;
   padding: 0 16px 12px;
+  scroll-behavior: smooth; /* mantiene el scroll suave */
 }
 
 .filter-btn {
-  background-color: #ffe6eb;
-  color: #e25b7a;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-weight: 500;
-  flex-shrink: 0;
-  white-space: nowrap;
+  background-color: #fff;
+  border: 1px solid #f8b8c6;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  color: #e25b7a;
+  font-weight: 500;
+  transition: all 0.25s ease;
+  flex-shrink: 0; /* evita que los botones se achiquen */
+  white-space: nowrap; /* evita que el texto se corte */
 }
 
 .filter-btn:hover {
-  background-color: #ffc5d1;
+  background-color: #ffe6eb;
   transform: translateY(2px);
 }
+
+.filter-btn.active {
+  background-color: #e25b7a;
+  color: white;
+  border-color: #e25b7a;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
 
 /* Secciones */
 .section {
