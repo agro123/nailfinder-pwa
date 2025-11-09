@@ -25,3 +25,65 @@
 .emoji-box {
   font-size: 2rem;
 }
+
+
+/* --- 📱 Responsividad --- */
+
+/* Móviles pequeños (≤ 480px) */
+@media (max-width: 480px) {
+  .profesionales-container {
+    padding: 12px;
+  }
+
+  .profesionales-grid {
+    grid-template-columns: 1fr; /* 1 columna */
+    gap: 12px;
+  }
+
+  .profesional-card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .profesional-card h4 {
+    font-size: 0.95rem;
+  }
+
+  .emoji-box {
+    font-size: 1.8rem;
+  }
+}
+
+/* Tablets (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .profesionales-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas */
+    gap: 14px;
+  }
+
+  .profesional-card {
+    padding: 14px;
+  }
+
+  .profesional-card h4 {
+    font-size: 1rem;
+  }
+
+  .emoji-box {
+    font-size: 2rem;
+  }
+}
+
+/* Laptops medianas (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .profesionales-grid {
+    grid-template-columns: repeat(3, 1fr); /* 3 columnas */
+  }
+}
+
+/* Pantallas grandes (≥ 1025px) */
+@media (min-width: 1025px) {
+  .profesionales-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
