@@ -1,113 +1,169 @@
+/* === SETTINGS PAGE (estilo unificado y RESPONSIVE con home) === */
+
 .settings-container {
-  background-color: #f9fafb;
+  font-family: 'Poppins', sans-serif;
+  background-color: #fff;
   min-height: 100vh;
-  padding: 20px;
-  padding-bottom: 100px; /* espacio para footer */
-  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  padding-bottom: 80px;
+  color: #333;
 }
 
 /* --- Header --- */
 .settings-header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
 }
 
 .settings-header h2 {
   font-size: 1.3rem;
   font-weight: 600;
-  color: #111;
+  color: #e25b7a;
+  border-left: 4px solid #e25b7a;
+  padding-left: 8px;
+  display: inline-block;
 }
 
 /* --- Perfil --- */
 .profile-section {
-  background: #fff;
-  border-radius: 16px;
-  padding: 20px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  gap: 16px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #fce2e8;
   margin-bottom: 20px;
+  transition: transform 0.2s ease;
+}
+
+.profile-section:hover {
+  transform: translateY(-2px);
 }
 
 .profile-avatar {
-  width: 55px;
-  height: 55px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
-  background-color: #e3e7ff;
-  color: #5a36d6;
+  background-color: #ffe6eb;
+  color: #e25b7a;
   font-weight: 600;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+}
+
+.profile-logo {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .profile-info h3 {
   font-size: 1rem;
-  color: #111;
+  font-weight: 600;
+  color: #333;
   margin-bottom: 4px;
 }
 
 .profile-info p {
   font-size: 0.85rem;
-  color: #555;
+  color: #666;
 }
 
+.company-info {
+  margin-top: 6px;
+  background-color: #fff7f9;
+  border-left: 4px solid #e25b7a;
+  padding-left: 8px;
+  border-radius: 8px;
+}
+
+.company-info h4 {
+  color: #e25b7a;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+/* Botón Editar */
 .edit-btn {
   margin-left: auto;
-  border: 1px solid #ccc;
-  background: #fff;
+  border: none;
+  background: #ffe6eb;
+  color: #e25b7a;
   border-radius: 20px;
-  padding: 6px 12px;
+  padding: 8px 14px;
   cursor: pointer;
   font-size: 0.8rem;
-  transition: background 0.2s ease;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .edit-btn:hover {
-  background: #f3f3f3;
+  background: #ffc5d1;
+  transform: translateY(2px);
 }
 
 /* --- Cuadrícula de opciones --- */
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
 }
 
 .grid-item {
   background: #fff;
-  border-radius: 14px;
-  padding: 14px 0;
+  border-radius: 16px;
+  padding: 18px 0;
   text-align: center;
   font-size: 0.9rem;
   color: #333;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #fce2e8;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 .grid-item:hover {
-  background: #f1f0ff;
+  background-color: #ffe6eb;
+  transform: scale(1.03);
+}
+
+.grid-item i {
+  font-size: 24px;
+  color: #e25b7a;
 }
 
 /* --- Historial --- */
 .history-btn {
   background: #fff;
-  border-radius: 14px;
-  padding: 12px 16px;
+  border-radius: 16px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 0.9rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #fce2e8;
   margin-bottom: 20px;
   cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.history-btn:hover {
+  background-color: #fff1f4;
+  transform: translateY(-2px);
 }
 
 /* --- Notificaciones --- */
@@ -115,14 +171,17 @@
   background: #fff;
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #fce2e8;
 }
 
 .notif-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  color: #e25b7a;
+  font-weight: 600;
 }
 
 .notif-item {
@@ -130,7 +189,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 0;
-  border-top: 1px solid #eee;
+  border-top: 1px solid #f3f3f3;
+  font-size: 0.85rem;
+  color: #444;
 }
 
 .notif-item:first-of-type {
@@ -157,7 +218,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: #ddd;
   border-radius: 22px;
   transition: 0.4s;
 }
@@ -175,7 +236,7 @@
 }
 
 input:checked + .slider {
-  background-color: #7b4efb;
+  background-color: #e25b7a;
 }
 
 input:checked + .slider:before {
@@ -185,17 +246,85 @@ input:checked + .slider:before {
 /* --- Logout --- */
 .logout-btn {
   width: 100%;
-  background: #f54b4b;
+  background: #e25b7a;
   color: white;
   border: none;
-  border-radius: 12px;
-  padding: 10px;
+  border-radius: 14px;
+  padding: 12px;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  margin-top: 24px;
+  margin-top: 26px;
+  box-shadow: 0 2px 6px rgba(226, 91, 122, 0.3);
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .logout-btn:hover {
-  background: #d93f3f;
+  background: #c94c69;
+  transform: translateY(-2px);
+}
+
+/* === RESPONSIVE DESIGN === */
+
+/* Pantallas pequeñas (móviles) */
+@media (max-width: 600px) {
+  .settings-container {
+    padding: 0.8rem;
+  }
+
+  .profile-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-avatar, .profile-logo {
+    width: 80px;
+    height: 80px;
+  }
+
+  .edit-btn {
+    margin: 10px auto 0;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-item {
+    padding: 14px;
+  }
+
+  .notif-header {
+    font-size: 0.95rem;
+  }
+
+  .logout-btn {
+    font-size: 0.85rem;
+  }
+}
+
+/* Pantallas medianas (tablets) */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .settings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Pantallas grandes */
+@media (min-width: 1025px) {
+  .settings-container {
+    padding: 2rem 3rem;
+  }
+
+  .settings-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .profile-info h3 {
+    font-size: 1.1rem;
+  }
+
+  .grid-item {
+    font-size: 1rem;
+  }
 }

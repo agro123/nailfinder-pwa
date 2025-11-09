@@ -19,16 +19,18 @@ export default function NuevoServicioForm() {
 
   // ✅ Obtener categorías desde backend
   useEffect(() => {
-    if (!companyId) return;
     const obtenerCategorias = async () => {
       try {
-        const resp = await fetch(`http://localhost:3000/api/public/showCategorias?idCompany=${companyId}`, {
+        const resp = await fetch(`http://localhost:3000/api/public/showCategorias`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         })
         const data = await resp.json()
-        if (data.success && data.data?.data) {
-          setCategorias(data.data.data)
+        console.log('Categorías obtenidas:', data)
+
+        // ✅ Ajuste según la estructura actual del backend
+        if (data.success && data.data?.categorias) {
+          setCategorias(data.data.categorias)
         } else {
           console.warn('⚠️ No se encontraron categorías o formato inválido.')
         }
@@ -38,7 +40,7 @@ export default function NuevoServicioForm() {
     }
 
     obtenerCategorias()
-  }, [companyId])
+  }, [])
 
   // ✅ Obtener el ID de la empresa del usuario autenticado
   useEffect(() => {
@@ -165,8 +167,8 @@ export default function NuevoServicioForm() {
           <select value={categoria} onChange={(e) => setCategoria(e.target.value)}>
             <option value="">Selecciona una categoría</option>
             {categorias.map(cat => (
-              <option key={cat.category_id} value={cat.category_id}>
-                {cat.category_name}
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
               </option>
             ))}
           </select>

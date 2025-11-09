@@ -6,7 +6,35 @@ export default function Home() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
-  // Servicios populares (para los filtros)
+  // Llamada a la API al cargar la página
+  useEffect(() => {
+    const fetchEmpresas = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/api/public/getCompanys"
+        );
+        console.log("📦 Datos recibidos del backend:", res.data);
+        if (res.data.success) {
+          setEmpresas(res.data.data.negocios || []);
+        } else {
+          setError("No se pudieron cargar los negocios.");
+        }
+      } catch (err) {
+        console.error("Error al obtener empresas:", err);
+        setError("Error al conectar con el servidor.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmpresas();
+  }, []);
+
+  const handleNavigate = (item) => {
+    navigate(`/detalle/${item.company_id}`, { state: { negocio: item } });
+  };
+
+  // Filtros de ejemplo (puedes mantenerlos)
   const servicios = [
     "Manicure clásico",
     "Pedicure clásico",
@@ -18,31 +46,77 @@ export default function Home() {
     "Retiro de gel o acrílico",
   ];
 
-  
-  const recomendados = [
-    {
-      id: 1,
-      name: "Barber shop Capri 💈",
-      address: "Capri, Cra 77a # 5-49",
-      emoji: "💈",
-    },
-    {
-      id: 2,
-      name: "Spa el Altar de Relax 💆‍♀️",
-      address: "Centro Comercial Unicentro",
-      emoji: "💆‍♀️",
-    },
-    {
-      id: 3,
-      name: "Salon Beauty 💅",
-      address: "Valle del Lili, Jardín Plaza",
-      emoji: "💅",
-    },
-  ];
+  // Filtrar según búsqueda
+  const empresasFiltradas = empresas.filter((e) =>
+    e.company_name?.toLowerCase().includes(search.toLowerCase())
+  );
 
-  const handleNavigate = (id) => {
-    navigate(`/detalle/${id}`);
-  };
+  // Filtro por tipo de negocio
+
+  const recomendados = empresasFiltradas.filter(
+    (e) => (e.bannersgalery?.length > 0 || e.categories?.length > 0) && e.status
+  );
+  const locales = empresasFiltradas.filter(
+    (e) => e.business_type?.toLowerCase() === "local"
+  );
+  const domicilios = empresasFiltradas.filter(
+    (e) => e.business_type?.toLowerCase() === "domicilio"
+  );
+
+  // Render de tarjeta
+  const renderCard = (item) => (
+    <div
+      key={item.company_id}
+      className="recommended-card"
+      onClick={() => handleNavigate(item)}
+    >
+      {item.logo_uri && item.logo_uri.trim() !== "" ? (
+        <img
+          src={item.logo_uri}
+          alt={item.company_name}
+          className="company-logo"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.replaceWith(
+              Object.assign(document.createElement("div"), {
+                className: "emoji-box small",
+                textContent: "🌸",
+              })
+            );
+          }}
+        />
+      ) : (
+        <div className="emoji-box small">🌸</div>
+      )}
+
+      <h4>{item.company_name}</h4>
+
+      <p className="business-info">
+        {item.business_type?.toLowerCase() === "local" ? (
+          item.latitude && item.longitude ? (
+            <>
+              📍 Lat: {item.latitude}, Lng: {item.longitude}
+            </>
+          ) : (
+            <>📍 Local disponible</>
+          )
+        ) : item.business_type?.toLowerCase() === "domicilio" ? (
+          <>📞 {item.company_phone}</>
+        ) : (
+          <>🏠 {item.business_type || "Sin tipo"}</>
+        )}
+      </p>
+
+      <div className="status-container">
+        <span
+          className={`company-status-dot ${
+            item.status ? "active" : "inactive"
+          }`}
+        ></span>
+        <span>{item.status ? "Abierto" : "Cerrado"}</span>
+      </div>
+    </div>
+  );
 
   return (
     <div className="home-container">

@@ -1,64 +1,163 @@
+/* === Contenedor principal === */
 .servicios-container {
-  padding: 90px 20px 100px;
-  background-color: #f9fafb;
+  background-color: #fff;
   min-height: 100vh;
+  padding: 90px 20px 100px;
+  font-family: 'Inter', sans-serif;
+  position: relative;
 }
 
+/* === Título === */
 .servicios-title {
   text-align: center;
-  font-size: 1.8rem;
-  color: #333;
-  margin-bottom: 20px;
-  font-weight: 600;
+  font-size: 1.9rem;
+  color: #e25b7a;
+  margin-bottom: 24px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 /* === Barra de búsqueda === */
 .servicios-busqueda {
   display: flex;
   align-items: center;
-  background: #fff;
-  border-radius: 12px;
-  padding: 10px 14px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  margin-bottom: 20px;
+  background: #fff1f4;
+  border-radius: 16px;
+  padding: 10px 16px;
+  box-shadow: 0 3px 8px rgba(226, 91, 122, 0.1);
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+.servicios-busqueda:focus-within {
+  box-shadow: 0 4px 10px rgba(226, 91, 122, 0.18);
 }
 
 .servicios-busqueda input {
+  flex: 1;
   border: none;
   outline: none;
-  flex: 1;
   font-size: 1rem;
-  margin-left: 8px;
-  color: #333;
   background: transparent;
+  color: #333;
+  margin-left: 10px;
 }
 
-/* === Tarjetas de servicio === */
+/* === Filtros por categoría === */
+.categorias-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.categoria-btn {
+  background-color: #fff;
+  border: 1px solid #f8b8c6;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: #e25b7a;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.categoria-btn:hover {
+  background-color: #ffe6eb;
+  transform: translateY(-2px);
+}
+
+.categoria-btn.activa {
+  background-color: #e25b7a;
+  color: white;
+  border-color: #e25b7a;
+}
+
+/* === Sección de categoría === */
+.categoria-section {
+  margin-bottom: 32px;
+}
+
+.categoria-titulo {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #e25b7a;
+  margin-bottom: 14px;
+  border-bottom: 2px solid #e25b7a;
+  display: inline-block;
+  padding-bottom: 4px;
+}
+
+/* === Lista de servicios === */
 .servicios-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
+/* === Tarjeta de servicio === */
 .servicio-card {
   background: #fff;
-  padding: 14px 16px;
-  border-radius: 14px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  padding: 18px 20px;
+  border-radius: 18px;
+  box-shadow: 0 3px 10px rgba(226, 91, 122, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: all 0.25s ease;
+}
+
+.servicio-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 14px rgba(226, 91, 122, 0.15);
 }
 
 .servicio-nombre {
   font-size: 1rem;
   font-weight: 600;
-  color: #222;
+  color: #333;
 }
 
 .servicio-precio {
-  color: #555;
-  font-weight: 500;
+  color: #e25b7a;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* === Acciones (editar / eliminar) === */
+.servicio-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn-edit,
+.btn-delete {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: 0.2s ease;
+  font-size: 1.1rem;
+}
+
+.btn-edit {
+  color: #e25b7a;
+}
+
+.btn-edit:hover {
+  background-color: #ffe6eb;
+}
+
+.btn-delete {
+  color: #dc3545;
+}
+
+.btn-delete:hover {
+  background-color: #fde8e8;
 }
 
 /* === Botones flotantes === */
@@ -68,7 +167,7 @@
   right: 25px;
   display: flex;
   flex-direction: column;
-  gap: 12px; /* separación entre los dos botones */
+  gap: 12px;
   z-index: 1000;
 }
 
@@ -81,59 +180,83 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   transition: all 0.25s ease;
 }
 
-/* Botón principal (azul) */
 .floating-btn.primary {
-  background-color: #007bff;
+  background-color: #e25b7a;
 }
 
 .floating-btn.primary:hover {
-  background-color: #005fcc;
-  transform: scale(1.05);
+  background-color: #d14868;
+  transform: scale(1.08);
 }
 
-/* Botón secundario (morado o gris azulado) */
 .floating-btn.secondary {
-  background-color: #7b4efb;
+  background-color: #ff9fb8;
 }
 
 .floating-btn.secondary:hover {
-  background-color: #5a36d6;
-  transform: scale(1.05);
+  background-color: #f982a3;
+  transform: scale(1.08);
 }
 
-.servicio-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
+/* === RESPONSIVIDAD === */
+@media (max-width: 992px) {
+  .servicio-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .servicio-precio {
+    font-size: 0.95rem;
+  }
+
+  .floating-buttons {
+    bottom: 70px;
+    right: 20px;
+  }
+
+  .floating-btn {
+    width: 56px;
+    height: 56px;
+  }
 }
 
-.btn-edit,
-.btn-delete {
-  border: none;
-  background: none;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 8px;
-  transition: 0.2s;
+@media (max-width: 768px) {
+  .servicios-title {
+    font-size: 1.6rem;
+  }
+
+  .categoria-btn {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+  }
+
+  .servicio-card {
+    padding: 14px 16px;
+  }
+
+  .servicios-busqueda {
+    padding: 8px 12px;
+  }
 }
 
-.btn-edit {
-  color: #007bff;
-}
+@media (max-width: 480px) {
+  .servicios-container {
+    padding: 70px 16px 90px;
+  }
 
-.btn-edit:hover {
-  background-color: #e0f0ff;
-}
+  .categoria-btn {
+    font-size: 0.85rem;
+    padding: 5px 10px;
+  }
 
-.btn-delete {
-  color: #dc3545;
-}
-
-.btn-delete:hover {
-  background-color: #fde8e8;
+  .floating-btn {
+    width: 50px;
+    height: 50px;
+  }
 }
