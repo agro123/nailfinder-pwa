@@ -18,7 +18,7 @@ import HomeOther from './pages/home/homeClient/Other'
 import CitasUsuario from './pages/home/homeClient/CitasUsuario'
 import PerfilUsuario from './pages/home/homeClient/PerfilUsuario'
 import DetalleNegocio from './pages/home/homeClient/DetalleNegocio'
-import Profesionales from './pages/home/homeClient/Profesionales'
+import ProfesionalesCliente from './pages/home/homeClient/ProfesionalesCliente'
 import Agenda from './pages/home/homeClient/Agenda'
 /* Auth */
 import Login from './pages/auth/Login'
@@ -106,7 +106,7 @@ export default function App() {
             <Route path="/perfilusuario" element={<PerfilUsuario />} />
             <Route path="/citasusuario" element={<CitasUsuario />} /> 
             <Route path="/detalle/:id" element={<DetalleNegocio />} />
-            <Route path="/profesionales/:idServicio" element={<Profesionales />} />
+            <Route path="/profesionales/:idServicio" element={<ProfesionalesCliente />} />
             <Route path="/agenda/:idProfesional" element={<Agenda />} />
 
           </Route>
