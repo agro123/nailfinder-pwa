@@ -1,52 +1,55 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import "./css/ProfesionalesCliente.css";
-
-// 🔹 Asignaciones globales (persisten mientras la app esté en uso)
-const asignaciones = {};
 
 export default function ProfesionalesCliente() {
     const { idServicio } = useParams();
     const { state } = useLocation();
     const navigate = useNavigate();
+
     const servicio = state?.servicio;
-    const negocio = state?.negocio; 
+    const negocio = state?.negocio;
 
-    // 🔹 Base de profesionales de manicura
-    const profesionalesBase = [
-        { id: 1, nombre: "Laura Gómez", especialidad: "Manicurista Profesional", experiencia: "7 años", rating: 4.9 },
-        { id: 2, nombre: "Camila Torres", especialidad: "Especialista en Uñas Acrílicas", experiencia: "5 años", rating: 4.8 },
-        { id: 3, nombre: "Diana López", especialidad: "Técnica en Nail Art", experiencia: "6 años", rating: 4.7 },
-        { id: 4, nombre: "Valeria Martínez", especialidad: "Manicurista y Pedicurista", experiencia: "8 años", rating: 4.9 },
-        { id: 5, nombre: "Andrea Castro", especialidad: "Diseñadora de Uñas en Gel", experiencia: "4 años", rating: 4.6 },
-        { id: 6, nombre: "Paola Ruiz", especialidad: "Manicurista Especialista en Spa de Manos", experiencia: "9 años", rating: 5.0 },
-    ];
+    const [profesionales, setProfesionales] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    
-    // 🔹 Generar o recuperar asignación para este servicio
-    const profesionales = useMemo(() => {
-        // Genera una clave única y estable para cada servicio
-        const claveServicio =
-            idServicio || servicio?.id || servicio?.title || `serv-${Math.random()}`;
+    useEffect(() => {
+        const fetchWorkers = async () => {
+            try {
 
-        // Si ya se asignaron profesionales a este servicio, los reutiliza
-        if (asignaciones[claveServicio]) {
-            return asignaciones[claveServicio];
-        }
+                const serviceId = servicio.service_id;
+                const companyId = negocio.company_id;
 
-        // Caso contrario, crea una asignación nueva
-        const cantidad = Math.floor(Math.random() * 4) + 1; // entre 1 y 4 profesionales
-        const copia = [...profesionalesBase];
-        copia.sort(() => 0.5 - Math.random());
-        const seleccion = copia.slice(0, cantidad);
+                // 🔹 Logs informativos
+                console.log("📦 serviceId:", serviceId);
+                console.log("🏢 companyId:", companyId);
+                setLoading(true);
+                setError(null);
 
-        // Guarda la asignación globalmente
-        asignaciones[claveServicio] = seleccion;
-        return seleccion;
-    }, [idServicio, servicio]);
+                // 🔹 Aquí ajusta la URL base si tu backend está en otro puerto o ruta
+                const response = await fetch(
+                    `http://localhost:3000/api/public/getWorkersService?serviceId=${serviceId}&companyId=${companyId}`
+                );
 
+                const result = await response.json();
 
+                if (!result.success) {
+                    throw new Error(result.message || "Error al obtener trabajadores");
+                }
+
+                setProfesionales(result.data || []);
+            } catch (err) {
+                console.error("Error:", err);
+                setError("No se pudieron cargar los trabajadores.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchWorkers();
+    }, [idServicio, servicio, negocio]);
 
     return (
         <div className="profesionales-container">
@@ -57,22 +60,41 @@ export default function ProfesionalesCliente() {
             <h2>💅 Profesionales asociados</h2>
             {servicio && <h3>Servicio: {servicio.title}</h3>}
 
-            <div className="profesionales-grid">
-                {profesionales.map((pro) => (
-                <div
-                    key={pro.id}
-                    className="profesional-card"
-                    onClick={() => navigate(`/agenda/${pro.id}`, { state: { profesional: pro, servicio, negocio } })}
-                    style={{ cursor: "pointer" }}
-                >
-                    <div className="emoji-box">💅</div>
-                    <h4>{pro.nombre}</h4>
-                    <p><strong>Especialidad:</strong> {pro.especialidad}</p>
-                    <p><strong>Experiencia:</strong> {pro.experiencia}</p>
-                    <p><strong>⭐ Rating:</strong> {pro.rating}</p>
+            {loading ? (
+                <p>Cargando profesionales...</p>
+            ) : error ? (
+                <p className="error-text">{error}</p>
+            ) : profesionales.length === 0 ? (
+                <p>No hay profesionales asignados a este servicio.</p>
+            ) : (
+                <div className="profesionales-grid">
+                    {profesionales.map((pro) => (
+                        <div
+                            key={pro.id}
+                            className="profesional-card"
+                            onClick={() =>
+                                navigate(`/agenda/${pro.id}`, {
+                                    state: { profesional: pro, servicio, negocio },
+                                })
+                            }
+                            style={{ cursor: "pointer" }}
+                        >
+                            <div className="emoji-box">
+                                {pro.photo ? (
+                                    <img
+                                        src={pro.photo}
+                                        alt={pro.name}
+                                        className="profesional-foto"
+                                    />
+                                ) : (
+                                    "💅"
+                                )}
+                            </div>
+                            <h4>{pro.name}</h4>
+                        </div>
+                    ))}
                 </div>
-                ))}
-            </div>
+            )}
         </div>
     );
 }
