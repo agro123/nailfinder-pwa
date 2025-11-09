@@ -61,15 +61,19 @@
 .login-form input {
   padding: 10px;
   border: 1px solid #ccc;
+  background-color: #f8f9fa;
   border-radius: 6px;
   font-size: 14px;
   outline: none;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
   box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(226, 91, 122, 0.15);
 }
 
 .login-form input:focus {
-  border-color: #007bff;
+  border-color: #e25b7a;
+  box-shadow: 0 0 8px rgba(226, 91, 122, 0.35);
+  background-color: #fffdfd;
 }
 
 /* --- Botón --- */
@@ -122,12 +126,97 @@
   text-decoration: underline;
 }
 
-/* --- Animación del mensaje --- */
-@keyframes fadeInOut {
-  0% { opacity: 0; transform: translateY(-20px); }
-  20% { opacity: 1; transform: translateY(0); }
-  80% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-20px); }
+
+/* --- Enlace de registro de Usuario (parte superior) --- */
+.user-register {
+  text-align: center;
+  width: 100%;
+  font-size: 0.9rem;
+  color: #444;
+  opacity: 0.9;
+  animation: fadeUp 1.0s ease;
+}
+
+.user-register .business-link {
+  color: #d21f4d;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 4px;
+  transition: all 0.3s ease;
+}
+
+.user-register .business-link:hover {
+  color: #e25b7a;
+  text-decoration: underline;
+}
+
+
+/* --- Animación fadeUp --- */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Enlace de registro de negocio (parte inferior) --- */
+.business-register {
+  position: absolute;
+  bottom: 20px;
+  text-align: center;
+  width: 100%;
+  font-size: 0.9rem;
+  color: #444;
+  opacity: 0.9;
+  animation: fadeUp 2.5s ease;
+}
+
+.business-link {
+  color: #d21f4d;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 4px;
+  transition: all 0.3s ease;
+}
+
+.business-link:hover {
+  color: #e25b7a;
+  text-decoration: underline;
+}
+
+/* Animación sutil al aparecer */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Ajuste responsivo --- */
+@media screen and (max-width: 767px) {
+  .business-register {
+    bottom: 12px;
+    font-size: 0.85rem;
+  }
+}
+
+
+
+/* --- Errores --- */
+.error {
+  color: #d93025;
+  font-size: 0.9rem;
+  margin-top: -8px;
+  margin-bottom: 10px;
+  display: block;
 }
 
 
