@@ -1,153 +1,34 @@
-/* === CONTENEDOR PRINCIPAL === */
+/* === EDITAR PERFIL (Estilo unificado y RESPONSIVE con SETTINGS PAGE) === */
+
 .edit-profile-container {
   font-family: 'Poppins', sans-serif;
-  max-width: 700px;
+  max-width: 720px;
   margin: 2rem auto;
   padding: 2rem 1.5rem;
   background-color: #fff;
   border-radius: 16px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid #fce2e8;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.2rem;
+  color: #333;
 }
 
-/* === TÍTULO === */
+/* --- TÍTULO PRINCIPAL --- */
 .edit-profile-container h2 {
   text-align: center;
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #e25b7a;
-  font-size: 1.6rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
+  border-left: 4px solid #e25b7a;
+  padding-left: 8px;
+  display: inline-block;
+  align-self: center;
+  margin-bottom: 0.5rem;
 }
 
-/* === CAMPOS DE FORMULARIO === */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-group label {
-  font-weight: 500;
-  font-size: 14px;
-  color: #555;
-}
-
-input[type="text"],
-input[type="file"],
-textarea {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  font-size: 15px;
-  background-color: #f9f9f9;
-  color: #333;
-  transition: all 0.2s ease;
-}
-
-input[type="text"]:focus,
-textarea:focus {
-  border-color: #e25b7a;
-  outline: none;
-  background-color: #fff;
-}
-
-/* === IMÁGENES PREVISUALIZADAS === */
-.preview-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.gallery-preview,
-.profile-preview {
-  width: 100px;
-  height: 100px;
-  border-radius: 14px;
-  object-fit: cover;
-  border: 2px solid #ffe6eb;
-  background-color: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  transition: transform 0.2s;
-}
-
-.gallery-preview:hover,
-.profile-preview:hover {
-  transform: scale(1.05);
-}
-
-.no-images {
-  font-size: 13px;
-  color: #999;
-}
-
-/* === BOTÓN PRINCIPAL === */
-.save-button {
-  width: 100%;
-  background-color: #e25b7a;
-  color: #fff;
-  border: none;
-  border-radius: 14px;
-  padding: 12px 0;
-  font-weight: 600;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 0.5rem;
-}
-
-.save-button:hover {
-  background-color: #d34669;
-  transform: translateY(-2px);
-}
-
-/* === BOTONES SECUNDARIOS === */
-.btn-cancelar {
-  background-color: #f1f1f1;
-  color: #555;
-  border: none;
-  border-radius: 14px;
-  padding: 10px 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-cancelar:hover {
-  background-color: #e0e0e0;
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  .edit-profile-container {
-    padding: 1.5rem 1rem;
-  }
-
-  .edit-profile-container h2 {
-    font-size: 1.4rem;
-  }
-
-  input[type="text"],
-  textarea {
-    font-size: 14px;
-    padding: 9px 12px;
-  }
-
-  .gallery-preview,
-  .profile-preview {
-    width: 80px;
-    height: 80px;
-  }
-
-  .save-button {
-    font-size: 14px;
-  }
-}
-
-/* === LOGO DEL NEGOCIO === */
+/* --- SECCIÓN LOGO --- */
 .logo-section {
   display: flex;
   flex-direction: column;
@@ -161,8 +42,8 @@ textarea:focus {
   border-radius: 50%;
   overflow: hidden;
   border: 3px solid #ffe6eb;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  background-color: #fdfdfd;
+  background-color: #fff7f9;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -183,16 +64,184 @@ textarea:focus {
   margin-top: 0.8rem;
   background-color: #e25b7a;
   color: #fff;
-  padding: 8px 14px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
   font-weight: 500;
+  cursor: pointer;
+  border: none;
   transition: all 0.2s ease;
 }
 
 .btn-editar-logo:hover {
   background-color: #d34669;
+  transform: translateY(-2px);
+}
+
+/* --- FORMULARIO --- */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+input[type="text"],
+input[type="file"],
+textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #fce2e8;
+  border-radius: 12px;
+  background-color: #fff7f9;
+  color: #333;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  border-color: #e25b7a;
+  outline: none;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(226, 91, 122, 0.1);
+}
+
+/* --- IMÁGENES PREVISUALIZADAS --- */
+.preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.gallery-preview,
+.profile-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 2px solid #ffe6eb;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.gallery-preview:hover,
+.profile-preview:hover {
+  transform: scale(1.05);
+}
+
+.no-images {
+  font-size: 13px;
+  color: #aaa;
+  text-align: center;
+  width: 100%;
+}
+
+/* --- BOTONES --- */
+.save-button {
+  width: 100%;
+  background-color: #e25b7a;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(226, 91, 122, 0.3);
+  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.save-button:hover {
+  background-color: #c94c69;
+  transform: translateY(-2px);
+}
+
+.btn-cancelar {
+  background-color: #fff;
+  color: #e25b7a;
+  border: 1px solid #fce2e8;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancelar:hover {
+  background-color: #fff1f4;
   transform: translateY(-1px);
 }
 
+/* --- RESPONSIVE DESIGN --- */
+
+/* Móviles */
+@media (max-width: 600px) {
+  .edit-profile-container {
+    padding: 1.5rem 1rem;
+    margin: 1rem;
+  }
+
+  .edit-profile-container h2 {
+    font-size: 1.3rem;
+  }
+
+  input[type="text"],
+  textarea {
+    font-size: 0.85rem;
+    padding: 9px 12px;
+  }
+
+  .gallery-preview,
+  .profile-preview {
+    width: 80px;
+    height: 80px;
+  }
+
+  .save-button,
+  .btn-cancelar {
+    font-size: 0.85rem;
+    padding: 10px;
+  }
+
+  .logo-preview-container {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+/* Tablets */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .edit-profile-container {
+    padding: 2rem;
+  }
+
+  .gallery-preview,
+  .profile-preview {
+    width: 90px;
+    height: 90px;
+  }
+}
+
+/* Escritorio grande */
+@media (min-width: 1025px) {
+  .edit-profile-container {
+    padding: 2.5rem 3rem;
+  }
+
+  .edit-profile-container h2 {
+    font-size: 1.6rem;
+  }
+
+  .save-button {
+    font-size: 1rem;
+  }
+}

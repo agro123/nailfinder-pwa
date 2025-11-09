@@ -1,14 +1,10 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 import "./css/Home.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function Home() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [empresas, setEmpresas] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   // Llamada a la API al cargar la página
   useEffect(() => {
@@ -44,7 +40,10 @@ export default function Home() {
     "Pedicure clásico",
     "Esmaltado en gel",
     "Uñas acrílicas",
+    "Uñas en gel",
+    "Manicure francés",
     "Decoración de uñas",
+    "Retiro de gel o acrílico",
   ];
 
   // Filtrar según búsqueda
@@ -121,6 +120,7 @@ export default function Home() {
 
   return (
     <div className="home-container">
+      {/* Header con logo y búsqueda */}
       <header className="header">
         <div className="logo">NailFinder</div>
         <input
@@ -132,6 +132,7 @@ export default function Home() {
         />
       </header>
 
+      {/* Filtros con servicios */}
       <div className="filters">
         {servicios.map((s, index) => (
           <button key={index} className="filter-btn">
@@ -140,43 +141,26 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Mostrar estados */}
-      {loading && <p className="loading-text">Cargando negocios...</p>}
-      {error && <p className="error-text">{error}</p>}
 
-      {!loading && !error && (
-        <>
-          {/* 🌟 SECCIÓN RECOMENDADOS */}
-          {recomendados.length > 0 && (
-            <section className="section">
-              <h3 className="section-title">⭐ Recomendados</h3>
-              <div className="recommended-list scrollable">
-                {recomendados.map((item) => renderCard(item))}
-              </div>
-            </section>
-          )}
+      {/* Recomendados */}
+      <section className="section">
+        <h3 className="section-title">Recomendado</h3>
+        <div className="recommended-list">
+          {recomendados.map((r) => (
+            <div
+              key={r.id}
+              className="recommended-card"
+              onClick={() => handleNavigate(r.id)}
+            >
+              <div className="emoji-box small">{r.emoji}</div>
+              <h4>{r.name}</h4>
+              <p>{r.address}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
-          {/* 🏠 SECCIÓN LOCALES */}
-          {locales.length > 0 && (
-            <section className="section">
-              <h3 className="section-title">🏠 Locales</h3>
-              <div className="recommended-list">
-                {locales.map((item) => renderCard(item))}
-              </div>
-            </section>
-          )}
-
-          {/* 🛵 SECCIÓN DOMICILIOS */}
-          {domicilios.length > 0 && (
-            <section className="section">
-              <h3 className="section-title">🚗 Domicilios</h3>
-              <div className="recommended-list">
-                {domicilios.map((item) => renderCard(item))}
-              </div>
-            </section>
-          )}
-        </>
-      )}
+      
     </div>
   );
 }

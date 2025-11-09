@@ -132,7 +132,11 @@ export default function Settings() {
           <span>Sedes</span>
         </div>
 
-        <div className="grid-item">
+        <div 
+          className="grid-item"
+          onClick={() => navigate('/profesionales')}
+          style={{ cursor: 'pointer' }}
+        >
           <Users size={22} />
           <span>Equipo</span>
         </div>

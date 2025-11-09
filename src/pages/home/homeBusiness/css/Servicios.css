@@ -1,65 +1,72 @@
 /* === Contenedor principal === */
 .servicios-container {
-  padding: 90px 20px 100px;
   background-color: #fff;
   min-height: 100vh;
-  font-family: 'Poppins', sans-serif;
+  padding: 90px 20px 100px;
+  font-family: 'Inter', sans-serif;
+  position: relative;
 }
 
 /* === Título === */
 .servicios-title {
   text-align: center;
-  font-size: 1.8rem;
-  color: #e25b7a; /* rosa principal */
-  margin-bottom: 20px;
-  font-weight: 600;
+  font-size: 1.9rem;
+  color: #e25b7a;
+  margin-bottom: 24px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 /* === Barra de búsqueda === */
 .servicios-busqueda {
   display: flex;
   align-items: center;
-  background: #ffe6eb; /* rosa claro */
-  border-radius: 14px;
-  padding: 10px 14px;
-  box-shadow: 0 2px 6px rgba(226, 91, 122, 0.15);
-  margin-bottom: 20px;
+  background: #fff1f4;
+  border-radius: 16px;
+  padding: 10px 16px;
+  box-shadow: 0 3px 8px rgba(226, 91, 122, 0.1);
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+.servicios-busqueda:focus-within {
+  box-shadow: 0 4px 10px rgba(226, 91, 122, 0.18);
 }
 
 .servicios-busqueda input {
+  flex: 1;
   border: none;
   outline: none;
-  flex: 1;
   font-size: 1rem;
-  margin-left: 8px;
-  color: #333;
   background: transparent;
+  color: #333;
+  margin-left: 10px;
 }
 
 /* === Filtros por categoría === */
 .categorias-filtros {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 12px;
   justify-content: center;
+  margin-bottom: 28px;
 }
 
 .categoria-btn {
   background-color: #fff;
-  border: 1px solid #f5c6cb;
-  border-radius: 10px;
-  padding: 6px 14px;
-  font-size: 0.9rem;
+  border: 1px solid #f8b8c6;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
   cursor: pointer;
   color: #e25b7a;
-  transition: all 0.25s ease;
   font-weight: 500;
+  transition: all 0.25s ease;
 }
 
 .categoria-btn:hover {
   background-color: #ffe6eb;
-  transform: translateY(2px);
+  transform: translateY(-2px);
 }
 
 .categoria-btn.activa {
@@ -70,32 +77,32 @@
 
 /* === Sección de categoría === */
 .categoria-section {
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 }
 
 .categoria-titulo {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 600;
   color: #e25b7a;
-  margin-bottom: 10px;
+  margin-bottom: 14px;
   border-bottom: 2px solid #e25b7a;
   display: inline-block;
-  padding-bottom: 3px;
+  padding-bottom: 4px;
 }
 
 /* === Lista de servicios === */
 .servicios-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 /* === Tarjeta de servicio === */
 .servicio-card {
   background: #fff;
-  padding: 16px 18px;
-  border-radius: 16px;
-  box-shadow: 0 3px 10px rgba(226, 91, 122, 0.1);
+  padding: 18px 20px;
+  border-radius: 18px;
+  box-shadow: 0 3px 10px rgba(226, 91, 122, 0.08);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -104,7 +111,7 @@
 
 .servicio-card:hover {
   transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(226, 91, 122, 0.15);
+  box-shadow: 0 6px 14px rgba(226, 91, 122, 0.15);
 }
 
 .servicio-nombre {
@@ -116,12 +123,13 @@
 .servicio-precio {
   color: #e25b7a;
   font-weight: 600;
+  font-size: 1rem;
 }
 
 /* === Acciones (editar / eliminar) === */
 .servicio-actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   margin-top: 8px;
 }
 
@@ -132,8 +140,8 @@
   cursor: pointer;
   padding: 6px;
   border-radius: 8px;
-  transition: 0.2s;
-  font-size: 1rem;
+  transition: 0.2s ease;
+  font-size: 1.1rem;
 }
 
 .btn-edit {
@@ -177,7 +185,6 @@
   transition: all 0.25s ease;
 }
 
-/* Botón principal (rosa fuerte) */
 .floating-btn.primary {
   background-color: #e25b7a;
 }
@@ -187,7 +194,6 @@
   transform: scale(1.08);
 }
 
-/* Botón secundario (rosado pastel) */
 .floating-btn.secondary {
   background-color: #ff9fb8;
 }
@@ -197,12 +203,8 @@
   transform: scale(1.08);
 }
 
-/* === Responsividad === */
-@media (max-width: 768px) {
-  .servicios-title {
-    font-size: 1.5rem;
-  }
-
+/* === RESPONSIVIDAD === */
+@media (max-width: 992px) {
   .servicio-card {
     flex-direction: column;
     align-items: flex-start;
@@ -215,12 +217,31 @@
 
   .floating-buttons {
     bottom: 70px;
-    right: 15px;
+    right: 20px;
   }
 
   .floating-btn {
-    width: 52px;
-    height: 52px;
+    width: 56px;
+    height: 56px;
+  }
+}
+
+@media (max-width: 768px) {
+  .servicios-title {
+    font-size: 1.6rem;
+  }
+
+  .categoria-btn {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+  }
+
+  .servicio-card {
+    padding: 14px 16px;
+  }
+
+  .servicios-busqueda {
+    padding: 8px 12px;
   }
 }
 
@@ -229,16 +250,13 @@
     padding: 70px 16px 90px;
   }
 
-  .servicios-busqueda {
-    padding: 8px 10px;
-  }
-
   .categoria-btn {
     font-size: 0.85rem;
     padding: 5px 10px;
   }
 
-  .servicio-card {
-    padding: 12px 14px;
+  .floating-btn {
+    width: 50px;
+    height: 50px;
   }
 }
