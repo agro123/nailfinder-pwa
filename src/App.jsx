@@ -12,12 +12,15 @@ import AddService from './pages/home/homeBusiness/AddService'
 import EditService from './pages/home/homeBusiness/EditService'
 import AddCategoria from './pages/home/homeBusiness/AddCategoria'
 import Gallery from './pages/home/homeBusiness/Gallery'
+import Profesionales from './pages/home/homeBusiness/Profesionales'
 /*Client*/
 import Home from './pages/home/homeClient/Home'
 import HomeOther from './pages/home/homeClient/Other'
 import CitasUsuario from './pages/home/homeClient/CitasUsuario'
 import PerfilUsuario from './pages/home/homeClient/PerfilUsuario'
 import DetalleNegocio from './pages/home/homeClient/DetalleNegocio'
+import Profesionales from './pages/home/homeClient/Profesionales'
+import Agenda from './pages/home/homeClient/Agenda'
 /* Auth */
 import Login from './pages/auth/Login'
 import ProtectedRoute from './routes/ProtectedRoute'
@@ -27,7 +30,6 @@ import RegisterB from './pages/auth/RegisterBusiness'
 import Recover from './pages/auth/RecoverPassword'
 import ResetPassword from './pages/auth/ResetPassword'
 import ExampleMap from './pages/example/ExampleMap'
-
 
 
 export default function App() {
@@ -99,12 +101,15 @@ export default function App() {
             <Route path="/edit_service" element={<EditService />} />
             <Route path="/add_categoria" element={<AddCategoria />} />
             <Route path="/gallery" element={<Gallery />} />
+            <Route path="/profesionales" element={<Profesionales />} />
             {/* Client */}
             <Route path="/" element={<Home />} />
             <Route path="/other" element={<HomeOther />} />
             <Route path="/perfilusuario" element={<PerfilUsuario />} />
             <Route path="/citasusuario" element={<CitasUsuario />} /> 
             <Route path="/detalle/:id" element={<DetalleNegocio />} />
+            <Route path="/profesionales/:idServicio" element={<Profesionales />} />
+            <Route path="/agenda/:idProfesional" element={<Agenda />} />
 
           </Route>
           

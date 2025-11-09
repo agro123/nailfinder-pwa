@@ -80,7 +80,7 @@
 }
 
 .footercliente-btn.active {
-  color: #e25b7a;
+  color: #0bb397;
   font-weight: 600;
 }
 
@@ -92,7 +92,7 @@
 /* Efecto hover */
 .footercliente-btn:hover {
   transform: translateY(-2px);
-  color: #e25b7a;
+  color: #0bb397;
 }
 
 
