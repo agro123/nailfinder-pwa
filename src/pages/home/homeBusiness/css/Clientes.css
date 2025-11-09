@@ -1,23 +1,40 @@
-/* --- Contenedor general --- */
+/* === Contenedor general === */
 .clientes-container {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  background-color: #f9fafb;
+  background-color: #fff;
   min-height: 100vh;
-  padding: 80px 20px 100px; /* espacio para header y footer */
+  padding: 90px 20px 100px;
+  font-family: 'Inter', sans-serif;
+  position: relative;
   box-sizing: border-box;
 }
 
-/* --- Barra de búsqueda --- */
+/* === Título === */
+.clientes-container h2 {
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #e25b7a;
+  text-align: center;
+  margin-bottom: 24px;
+  letter-spacing: 0.5px;
+}
+
+/* === Barra de búsqueda === */
 .search-bar {
   display: flex;
   align-items: center;
-  background: #fff;
-  border-radius: 12px;
-  padding: 10px 14px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  margin-bottom: 20px;
+  background: #fff1f4;
+  border-radius: 16px;
+  padding: 10px 16px;
+  box-shadow: 0 3px 8px rgba(226, 91, 122, 0.1);
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+.search-bar:focus-within {
+  box-shadow: 0 4px 10px rgba(226, 91, 122, 0.18);
 }
 
 .search-bar input {
@@ -31,19 +48,10 @@
 }
 
 .search-bar input::placeholder {
-  color: #888;
+  color: #999;
 }
 
-/* Título */
-.clientes-container h2 {
-  font-size: 1.6rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 16px;
-  text-align: center;
-}
-
-/* --- Lista de clientes --- */
+/* === Lista de clientes === */
 .clientes-lista {
   display: flex;
   flex-direction: column;
@@ -53,33 +61,33 @@
   padding-bottom: 20px;
 }
 
-/* --- Cada cliente como fila --- */
+/* === Tarjeta de cliente === */
 .cliente-item {
   display: flex;
   align-items: center;
   background: #fff;
-  border-radius: 14px;
-  padding: 12px 16px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 18px;
+  padding: 16px 18px;
+  box-shadow: 0 3px 10px rgba(226, 91, 122, 0.08);
+  transition: all 0.25s ease;
 }
 
 .cliente-item:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(226, 91, 122, 0.15);
 }
 
-/* --- Imagen del cliente --- */
+/* === Foto del cliente === */
 .cliente-foto {
-  width: 65px;
-  height: 65px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 14px;
-  border: 3px solid #007bff20;
+  margin-right: 16px;
+  border: 3px solid #ffe6eb;
 }
 
-/* --- Información del cliente --- */
+/* === Información del cliente === */
 .cliente-info {
   flex: 1;
   display: flex;
@@ -89,37 +97,38 @@
 .cliente-nombre {
   font-size: 1.05rem;
   font-weight: 600;
-  color: #222;
+  color: #333;
   margin-bottom: 4px;
 }
 
 .cliente-detalles {
   font-size: 0.9rem;
-  color: #555;
+  color: #666;
 }
 
-/* --- Botón Ver perfil --- */
+/* === Botón Ver perfil === */
 .cliente-btn {
-  background-color: #007bff;
+  background-color: #e25b7a;
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
+  border-radius: 10px;
+  padding: 8px 14px;
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease;
+  transition: all 0.25s ease;
 }
 
 .cliente-btn:hover {
-  background-color: #005fcc;
+  background-color: #d14868;
+  transform: scale(1.05);
 }
 
 .cliente-btn:active {
-  transform: scale(0.96);
+  transform: scale(0.97);
 }
 
-/* === BOTÓN FLOTANTE === */
+/* === Botón flotante === */
 .floating-add-btn {
   position: fixed;
   bottom: 80px;
@@ -128,7 +137,7 @@
   height: 60px;
   border: none;
   border-radius: 50%;
-  background-color: #7b4efb;
+  background-color: #e25b7a;
   color: white;
   display: flex;
   align-items: center;
@@ -141,35 +150,82 @@
 }
 
 .floating-add-btn:hover {
-  background-color: #5a36d6;
-  transform: scale(1.05);
+  background-color: #d14868;
+  transform: scale(1.08);
 }
 
-/* --- Sin resultados --- */
+/* === Sin resultados === */
 .no-results {
   text-align: center;
   color: #777;
   font-size: 1rem;
-  margin-top: 20px;
+  margin-top: 30px;
+  font-weight: 500;
 }
 
-/* --- Responsivo --- */
-@media (max-width: 600px) {
+/* === RESPONSIVIDAD === */
+@media (max-width: 992px) {
   .cliente-item {
-    padding: 10px 12px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
   }
 
   .cliente-foto {
-    width: 55px;
-    height: 55px;
+    width: 65px;
+    height: 65px;
+    margin-right: 0;
   }
 
-  .cliente-nombre {
-    font-size: 1rem;
+  .cliente-btn {
+    padding: 6px 12px;
+  }
+
+  .floating-add-btn {
+    bottom: 70px;
+    right: 18px;
+    width: 56px;
+    height: 56px;
+  }
+}
+
+@media (max-width: 768px) {
+  .clientes-container h2 {
+    font-size: 1.6rem;
+  }
+
+  .search-bar {
+    padding: 8px 12px;
+  }
+
+  .cliente-item {
+    padding: 14px 16px;
+  }
+
+  .cliente-btn {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .clientes-container {
+    padding: 70px 16px 90px;
+  }
+
+  .cliente-foto {
+    width: 60px;
+    height: 60px;
   }
 
   .cliente-btn {
     padding: 6px 10px;
     font-size: 0.8rem;
+  }
+
+  .floating-add-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
   }
 }

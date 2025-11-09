@@ -1,98 +1,168 @@
+/* === CITAS PAGE (estilo unificado con SETTINGS, responsive y moderno) === */
+
 .citas-page {
+  font-family: 'Poppins', sans-serif;
   background-color: #fff;
   min-height: 100vh;
   padding: 1rem;
-  font-family: 'Inter', sans-serif;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #333;
 }
 
+/* --- Header --- */
 .citas-header {
   text-align: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
+.citas-header h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #e25b7a;
+  border-left: 4px solid #e25b7a;
+  padding-left: 8px;
+  display: inline-block;
+}
+
+/* --- CALENDARIO --- */
 .calendar-wrapper {
-  background: #fafafa;
+  background: #fff;
   border-radius: 16px;
-  padding: 0.5rem;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #fce2e8;
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 1.2rem;
+  transition: transform 0.2s ease;
+}
+
+.calendar-wrapper:hover {
+  transform: translateY(-2px);
 }
 
 .custom-calendar {
   border: none !important;
   width: 100%;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   border-radius: 12px;
+  color: #333;
 }
 
 .react-calendar__tile {
   border-radius: 10px;
+  transition: all 0.2s ease-in-out;
 }
 
 .react-calendar__tile--active {
-  background: #007bff !important;
-  color: white !important;
-  border-radius: 10px;
+  background: #e25b7a !important;
+  color: #fff !important;
 }
 
 .has-cita {
-  background: rgba(0, 123, 255, 0.15);
+  background: #ffe6eb !important;
+  color: #e25b7a !important;
+  font-weight: 600;
   border-radius: 10px;
 }
 
+/* --- AGENDA DEL DÍA --- */
 .day-agenda {
-  margin-top: 1rem;
-  background: #f9fafc;
+  background: #fff;
   border-radius: 16px;
   padding: 1rem;
   min-height: 250px;
+  width: 100%;
+  max-width: 800px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #fce2e8;
+  overflow-y: auto;
 }
 
 .day-agenda h3 {
-  margin-bottom: 0.8rem;
+  margin-bottom: 1rem;
   font-weight: 600;
-  color: #333;
-  text-transform: capitalize;
+  color: #e25b7a;
+  font-size: 1.1rem;
+  border-left: 4px solid #e25b7a;
+  padding-left: 8px;
 }
 
+/* --- Tarjetas de citas --- */
 .cita-card {
   display: flex;
   align-items: center;
-  background: #e8f0fe;
-  border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 0.7rem;
+  background: #fff7f9;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 0.8rem;
+  border: 1px solid #fce2e8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+}
+
+.cita-card:hover {
+  transform: translateY(-2px);
+  background: #ffe6eb;
 }
 
 .cita-hora {
-  font-weight: bold;
-  color: #007bff;
-  width: 60px;
+  font-weight: 600;
+  color: #e25b7a;
+  width: 70px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .cita-info {
-  margin-left: 0.5rem;
+  margin-left: 0.8rem;
+  flex-grow: 1;
+}
+
+.cita-nombre {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.cita-detalle {
+  font-size: 0.85rem;
+  color: #555;
 }
 
 .sin-citas {
   text-align: center;
   color: #999;
+  padding: 1rem 0;
+  font-size: 0.95rem;
 }
 
+/* --- BOTONES --- */
 .add-btn {
-  background: #007bff;
+  background: #e25b7a;
   border: none;
   color: white;
   border-radius: 20px;
   padding: 8px 16px;
   margin-top: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  font-weight: 500;
 }
 
+.add-btn:hover {
+  background: #c94c69;
+  transform: scale(1.03);
+}
+
+/* --- BOTÓN FLOTANTE --- */
 .boton-flotante {
   position: fixed;
   bottom: 80px;
   right: 25px;
-  background-color: #007bff;
+  background-color: #e25b7a;
   color: white;
   border: none;
   border-radius: 50%;
@@ -102,5 +172,196 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 10px rgba(226, 91, 122, 0.3);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  z-index: 40;
+}
+
+.boton-flotante:hover {
+  background-color: #c94c69;
+  transform: scale(1.08);
+}
+
+/* --- MODAL --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 420px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  border: 1px solid #fce2e8;
+  animation: fadeIn 0.25s ease-in;
+}
+
+.modal-header {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #e25b7a;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.modal-form label {
+  display: block;
+  font-size: 0.9rem;
+  color: #444;
+  margin-top: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.modal-form input,
+.modal-form select,
+.modal-form textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #f3c4cf;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-form input:focus,
+.modal-form select:focus,
+.modal-form textarea:focus {
+  border-color: #e25b7a;
+  box-shadow: 0 0 0 2px rgba(226,91,122,0.1);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.btn-cancelar {
+  background: #f0f0f0;
+  border: none;
+  color: #333;
+  border-radius: 20px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-cancelar:hover {
+  background: #d9d9d9;
+  transform: scale(1.03);
+}
+
+.btn-guardar {
+  background: #e25b7a;
+  border: none;
+  color: white;
+  border-radius: 20px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-guardar:hover {
+  background: #c94c69;
+  transform: scale(1.03);
+}
+
+/* --- SCROLL --- */
+.day-agenda::-webkit-scrollbar {
+  width: 6px;
+}
+
+.day-agenda::-webkit-scrollbar-thumb {
+  background: #f5b6c5;
+  border-radius: 10px;
+}
+
+/* --- ANIMACIÓN --- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === RESPONSIVE DESIGN === */
+
+/* Tablets */
+@media (max-width: 992px) {
+  .calendar-wrapper,
+  .day-agenda {
+    max-width: 95%;
+  }
+
+  .cita-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cita-hora {
+    width: auto;
+    margin-bottom: 4px;
+  }
+
+  .boton-flotante {
+    bottom: 70px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    font-size: 1.8rem;
+  }
+}
+
+/* Móviles */
+@media (max-width: 600px) {
+  .citas-page {
+    padding: 0.8rem;
+  }
+
+  .calendar-wrapper,
+  .day-agenda {
+    border-radius: 12px;
+    padding: 0.8rem;
+  }
+
+  .cita-card {
+    padding: 0.8rem;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 1.2rem;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+  }
+
+  .btn-cancelar,
+  .btn-guardar {
+    width: 100%;
+  }
+
+  .boton-flotante {
+    bottom: 60px;
+    right: 15px;
+    width: 48px;
+    height: 48px;
+    font-size: 1.6rem;
+  }
 }

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import "./css/AddService.css"; // puedes reutilizar el estilo del formulario de creación
+import "./css/AddService.css"; 
 
 export default function EditService() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { id } = useParams(); // service_id
+  const { id } = useParams(); 
   const servicio = location.state?.servicio;
   const companyId = location.state?.companyId;
 
