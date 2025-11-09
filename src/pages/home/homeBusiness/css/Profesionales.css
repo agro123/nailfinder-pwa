@@ -1,63 +1,264 @@
+/* === PROFESIONALES PAGE (estilo unificado con SETTINGS) === */
+
 .prof-container {
-  padding: 20px;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
+  background-color: #fff;
+  min-height: 100vh;
+  padding: 1rem;
+  color: #333;
+  max-width: 480px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
+/* === TÍTULO === */
+.prof-container h2 {
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #e25b7a;
+  border-left: 4px solid #e25b7a;
+  padding-left: 8px;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+/* === LISTA === */
+.prof-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* === TARJETA DE PROFESIONAL === */
+.prof-card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #fce2e8;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.prof-card:hover {
+  background-color: #fff1f4;
+  transform: translateY(-2px);
+}
+
+.prof-card img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #ffe6eb;
+  flex-shrink: 0;
+}
+
+.prof-card div {
+  display: flex;
+  flex-direction: column;
+  margin-left: 12px;
+}
+
+.prof-card h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.prof-card p {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 3px;
+}
+
+/* === BOTÓN PRINCIPAL === */
+.add-btn {
+  width: 100%;
+  background-color: #e25b7a;
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1.2rem;
+  box-shadow: 0 2px 6px rgba(226, 91, 122, 0.3);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.add-btn:hover {
+  background-color: #c94c69;
+  transform: translateY(-2px);
+}
+
+/* === FORMULARIO === */
 .prof-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  background: #f9f9f9;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 25px;
+  gap: 14px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #fce2e8;
+  margin-top: 1rem;
 }
 
-.prof-form input {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+.prof-form input[type="text"],
+.prof-form input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #fce2e8;
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.prof-form input:focus {
+  border-color: #e25b7a;
+  box-shadow: 0 0 4px rgba(226, 91, 122, 0.3);
+  outline: none;
 }
 
 .prof-form button {
-  background: #4caf50;
-  color: white;
+  background-color: #e25b7a;
+  color: #fff;
   border: none;
-  padding: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.prof-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
-}
-
-.prof-card {
-  background: #fff;
-  border-radius: 10px;
+  border-radius: 14px;
   padding: 12px;
-  text-align: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.prof-img {
-  width: 100%;
-  height: 130px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.prof-actions {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.prof-actions button {
-  background: none;
-  border: none;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.prof-form button:hover {
+  background-color: #c94c69;
+  transform: translateY(-2px);
+}
+
+.prof-preview {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0.5rem auto;
+  border: 3px solid #ffe6eb;
+  background-color: #fff7f9;
+}
+
+/* === BOTTOM SHEET === */
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+  padding: 18px;
+  animation: slideUp 0.3s ease forwards;
+  z-index: 20;
+  border-top: 2px solid #fce2e8;
+}
+
+.bottom-sheet::before {
+  content: "";
+  display: block;
+  width: 40px;
+  height: 4px;
+  background: #e5b3c2;
+  border-radius: 2px;
+  margin: 0 auto 10px;
+}
+
+.bottom-sheet button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 1rem;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.bottom-sheet button.edit {
+  border: 1px solid #fce2e8;
+  color: #e25b7a;
+  background: #fff7f9;
+}
+
+.bottom-sheet button.edit:hover {
+  background: #ffe6eb;
+}
+
+.bottom-sheet button.delete {
+  color: #fff;
+  background: #e25b7a;
+  border: none;
+}
+
+.bottom-sheet button.delete:hover {
+  background: #c94c69;
+}
+
+/* === OVERLAY === */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 10;
+  animation: fadeIn 0.2s ease forwards;
+}
+
+/* === ANIMACIONES === */
+@keyframes slideUp {
+  from {
+    transform: translate(-50%, 100%);
+  }
+  to {
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 480px) {
+  .prof-container {
+    padding: 0.8rem;
+  }
+
+  .prof-card img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .prof-container h2 {
+    font-size: 1.2rem;
+  }
+
+  .add-btn {
+    font-size: 0.9rem;
+  }
+
+  .prof-form {
+    padding: 0.9rem;
+  }
 }

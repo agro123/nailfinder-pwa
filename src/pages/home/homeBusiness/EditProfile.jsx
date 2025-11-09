@@ -239,6 +239,9 @@ export default function EditProfile() {
       <button className="save-button" onClick={handleGuardar}>
         {companyData ? 'Guardar Cambios' : 'Crear Negocio'}
       </button>
+      <button className="save-button" onClick={() => navigate('/settings')}>
+        Volver
+      </button>
     </div>
   )
 }
