@@ -23,6 +23,28 @@ export default function DetalleNegocio() {
     const [servicios, setServicios] = useState([]);
     const [loadingServicios, setLoadingServicios] = useState(true);
 
+    // 🔒 Bloqueo de retroceso si viene desde una confirmación de cita
+    useEffect(() => {
+    if (state?.desdeConfirmacion) {
+        // Empuja una entrada artificial al historial
+        window.history.pushState(null, "", window.location.href);
+
+        const handlePopState = () => {
+        // Forzar redirección al Home y limpiar historial
+        navigate("/", { replace: true });
+        };
+
+        window.addEventListener("popstate", handlePopState);
+
+        // Limpieza
+        return () => {
+        window.removeEventListener("popstate", handlePopState);
+        };
+    }
+    }, [state?.desdeConfirmacion, navigate]);
+
+
+
     useEffect(() => {
         const idCompany = negocio?.company_id;
         console.log("🧠 ID de empresa detectado:", idCompany);
@@ -81,9 +103,17 @@ export default function DetalleNegocio() {
         <div className="detalle-container">
             <h2>⚠️ No se encontró información del negocio</h2>
             <p>Es posible que hayas ingresado directamente al enlace.</p>
-            <button className="back-btn" onClick={() => navigate(-1)}>
-            <ChevronLeft size={28} strokeWidth={2} />
+            <button
+                className="back-btn"
+                onClick={() =>
+                    state?.desdeConfirmacion
+                    ? navigate("/", { replace: true }) // Si viene de confirmación → Home
+                    : navigate(-1) // Si viene normal → atrás
+                }
+            >
+                <ChevronLeft size={28} strokeWidth={2} />
             </button>
+
         </div>
         );
     }
@@ -242,7 +272,13 @@ export default function DetalleNegocio() {
             ) : servicios.length > 0 ? (
             <div className="servicios-grid">
                 {servicios.map((serv, i) => (
-                <div key={i} className="servicio-card">
+                    console.log("🧩 Servicio:", serv),
+                <div
+                    key={i}
+                    className="servicio-card"
+                    onClick={() => navigate(`/profesionales/${serv.service_id}`, { state: { servicio: serv, negocio } })}
+                    style={{ cursor: "pointer" }}
+                >
                     <div className="servicio-header">
                     {serv.images?.length > 0 ? (
                         <img
