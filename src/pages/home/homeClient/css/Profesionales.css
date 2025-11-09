@@ -1,0 +1,27 @@
+.profesionales-container {
+  padding: 20px;
+  color: #333;
+}
+
+.profesionales-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.profesional-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.profesional-card h4 {
+  margin: 10px 0;
+}
+
+.emoji-box {
+  font-size: 2rem;
+}
