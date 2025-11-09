@@ -1,12 +1,12 @@
 import React, { useMemo } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
-import "./css/Profesionales.css";
+import "./css/ProfesionalesCliente.css";
 
 // 🔹 Asignaciones globales (persisten mientras la app esté en uso)
 const asignaciones = {};
 
-export default function Profesionales() {
+export default function ProfesionalesCliente() {
     const { idServicio } = useParams();
     const { state } = useLocation();
     const navigate = useNavigate();

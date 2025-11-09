@@ -324,3 +324,23 @@ body {
   60% { transform: scale(1.2); opacity: 1; }
   100% { transform: scale(1); }
 }
+
+.mensaje-estado-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px; /* altura del área de horarios */
+  text-align: center;
+}
+
+.mensaje-estado {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #e25b7a;
+  background: #ffe6eb;
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  max-width: 80%;
+  line-height: 1.5;
+}
