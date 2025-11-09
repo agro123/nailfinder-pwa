@@ -1,69 +1,170 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./css/Profesionales.css";
 
 export default function Profesionales() {
   const navigate = useNavigate();
-  const [view, setView] = useState("list"); // "list" | "form"
+
+  // Estados
+  const [view, setView] = useState("list");
   const [editing, setEditing] = useState(null);
   const [showSheet, setShowSheet] = useState(false);
+  const [professionals, setProfessionals] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [professionals, setProfessionals] = useState([
-    {
-      id: 1,
-      name: "Juan Moreno",
-      specialty: "Corte masculino",
-      photo: "https://randomuser.me/api/portraits/men/32.jpg",
-    },
-    {
-      id: 2,
-      name: "Nicole Ramírez",
-      specialty: "Coloración y peinados",
-      photo: "https://randomuser.me/api/portraits/women/44.jpg",
-    },
-    {
-      id: 3,
-      name: "Bryan Soto",
-      specialty: "Barbería y cuidado facial",
-      photo: "https://randomuser.me/api/portraits/men/68.jpg",
-    },
-  ]);
+  // Estados para servicios y categorías
+  const [servicios, setServicios] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [companyId, setCompanyId] = useState(null);
+  const [error, setError] = useState(null);
+  const [cargando, setCargando] = useState(true);
 
   const [newProfessional, setNewProfessional] = useState({
-    id: null,
+    company_id: "",
     name: "",
-    specialty: "",
-    photo: "",
+    email: "",
+    phone: "",
+    dialingcode: "57",
+    services: [],
+    sede_id: 5,
+    imgProfile: null,
   });
 
-  // 🔹 Abrir formulario de creación
-  const handleAddClick = () => {
-    setNewProfessional({ id: null, name: "", specialty: "", photo: "" });
-    setView("form");
-  };
+  // 🔹 Cargar empresa y servicios del usuario
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const authUser = JSON.parse(localStorage.getItem("auth_user"));
+        const userId = authUser?.id;
 
-  // 🔹 Guardar o actualizar
-  const handleSubmit = () => {
-    if (!newProfessional.name.trim() || !newProfessional.specialty.trim()) {
-      alert("Completa todos los campos");
+        // Obtener los negocios del usuario
+        const negociosResp = await fetch("http://localhost:3000/api/public/getCompanys");
+        const negociosData = await negociosResp.json();
+        const company = negociosData?.data?.negocios?.find((c) => c.user_id === userId);
+        const companyIdFound = company?.company_id || company?.id;
+        setCompanyId(companyIdFound);
+
+        // Obtener servicios de la empresa
+        const serviciosResp = await fetch(
+          `http://localhost:3000/api/public/verServicios?idCompany=${companyIdFound}`
+        );
+        const serviciosData = await serviciosResp.json();
+        if (serviciosData.success && serviciosData.data?.servicios) {
+          setServicios(serviciosData.data.servicios);
+          const cats = [...new Set(serviciosData.data.servicios.map((s) => s.category_name || "Sin categoría"))];
+          setCategorias(["Todas", ...cats]);
+        } else {
+          setError(serviciosData.message || "Error al obtener servicios");
+        }
+      } catch (err) {
+        console.error("Error al conectar con el backend:", err);
+        setError("Error de conexión con el servidor");
+      } finally {
+        setCargando(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // 🔹 Cargar profesionales desde API
+  useEffect(() => {
+    const fetchProfessionals = async () => {
+      try {
+        if (!companyId) return;
+        const res = await fetch(
+          `http://localhost:3000/api/public/listProfessionals?id_company=${companyId}`
+        );
+        if (!res.ok) throw new Error(res.statusText);
+        const data = await res.json();
+        const profs = Array.isArray(data.data?.profesionales) ? data.data.profesionales : [];
+        const profsWithId = profs.map((p, idx) => ({
+          id: idx,
+          company_id: companyId,
+          name: p.user_name || "Sin nombre",
+          specialty: p.branch_description || "Sin especialidad",
+          phone: p.user_phone || "",
+          email: p.user_email || "",
+          photo: p.user_img || "/default-avatar.png",
+          services: p.services || [],
+          branch_address: p.branch_address || "",
+        }));
+        setProfessionals(profsWithId);
+      } catch (err) {
+        console.error("Error al cargar profesionales:", err);
+        setProfessionals([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfessionals();
+  }, [companyId]);
+
+  // 🔹 Guardar nuevo profesional en backend
+  const handleSubmit = async () => {
+    if (!newProfessional.name || !newProfessional.email) {
+      alert("Completa todos los campos obligatorios");
       return;
     }
 
-    if (editing) {
-      setProfessionals((prev) =>
-        prev.map((p) => (p.id === editing ? newProfessional : p))
-      );
-      setEditing(null);
-    } else {
-      setProfessionals((prev) => [
-        { ...newProfessional, id: Date.now() },
-        ...prev,
-      ]);
-    }
+    try {
+      const body = {
+        ...newProfessional,
+        company_id: companyId, // ✅ nombre exacto que espera el backend
+      };
 
-    setNewProfessional({ id: null, name: "", specialty: "", photo: "" });
-    setView("list");
+      const res = await fetch("http://localhost:3000/api/private/signup-professional", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Error HTTP:", res.status, text);
+        alert("Error al crear profesional");
+        return;
+      }
+
+      const data = await res.json();
+      if (data.success) {
+        alert("Profesional creado correctamente");
+        setView("list");
+        setEditing(null);
+        setNewProfessional({
+          name: "",
+          email: "",
+          phone: "",
+          dialingcode: "57",
+          services: [],
+          sede_id: 5,
+          imgProfile: null,
+        });
+        // Recargar lista de profesionales
+        const reload = await fetch(
+          `http://localhost:3000/api/public/listProfessionals?id_company=${companyId}`
+        );
+        const reloadData = await reload.json();
+        const profs = Array.isArray(reloadData.data?.profesionales) ? reloadData.data.profesionales : [];
+        setProfessionals(profs.map((p, idx) => ({
+          id: idx,
+          name: p.user_name || "Sin nombre",
+          specialty: p.branch_description || "Sin especialidad",
+          phone: p.user_phone || "",
+          email: p.user_email || "",
+          photo: p.user_img || "/default-avatar.png",
+          services: p.services || [],
+          branch_address: p.branch_address || "",
+        })));
+      } else {
+        alert(data.message || "Error al crear profesional");
+      }
+    } catch (err) {
+      console.error("Error de red:", err);
+      alert("Error de red al crear profesional");
+    }
   };
 
   // 🔹 Subir foto
@@ -71,33 +172,29 @@ export default function Profesionales() {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () =>
-      setNewProfessional({ ...newProfessional, photo: reader.result });
+    reader.onload = () => {
+      const base64Data = reader.result.split(",")[1];
+      setNewProfessional({
+        ...newProfessional,
+        imgProfile: {
+          nombre: file.name,
+          type: file.type,
+          size: file.size,
+          data: base64Data,
+        },
+      });
+    };
     reader.readAsDataURL(file);
   };
 
-  // 🔹 Editar desde el sheet
-  const handleEdit = () => {
-    setView("form");
-    setShowSheet(false);
-  };
-
-  // 🔹 Eliminar desde el sheet
-  const handleDelete = () => {
-    if (window.confirm("¿Eliminar este profesional?")) {
-      setProfessionals((prev) => prev.filter((p) => p.id !== editing));
-      setShowSheet(false);
-      setEditing(null);
-    }
-  };
+  if (loading || cargando) return <p>Cargando...</p>;
 
   return (
     <div className="prof-container">
-      {/* === Vista: Lista de profesionales === */}
+      {/* Lista de profesionales */}
       {view === "list" && (
         <>
           <h2>Equipo</h2>
-
           <div className="prof-list">
             {professionals.map((p) => (
               <div
@@ -117,97 +214,89 @@ export default function Profesionales() {
               </div>
             ))}
           </div>
-
-          <button className="add-btn" onClick={handleAddClick}>
+          <button className="add-btn" onClick={() => setView("form")}>
             Añadir profesional <Plus size={18} style={{ marginLeft: 6 }} />
           </button>
-          <button className="add-btn" onClick={() => navigate('/settings')}>
+          <button className="add-btn" onClick={() => navigate("/settings")}>
             Volver
           </button>
         </>
       )}
 
-      {/* === Vista: Formulario === */}
+      {/* Formulario */}
       {view === "form" && (
-        <div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: "12px",
-              gap: "8px",
+        <div className="prof-form">
+          <button onClick={() => setView("list")}><ChevronLeft /> Volver</button>
+          <h2>{editing !== null ? "Editar profesional" : "Añadir colaborador"}</h2>
+
+          <input
+            type="text"
+            placeholder="Nombre"
+            value={newProfessional.name}
+            onChange={(e) => setNewProfessional({ ...newProfessional, name: e.target.value })}
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={newProfessional.email}
+            onChange={(e) => setNewProfessional({ ...newProfessional, email: e.target.value })}
+          />
+          <input
+            type="text"
+            placeholder="Teléfono"
+            value={newProfessional.phone}
+            onChange={(e) => setNewProfessional({ ...newProfessional, phone: e.target.value })}
+          />
+
+          <select
+            multiple
+            value={newProfessional.services}
+            onChange={(e) => {
+              const selected = Array.from(e.target.selectedOptions, (opt) => parseInt(opt.value));
+              setNewProfessional({ ...newProfessional, services: selected });
             }}
           >
-            <button
-              onClick={() => {
-                setView("list");
-                setEditing(null);
-              }}
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                color: "#333",
-              }}
-            >
-              <ChevronLeft size={20} /> Volver
-            </button>
-          </div>
+            {servicios.map((s) => (
+              <option key={s.service_id} value={s.service_id}>
+                {s.title}
+              </option>
+            ))}
+          </select>
 
-          <h2>{editing ? "Editar profesional" : "Añadir colaborador"}</h2>
-
-          <div className="prof-form">
-            <input
-              type="text"
-              placeholder="Nombre"
-              value={newProfessional.name}
-              onChange={(e) =>
-                setNewProfessional({
-                  ...newProfessional,
-                  name: e.target.value,
-                })
-              }
+          <input type="file" accept="image/*" onChange={handlePhoto} />
+          {newProfessional.imgProfile && (
+            <img
+              src={`data:${newProfessional.imgProfile.type};base64,${newProfessional.imgProfile.data}`}
+              alt="preview"
+              className="prof-preview"
             />
-            <input
-              type="text"
-              placeholder="Especialidad"
-              value={newProfessional.specialty}
-              onChange={(e) =>
-                setNewProfessional({
-                  ...newProfessional,
-                  specialty: e.target.value,
-                })
-              }
-            />
+          )}
 
-            <input type="file" accept="image/*" onChange={handlePhoto} />
-            {newProfessional.photo && (
-              <img
-                src={newProfessional.photo}
-                alt="preview"
-                className="prof-preview"
-              />
-            )}
-
-            <button onClick={handleSubmit}>
-              {editing ? "Actualizar" : "Registrar"}
-            </button>
-          </div>
+          <button onClick={handleSubmit}>
+            {editing !== null ? "Actualizar" : "Registrar"}
+          </button>
         </div>
       )}
 
-      {/* === Bottom Sheet === */}
+      {/* Bottom Sheet */}
       {showSheet && (
         <>
           <div className="overlay" onClick={() => setShowSheet(false)}></div>
           <div className="bottom-sheet">
-            <button className="edit" onClick={handleEdit}>
-              <Edit2 size={16} style={{ marginRight: 6 }} /> Editar colaborador
+            <button className="edit" onClick={() => setView("form")}>
+              <Edit2 size={16} /> Editar colaborador
             </button>
-            <button className="delete" onClick={handleDelete}>
-              <Trash2 size={16} style={{ marginRight: 6 }} /> Eliminar colaborador
+            <button
+              className="delete"
+              onClick={() => {
+                if (window.confirm("¿Eliminar este profesional?")) {
+                  setProfessionals(professionals.filter(p => p.id !== editing));
+                  setShowSheet(false);
+                  setEditing(null);
+                }
+              }}
+            >
+              <Trash2 size={16} /> Eliminar colaborador
             </button>
           </div>
         </>

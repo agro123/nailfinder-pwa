@@ -7,6 +7,7 @@ export default function EditProfile() {
   const { user } = useAuth()
   const navigate = useNavigate()
 
+  // Estados de empresa y formulario
   const [companyData, setCompanyData] = useState(null)
   const [formData, setFormData] = useState({
     companyname: '',
@@ -20,6 +21,11 @@ export default function EditProfile() {
   const [logoPreview, setLogoPreview] = useState(null)
   const [bannerFiles, setBannerFiles] = useState([])
 
+  // Estados de horarios
+  const [horarios, setHorarios] = useState([])
+  const [newHorario, setNewHorario] = useState({ day: '', start: '', end: '' })
+
+  // Convertir archivo a base64
   const fileToBase64 = (file, renameKey = false) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader()
@@ -37,6 +43,7 @@ export default function EditProfile() {
       reader.onerror = (error) => reject(error)
     })
 
+  // Cargar datos de la empresa
   useEffect(() => {
     const obtenerEmpresa = async () => {
       try {
@@ -46,10 +53,7 @@ export default function EditProfile() {
         const resp = await fetch('http://localhost:3000/api/public/getCompanys')
         const data = await resp.json()
 
-        const company = data?.data?.negocios?.find(
-          (c) => c.user_id === authUser.id
-        )
-
+        const company = data?.data?.negocios?.find((c) => c.user_id === authUser.id)
         if (company) {
           setCompanyData(company)
           setFormData({
@@ -61,9 +65,10 @@ export default function EditProfile() {
             longitude: company.longitude || '',
           })
 
-          if (company.logo_uri) {
-            setLogoPreview(company.logo_uri)
-          }
+          if (company.logo_uri) setLogoPreview(company.logo_uri)
+
+          // Cargar horarios
+          if (company.mainBranch?.id) fetchHorarios(company.mainBranch.id)
         }
       } catch (error) {
         console.error('Error obteniendo empresa:', error)
@@ -72,6 +77,7 @@ export default function EditProfile() {
     obtenerEmpresa()
   }, [])
 
+  // Manejo de formulario
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -85,6 +91,7 @@ export default function EditProfile() {
     }
   }
 
+  // Guardar empresa
   const handleGuardar = async () => {
     try {
       const isEdit = !!companyData?.company_id
@@ -98,10 +105,7 @@ export default function EditProfile() {
         longitude: formData.longitude || null,
       }
 
-      if (logoFile) {
-        body.logo = await fileToBase64(logoFile)
-      }
-
+      if (logoFile) body.logo = await fileToBase64(logoFile)
       if (bannerFiles.length > 0) {
         body.bannerGalery = bannerFiles.map((f) => ({
           name: f.name,
@@ -117,9 +121,7 @@ export default function EditProfile() {
           body[key] === null ||
           body[key] === '' ||
           (Array.isArray(body[key]) && body[key].length === 0)
-        ) {
-          delete body[key]
-        }
+        ) delete body[key]
       })
 
       const url = isEdit
@@ -145,18 +147,83 @@ export default function EditProfile() {
     }
   }
 
+  // 🔹 HORARIOS 🔹
+  const fetchHorarios = async (branchId) => {
+    try {
+      const resp = await fetch('http://localhost:3000/api/public/getCompanyHorarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ branch_id: branchId }), // o sede_id según backend
+      })
+      const data = await resp.json()
+      if (data.success) setHorarios(data.data)
+      else setHorarios([])
+    } catch (error) {
+      console.error('Error cargando horarios:', error)
+    }
+  }
+
+  const handleCrearHorario = async () => {
+    if (!newHorario.day || !newHorario.start || !newHorario.end) {
+      alert('Completa todos los campos del horario')
+      return
+    }
+
+    if (!companyData?.mainBranch?.id) {
+      alert('No se encontró la sucursal principal del negocio')
+      return
+    }
+
+    try {
+      const body = {
+        ...newHorario,
+        company_id: companyData.company_id,
+        sede_id: companyData.mainBranch.id, // <-- importante
+      }
+
+      const resp = await fetch('http://localhost:3000/api/public/createHorarios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const data = await resp.json()
+      console.log(data)
+      if (data.success) {
+        alert('Horario creado')
+        setNewHorario({ day: '', start: '', end: '' })
+        fetchHorarios(companyData.mainBranch.id)
+      } else {
+        alert('Error creando horario: ' + (data.message || 'Error desconocido'))
+      }
+    } catch (error) {
+      console.error('Error creando horario:', error)
+      alert('No se pudo crear el horario')
+    }
+  }
+
+  const handleToggleHorario = async (horarioId) => {
+    try {
+      const resp = await fetch('http://localhost:3000/api/public/activeInactiveHorario', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ horario_id: horarioId }),
+      })
+      const data = await resp.json()
+      if (data.success && companyData?.mainBranch?.id) fetchHorarios(companyData.mainBranch.id)
+    } catch (error) {
+      console.error('Error activando/desactivando horario:', error)
+    }
+  }
+
   return (
     <div className="edit-profile-container">
       <h2>{companyData ? 'Editar Negocio' : 'Registrar Negocio'}</h2>
 
+      {/* Logo */}
       <div className="logo-section">
         <div className="logo-preview-container">
           {logoPreview ? (
-            <img
-              src={logoPreview}
-              alt="Logo del negocio"
-              className="logo-preview"
-            />
+            <img src={logoPreview} alt="Logo del negocio" className="logo-preview" />
           ) : (
             <div className="logo-placeholder">Sin logo</div>
           )}
@@ -174,65 +241,31 @@ export default function EditProfile() {
         />
       </div>
 
-      {/* 🔹 Campos de texto */}
+      {/* Formulario */}
       <div className="form-group">
         <label>Nombre del negocio</label>
-        <input
-          type="text"
-          name="companyname"
-          value={formData.companyname}
-          onChange={handleChange}
-        />
+        <input type="text" name="companyname" value={formData.companyname} onChange={handleChange} />
       </div>
-
       <div className="form-group">
         <label>Tipo de negocio</label>
-        <input
-          type="text"
-          name="companytype"
-          value={formData.companytype}
-          onChange={handleChange}
-        />
+        <input type="text" name="companytype" value={formData.companytype} onChange={handleChange} />
       </div>
-
       <div className="form-group">
         <label>Teléfono</label>
-        <input
-          type="text"
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
-        />
+        <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
       </div>
-
       <div className="form-group">
         <label>Dirección</label>
-        <input
-          type="text"
-          name="address"
-          value={formData.address}
-          onChange={handleChange}
-        />
+        <input type="text" name="address" value={formData.address} onChange={handleChange} />
       </div>
-
       <div className="form-group-inline">
         <div className="form-group">
           <label>Latitud</label>
-          <input
-            type="text"
-            name="latitude"
-            value={formData.latitude}
-            onChange={handleChange}
-          />
+          <input type="text" name="latitude" value={formData.latitude} onChange={handleChange} />
         </div>
         <div className="form-group">
           <label>Longitud</label>
-          <input
-            type="text"
-            name="longitude"
-            value={formData.longitude}
-            onChange={handleChange}
-          />
+          <input type="text" name="longitude" value={formData.longitude} onChange={handleChange} />
         </div>
       </div>
 
@@ -242,6 +275,43 @@ export default function EditProfile() {
       <button className="save-button" onClick={() => navigate('/settings')}>
         Volver
       </button>
+
+      {/* Horarios */}
+      <h3>Horarios</h3>
+      <div className="horarios-list">
+        {horarios.map((h) => (
+          <div key={h.id} className="horario-item">
+            <span>
+              {h.day} {h.start} - {h.end} ({h.active ? 'Activo' : 'Inactivo'})
+            </span>
+            <button onClick={() => handleToggleHorario(h.id)}>
+              {h.active ? 'Desactivar' : 'Activar'}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Nuevo horario */}
+      <h4>Agregar Horario</h4>
+      <div className="form-group-inline">
+        <input
+          type="text"
+          placeholder="Día"
+          value={newHorario.day}
+          onChange={(e) => setNewHorario({ ...newHorario, day: e.target.value })}
+        />
+        <input
+          type="time"
+          value={newHorario.start}
+          onChange={(e) => setNewHorario({ ...newHorario, start: e.target.value })}
+        />
+        <input
+          type="time"
+          value={newHorario.end}
+          onChange={(e) => setNewHorario({ ...newHorario, end: e.target.value })}
+        />
+        <button onClick={handleCrearHorario}>Agregar</button>
+      </div>
     </div>
   )
 }
