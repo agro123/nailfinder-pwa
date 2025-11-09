@@ -37,7 +37,6 @@ export default function EditProfile() {
       reader.onerror = (error) => reject(error)
     })
 
-  // 🔹 Cargar empresa y logo
   useEffect(() => {
     const obtenerEmpresa = async () => {
       try {
@@ -62,7 +61,6 @@ export default function EditProfile() {
             longitude: company.longitude || '',
           })
 
-          // ✅ Mostrar logo actual desde logo_uri si existe
           if (company.logo_uri) {
             setLogoPreview(company.logo_uri)
           }
@@ -79,12 +77,11 @@ export default function EditProfile() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  // 🔹 Al cambiar logo, previsualizarlo
   const handleLogoChange = (e) => {
     const file = e.target.files[0]
     if (file) {
       setLogoFile(file)
-      setLogoPreview(URL.createObjectURL(file)) // Vista previa inmediata
+      setLogoPreview(URL.createObjectURL(file))
     }
   }
 
@@ -101,7 +98,6 @@ export default function EditProfile() {
         longitude: formData.longitude || null,
       }
 
-      // Si cambió logo, incluirlo como base64
       if (logoFile) {
         body.logo = await fileToBase64(logoFile)
       }
@@ -153,7 +149,6 @@ export default function EditProfile() {
     <div className="edit-profile-container">
       <h2>{companyData ? 'Editar Negocio' : 'Registrar Negocio'}</h2>
 
-      {/* 🔹 Logo del negocio */}
       <div className="logo-section">
         <div className="logo-preview-container">
           {logoPreview ? (
@@ -243,6 +238,9 @@ export default function EditProfile() {
 
       <button className="save-button" onClick={handleGuardar}>
         {companyData ? 'Guardar Cambios' : 'Crear Negocio'}
+      </button>
+      <button className="save-button" onClick={() => navigate('/settings')}>
+        Volver
       </button>
     </div>
   )

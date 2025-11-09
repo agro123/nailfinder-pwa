@@ -295,6 +295,9 @@ export default function Gallery() {
           {isUploading ? "⏳ Subiendo imágenes..." : "Subir a galería"}
         </button>
       </div>
+      <button className="upload-btn" onClick={() => navigate('/settings')}>
+        Volver
+      </button>
     </div>
   );
 }
