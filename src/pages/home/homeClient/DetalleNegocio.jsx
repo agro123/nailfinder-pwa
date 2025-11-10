@@ -22,6 +22,49 @@ export default function DetalleNegocio() {
     const negocio = state?.negocio;
     const [servicios, setServicios] = useState([]);
     const [loadingServicios, setLoadingServicios] = useState(true);
+    const [categorias, setCategorias] = useState([]);
+    const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('Todas');
+    const [loadingCategorias, setLoadingCategorias] = useState(true);
+
+    const [horarios, setHorarios] = useState([]);
+    const [loadingHorarios, setLoadingHorarios] = useState(true);
+
+    // Normalizar para evitar problemas con tildes
+    const normalize = (str) => {
+        return str
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+    };
+
+    const order = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
+
+
+    const serviciosFiltrados = categoriaSeleccionada === 'Todas'
+  ? servicios
+  : servicios.filter(s => s.category_name === categoriaSeleccionada);
+
+    // 🔒 Bloqueo de retroceso si viene desde una confirmación de cita
+    useEffect(() => {
+    if (state?.desdeConfirmacion) {
+        // Empuja una entrada artificial al historial
+        window.history.pushState(null, "", window.location.href);
+
+        const handlePopState = () => {
+        // Forzar redirección al Home y limpiar historial
+        navigate("/", { replace: true });
+        };
+
+        window.addEventListener("popstate", handlePopState);
+
+        // Limpieza
+        return () => {
+        window.removeEventListener("popstate", handlePopState);
+        };
+    }
+    }, [state?.desdeConfirmacion, navigate]);
+
+
 
     useEffect(() => {
         const idCompany = negocio?.company_id;
@@ -49,9 +92,18 @@ export default function DetalleNegocio() {
             if (data.success && data.data?.servicios) {
                 console.log("💅 Servicios recibidos:", data.data.servicios);
                 setServicios(data.data.servicios);
+
+                // EXTRAER CATEGORÍAS
+                const cats = [...new Set(data.data.servicios.map(s => s.category_name || 'Sin categoría'))];
+                setCategorias(['Todas', ...cats]);
+
+                // ✅ Indicar que ya cargaron las categorías
+                setLoadingCategorias(false);
             } else {
                 console.warn("⚠️ No se encontraron servicios.");
                 setServicios([]);
+                setCategorias(['Todas']); // Por si acaso
+                setLoadingCategorias(false);
             }
             } catch (error) {
             console.error("🚨 Error cargando servicios:", error);
@@ -81,9 +133,17 @@ export default function DetalleNegocio() {
         <div className="detalle-container">
             <h2>⚠️ No se encontró información del negocio</h2>
             <p>Es posible que hayas ingresado directamente al enlace.</p>
-            <button className="back-btn" onClick={() => navigate(-1)}>
-            <ChevronLeft size={28} strokeWidth={2} />
+            <button
+                className="back-btn"
+                onClick={() =>
+                    state?.desdeConfirmacion
+                    ? navigate("/", { replace: true }) // Si viene de confirmación → Home
+                    : navigate(-1) // Si viene normal → atrás
+                }
+            >
+                <ChevronLeft size={28} strokeWidth={2} />
             </button>
+
         </div>
         );
     }
@@ -153,10 +213,76 @@ export default function DetalleNegocio() {
         setTouchEnd(null);
     };
 
+      // 🔹 HORARIOS 🔹
+    const fetchHorarios = async (id_company) => {
+        try {
+        console.log("📡 Intentando cargar horarios para companyId:", id_company);
+
+        // ✅ Ahora se usa GET con query param
+        const resp = await fetch(`http://localhost:3000/api/public/getCompanyHorarios?id_company=${encodeURIComponent(id_company)}`);
+
+        if (!resp.ok) throw new Error(`HTTP error ${resp.status}`);
+
+        const data = await resp.json();
+        console.log("📥 Respuesta del backend (GET):", data);
+
+        if (data.success && data.data.horarios?.length > 0) {
+            console.log("✅ Horarios obtenidos:", data.data.horarios);
+            setHorarios(data.data.horarios);
+        } else {
+            console.warn("⚠️ No se encontraron horarios o respuesta vacía");
+            setHorarios([]);
+        }
+        } catch (error) {
+        console.error("❌ Error cargando horarios:", error);
+        setHorarios([]);
+        }
+    };
+
+    useEffect(() => {
+        if (!negocio?.company_id) return;
+
+        setLoadingHorarios(true);
+        fetchHorarios(negocio.company_id).finally(() => setLoadingHorarios(false));
+    }, [negocio]);
+
+    const agrupados = horarios.reduce((acc, h) => {
+        const day = normalize(h.weekday);
+        if (!acc[day]) acc[day] = [];
+        acc[day].push(`${h.starthour.slice(0,5)} - ${h.endhour.slice(0,5)}`);
+        return acc;
+    }, {});
+
+    const horariosFinal = Object.keys(agrupados)
+    .sort((a, b) => order.indexOf(a) - order.indexOf(b))
+    .map((day) => {
+            const sortedRanges = agrupados[day].sort((a, b) => {
+            const startA = a.split(" - ")[0];
+            const startB = b.split(" - ")[0];
+            return startA.localeCompare(startB);
+        });
+
+        return {
+            day,
+            ranges: sortedRanges
+        };
+    });
+
+
     return (
         <div className="detalle-container">
         {/* 🔙 Botón para volver */}
-        <button className="back-btn" onClick={() => navigate(-1)}>
+        <button
+        className="back-btn"
+            onClick={() => {
+                if (state?.desdeAgenda || state?.desdeConfirmacion) {
+                // Si viene desde Agenda o desde una confirmación de cita
+                navigate("/", { replace: true });
+                } else {
+                navigate(-1);
+                }
+            }}
+        >
             <ChevronLeft size={28} strokeWidth={2} />
         </button>
 
@@ -223,16 +349,25 @@ export default function DetalleNegocio() {
         {/* 🏷️ Categorías */}
         <div className="detalle-categorias">
             <h3>Categorías</h3>
-            {negocio.categories?.length > 0 ? (
-            <ul>
-                {negocio.categories.map((cat, i) => (
-                <li key={i}>💅 {cat.category_name}</li>
+            {loadingCategorias ? (
+                <p>Cargando categorías...</p>
+            ) : categorias.length > 0 ? (
+                <div className="categorias-filtros">
+                {categorias.map((cat) => (
+                    <button
+                    key={cat}
+                    className={`categoria-btn ${categoriaSeleccionada === cat ? 'activa' : ''}`}
+                    onClick={() => setCategoriaSeleccionada(cat)}
+                    >
+                    {cat}
+                    </button>
                 ))}
-            </ul>
+                </div>
             ) : (
-            <p>Aún no se ha categorizado el negocio.</p>
+                <p>Aún no se ha categorizado el negocio.</p>
             )}
-        </div>
+            </div>
+
 
         {/* 💅 Servicios */}
         <div className="detalle-servicios">
@@ -241,34 +376,45 @@ export default function DetalleNegocio() {
             <p>Cargando servicios...</p>
             ) : servicios.length > 0 ? (
             <div className="servicios-grid">
-                {servicios.map((serv, i) => (
-                <div key={i} className="servicio-card">
-                    <div className="servicio-header">
-                    {serv.images?.length > 0 ? (
-                        <img
-                        src={serv.images[0].uri}
-                        alt={serv.title}
-                        className="servicio-img"
-                        onError={(e) => (e.target.style.display = "none")}
-                        />
-                    ) : (
-                        <div className="emoji-box">💅</div>
-                    )}
+                {serviciosFiltrados.map((serv, i) => {
+                // Si quieres ver los datos en consola
+                console.log("🧩 Servicio:", serv);
+
+                return (
+                    <div
+                        key={i}
+                        className="servicio-card"
+                        onClick={() =>
+                            navigate(`/profesionales/${serv.service_id}`, { state: { servicio: serv, negocio } })
+                        }
+                        style={{ cursor: "pointer" }}
+                    >
+                        <div className="servicio-header">
+                            {serv.images?.length > 0 ? (
+                                <img
+                                    src={serv.images[0].uri}
+                                    alt={serv.title}
+                                    className="servicio-img"
+                                    onError={(e) => (e.target.style.display = "none")}
+                                />
+                            ) : (
+                                <div className="emoji-box">💅</div>
+                            )}
+                        </div>
+                        <div className="servicio-body">
+                            <h4>{serv.title}</h4>
+                            <p>{serv.description || "Sin descripción."}</p>
+                            <p>
+                                <strong>Precio:</strong> {serv.price ? `$${serv.price}` : "No especificado"}
+                            </p>
+                            <p>
+                                <strong>⏱ Duración:</strong> {serv.duration ? `${serv.duration} min` : "N/A"}
+                            </p>
+                        </div>
                     </div>
-                    <div className="servicio-body">
-                    <h4>{serv.title}</h4>
-                    <p>{serv.description || "Sin descripción."}</p>
-                    <p>
-                        <strong>Precio:</strong>{" "}
-                        {serv.price ? `$${serv.price}` : "No especificado"}
-                    </p>
-                    <p>
-                        <strong>⏱ Duración:</strong>{" "}
-                        {serv.duration ? `${serv.duration} min` : "N/A"}
-                    </p>
-                    </div>
-                </div>
-                ))}
+                );
+            })}
+
             </div>
             ) : (
             <p>Este negocio aún no tiene servicios registrados.</p>
@@ -278,18 +424,27 @@ export default function DetalleNegocio() {
         {/* 🕒 Horarios */}
         <div className="detalle-horarios">
             <h3>Horarios</h3>
-            {negocio.schedules?.length > 0 ? (
-            <ul>
-                {negocio.schedules.map((horario, i) => (
-                <li key={i}>
-                    🕓 <strong>{horario.day}</strong>: {horario.open} - {horario.close}
-                </li>
-                ))}
-            </ul>
+
+            {loadingHorarios ? (
+                <p>Cargando horarios...</p>
+            ) : horarios.length > 0 ? (
+                <ul>
+                    {horariosFinal.map((item, i) => (
+                        <li key={i}>
+                        🕓 <strong>
+                                {item.day
+                                .replace("miercoles", "miércoles")
+                                .replace("sabado", "sábado")}
+                            </strong>: {item.ranges.join(" / ")}
+                        </li>
+                    ))}
+                </ul>
+
             ) : (
-            <p>El negocio aún no ha registrado sus horarios.</p>
+                <p>El negocio aún no ha registrado sus horarios.</p>
             )}
         </div>
+
 
         {/* 📍 Ubicación */}
         <div className="detalle-ubicacion">

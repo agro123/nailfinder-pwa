@@ -1,55 +1,117 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./css/Home.css";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [empresas, setEmpresas] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [servicios, setServicios] = useState([]);
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
+  const [todasEmpresas, setTodasEmpresas] = useState([]);
 
-  // Llamada a la API al cargar la página
-  useEffect(() => {
-    const fetchEmpresas = async () => {
-      try {
-        const res = await axios.get(
-          "http://localhost:3000/api/public/getCompanys"
-        );
-        console.log("📦 Datos recibidos del backend:", res.data);
-        if (res.data.success) {
-          setEmpresas(res.data.data.negocios || []);
-        } else {
-          setError("No se pudieron cargar los negocios.");
-        }
-      } catch (err) {
-        console.error("Error al obtener empresas:", err);
-        setError("Error al conectar con el servidor.");
-      } finally {
-        setLoading(false);
+  
+
+
+
+  // Filtros
+
+
+  
+const filterCategory = async (categoria) => {
+  const nuevaCategoria =
+    categoriaSeleccionada === categoria.id ? null : categoria.id;
+
+  console.log("📂 Filtro categoría:", nuevaCategoria, categoria.id);
+  setCategoriaSeleccionada(nuevaCategoria);
+
+  if (nuevaCategoria) {
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/api/public/showCategorysCompany?id_company=${encodeURIComponent(nuevaCategoria)}`
+      );
+      if (res.data.success) {
+        setEmpresas(res.data.data.negocios || []);
       }
-    };
+    } catch (err) {
+      console.error("Error al obtener empresas por categoría:", err);
+    }
+  } else {
+    // Si deselecciona la categoría, recargamos todas
+    setEmpresas(todasEmpresas);
+  }
+};
 
-    fetchEmpresas();
-  }, []);
 
-  const handleNavigate = (item) => {
-    navigate(`/detalle/${item.company_id}`, { state: { negocio: item } });
-  };
 
-  // Filtros de ejemplo (puedes mantenerlos)
-  const servicios = [
-    "Manicure clásico",
-    "Pedicure clásico",
-    "Esmaltado en gel",
-    "Uñas acrílicas",
-    "Uñas en gel",
-    "Manicure francés",
-    "Decoración de uñas",
-    "Retiro de gel o acrílico",
-  ];
+
+
+  
+const fetchEmpresas = async (nuevaCategoria) => {
+  try {
+     setCategoriaSeleccionada(nuevaCategoria);
+    const res = await axios.get(`http://localhost:3000/api/public/getCompanys?id_category=${encodeURIComponent(nuevaCategoria)}`);
+    console.log("📦 Datos recibidos del backend:", res.data);
+    if (res.data.success) {
+      const negocios = res.data.data.negocios || [];
+      setTodasEmpresas(negocios);
+      setEmpresas(negocios);
+    } else {
+      setError("No se pudieron cargar los negocios.");
+    }
+  } catch (err) {
+    console.error("Error al obtener empresas:", err);
+    setError("Error al conectar con el servidor.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+
+    useEffect(() => {
+      
+const fetchCategorias = async () => {
+  try {
+    const res = await axios.get("http://localhost:3000/api/public/showCategorias");
+    console.log("🪷 Categorías recibidas:", res.data);
+
+    if (res.data.success) {
+      // Obtenemos las categorías del backend
+      const categorias = res.data.data.categorias || [];
+
+      // Creamos la categoría "General"
+      const categoriaGeneral = {
+        id: 0,
+        name: "Todas las categorías",
+        description: "",
+      };
+
+      // Agregamos "General" al inicio del arreglo
+      const categoriasFinales = [categoriaGeneral, ...categorias];
+
+      // Guardamos en el estado
+      setServicios(categoriasFinales);
+    }
+  } catch (err) {
+    console.error("Error al obtener categorías:", err);
+  }
+};
+
+
+      fetchEmpresas(0);
+      fetchCategorias();
+    }, []);
 
   // Filtrar según búsqueda
-  const empresasFiltradas = empresas.filter((e) =>
-    e.company_name?.toLowerCase().includes(search.toLowerCase())
-  );
+const empresasFiltradas = empresas.filter((e) =>
+  e.company_name?.toLowerCase().includes(search.toLowerCase())
+);
 
   // Filtro por tipo de negocio
 
@@ -62,8 +124,30 @@ export default function Home() {
   const domicilios = empresasFiltradas.filter(
     (e) => e.business_type?.toLowerCase() === "domicilio"
   );
+  
+
+  const handleNavigate = (item) => {
+  navigate(`/detalle/${item.company_id}`, { state: { negocio: item } });
+};
+
+
+const fetchEmpresasPorCategoria = async (id_company) => {
+  try {
+    const res = await axios.get(
+      `http://localhost:3000/api/public/showCategorysCompany?id_company=${encodeURIComponent(id_company)}`
+    );
+    console.log("🏷️ Empresas por categoría:", res.data);
+
+    if (res.data.success) {
+      setEmpresas(res.data.data.negocios || []);
+    }
+  } catch (err) {
+    console.error("Error al obtener empresas por categoría:", err);
+  }
+};
 
   // Render de tarjeta
+  
   const renderCard = (item) => (
     <div
       key={item.company_id}
@@ -120,7 +204,6 @@ export default function Home() {
 
   return (
     <div className="home-container">
-      {/* Header con logo y búsqueda */}
       <header className="header">
         <div className="logo">NailFinder</div>
         <input
@@ -132,35 +215,61 @@ export default function Home() {
         />
       </header>
 
-      {/* Filtros con servicios */}
       <div className="filters">
-        {servicios.map((s, index) => (
-          <button key={index} className="filter-btn">
-            {s}
-          </button>
-        ))}
+        {servicios.length > 0 ? (
+          servicios.map((cat, index) => (
+            <button
+              key={index}
+              className={`filter-btn ${categoriaSeleccionada === cat.id ? "active" : ""}`}
+onClick={() => fetchEmpresas(cat.id)}
+
+            >
+              {cat.nombre || cat.name || cat.categoria}
+            </button>
+          ))
+        ) : (
+          <p className="loading-text">Cargando categorías...</p>
+        )}
       </div>
 
 
-      {/* Recomendados */}
-      <section className="section">
-        <h3 className="section-title">Recomendado</h3>
-        <div className="recommended-list">
-          {recomendados.map((r) => (
-            <div
-              key={r.id}
-              className="recommended-card"
-              onClick={() => handleNavigate(r.id)}
-            >
-              <div className="emoji-box small">{r.emoji}</div>
-              <h4>{r.name}</h4>
-              <p>{r.address}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Mostrar estados */}
+      {loading && <p className="loading-text">Cargando negocios...</p>}
+      {error && <p className="error-text">{error}</p>}
 
-      
+      {!loading && !error && (
+        <>
+          {/* 🌟 SECCIÓN RECOMENDADOS */}
+          {recomendados.length > 0 && (
+            <section className="section">
+              <h3 className="section-title">⭐ Recomendados</h3>
+              <div className="recommended-list scrollable">
+                {recomendados.map((item) => renderCard(item))}
+              </div>
+            </section>
+          )}
+
+          {/* 🏠 SECCIÓN LOCALES */}
+          {locales.length > 0 && (
+            <section className="section">
+              <h3 className="section-title">🏠 Locales</h3>
+              <div className="recommended-list">
+                {locales.map((item) => renderCard(item))}
+              </div>
+            </section>
+          )}
+
+          {/* 🛵 SECCIÓN DOMICILIOS */}
+          {domicilios.length > 0 && (
+            <section className="section">
+              <h3 className="section-title">🚗 Domicilios</h3>
+              <div className="recommended-list">
+                {domicilios.map((item) => renderCard(item))}
+              </div>
+            </section>
+          )}
+        </>
+      )}
     </div>
   );
 }

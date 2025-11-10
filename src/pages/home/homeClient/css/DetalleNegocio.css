@@ -69,6 +69,7 @@
 }
 
 /* 📑 Secciones */
+.detalle-servicios,
 .detalle-descripcion,
 .detalle-categorias,
 .detalle-ubicacion,
@@ -79,6 +80,7 @@
 }
 
 .detalle-descripcion h3,
+.detalle-servicios h3,
 .detalle-categorias h3,
 .detalle-ubicacion h3,
 .detalle-galeria h3 {
@@ -102,6 +104,7 @@
 
 /* 📄 Contenido general */
 .detalle-descripcion p,
+.detalle-servicios p,
 .detalle-ubicacion p,
 .detalle-categorias p,
 .detalle-galeria p {
@@ -555,15 +558,7 @@
   }
 }
 
-/* 🔹 Sección de servicios */
-.detalle-servicios {
-  margin-top: 25px;
-}
 
-.detalle-servicios h3 {
-  color: #e91e63;
-  margin-bottom: 10px;
-}
 
 /* 🔹 Contenedor horizontal con scroll visible */
 .servicios-grid {
@@ -573,27 +568,31 @@
   padding-bottom: 10px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  scrollbar-color: #e91e63 #ffe6ef; /* color del thumb y fondo */
-  scrollbar-width: thin;
 }
 
-/* 🔹 Estilo para el scrollbar (visible y moderno) */
+/* Scroll estilo gris minimalista (igual que en Home) */
 .servicios-grid::-webkit-scrollbar {
-  height: 8px;
+  height: 6px;
 }
 
 .servicios-grid::-webkit-scrollbar-track {
-  background: #ffe6ef;
+  background: #f1f1f1; /* gris muy claro */
   border-radius: 10px;
 }
 
 .servicios-grid::-webkit-scrollbar-thumb {
-  background: #e91e63;
+  background: #cfcfcf; /* gris medio */
   border-radius: 10px;
 }
 
 .servicios-grid::-webkit-scrollbar-thumb:hover {
-  background: #c2185b;
+  background: #b3b3b3; /* gris más oscuro al pasar */
+}
+
+/* Firefox */
+.servicios-grid {
+  scrollbar-width: thin; 
+  scrollbar-color: #cfcfcf #f1f1f1; 
 }
 
 /* 🔹 Cada tarjeta de servicio */
