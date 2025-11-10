@@ -482,4 +482,14 @@
   background: linear-gradient(135deg, #f472b6, #ec4899); 
 }
 
+.tipo-cita.manual {
+  color: blue;
+  font-weight: bold;
+  margin-left: 0.5rem;
+}
 
+.tipo-cita.cliente {
+  color: green;
+  font-weight: bold;
+  margin-left: 0.5rem;
+}
