@@ -55,6 +55,7 @@ export default function EditProfile() {
 
         const company = data?.data?.negocios?.find((c) => c.user_id === authUser.id)
         if (company) {
+          console.log('🏢 Empresa encontrada:', company)
           setCompanyData(company)
           setFormData({
             companyname: company.company_name || '',
@@ -68,7 +69,7 @@ export default function EditProfile() {
           if (company.logo_uri) setLogoPreview(company.logo_uri)
 
           // Cargar horarios
-          if (company.mainBranch?.id) fetchHorarios(company.mainBranch.id)
+          if (company.company_id) fetchHorarios(company.company_id)
         }
       } catch (error) {
         console.error('Error obteniendo empresa:', error)
@@ -148,58 +149,104 @@ export default function EditProfile() {
   }
 
   // 🔹 HORARIOS 🔹
-  const fetchHorarios = async (branchId) => {
+  const fetchHorarios = async (id_company) => {
     try {
-      const resp = await fetch('http://localhost:3000/api/public/getCompanyHorarios', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ branch_id: branchId }), // o sede_id según backend
-      })
-      const data = await resp.json()
-      if (data.success) setHorarios(data.data)
-      else setHorarios([])
+      console.log("📡 Intentando cargar horarios para companyId:", id_company);
+
+      // ✅ Ahora se usa GET con query param
+      const resp = await fetch(`http://localhost:3000/api/public/getCompanyHorarios?id_company=${encodeURIComponent(id_company)}`);
+
+      if (!resp.ok) throw new Error(`HTTP error ${resp.status}`);
+
+      const data = await resp.json();
+      console.log("📥 Respuesta del backend (GET):", data);
+
+      if (data.success && data.data.horarios?.length > 0) {
+        console.log("✅ Horarios obtenidos:", data.data.horarios);
+        setHorarios(data.data.horarios);
+      } else {
+        console.warn("⚠️ No se encontraron horarios o respuesta vacía");
+        setHorarios([]);
+      }
     } catch (error) {
-      console.error('Error cargando horarios:', error)
+      console.error("❌ Error cargando horarios:", error);
+      setHorarios([]);
     }
-  }
+  };
+
+
+
+
+
 
   const handleCrearHorario = async () => {
     if (!newHorario.day || !newHorario.start || !newHorario.end) {
-      alert('Completa todos los campos del horario')
-      return
+      alert("Completa todos los campos del horario");
+      return;
     }
 
-    if (!companyData?.mainBranch?.id) {
-      alert('No se encontró la sucursal principal del negocio')
-      return
+    // usuario autenticado (por si se usa después)
+    const authUser = JSON.parse(localStorage.getItem("auth_user"));
+
+    console.log("🏢 companyData:", companyData);
+
+    if (!companyData?.company_id) {
+      alert("No se encontró la empresa asociada al negocio");
+      return;
     }
 
     try {
+      // 🔹 Formato correcto para el backend
       const body = {
-        ...newHorario,
-        company_id: companyData.company_id,
-        sede_id: companyData.mainBranch.id, // <-- importante
+        id_company: companyData.company_id,
+        horarios: [
+          {
+            dia: newHorario.day.toLowerCase(),
+            hinicio: `${newHorario.start}:00`,
+            hfin: `${newHorario.end}:00`,
+            isopen: true,
+          },
+        ],
+      };
+
+      // 🧩 Log antes del envío
+      console.log("📦 Body enviado:", JSON.stringify(body, null, 2));
+
+      const resp = await fetch("http://localhost:3000/api/public/createHorarios", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const text = await resp.text();
+      console.log("📥 Respuesta RAW:", text);
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("❌ No se pudo parsear JSON");
+        return;
       }
 
-      const resp = await fetch('http://localhost:3000/api/public/createHorarios', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-      const data = await resp.json()
-      console.log(data)
       if (data.success) {
-        alert('Horario creado')
-        setNewHorario({ day: '', start: '', end: '' })
-        fetchHorarios(companyData.mainBranch.id)
+        alert("✅ Horario creado correctamente");
+        setNewHorario({ day: "", start: "", end: "" });
+
+        // si tu función usa branchId, puedes obtenerlo aquí si lo requieres
+        if (companyData?.mainBranch?.id) {
+          fetchHorarios(companyData.mainBranch.id);
+        }
       } else {
-        alert('Error creando horario: ' + (data.message || 'Error desconocido'))
+        alert("⚠️ Error creando horario: " + (data.message || "Error desconocido"));
       }
     } catch (error) {
-      console.error('Error creando horario:', error)
-      alert('No se pudo crear el horario')
+      console.error("Error creando horario:", error);
+      alert("❌ No se pudo crear el horario");
     }
-  }
+  };
+
+
 
   const handleToggleHorario = async (horarioId) => {
     try {
@@ -279,17 +326,23 @@ export default function EditProfile() {
       {/* Horarios */}
       <h3>Horarios</h3>
       <div className="horarios-list">
-        {horarios.map((h) => (
-          <div key={h.id} className="horario-item">
-            <span>
-              {h.day} {h.start} - {h.end} ({h.active ? 'Activo' : 'Inactivo'})
-            </span>
-            <button onClick={() => handleToggleHorario(h.id)}>
-              {h.active ? 'Desactivar' : 'Activar'}
-            </button>
-          </div>
-        ))}
+        {horarios.length > 0 ? (
+          horarios.map((h) => (
+            <div key={h.id} className="horario-item">
+              <span>
+                🕒 <strong>{h.weekday}</strong>: {h.starthour} - {h.endhour} ({h.isopen ? "Activo" : "Inactivo"})
+              </span>
+              <button onClick={() => handleToggleHorario(h.id)}>
+                {h.isopen ? "Desactivar" : "Activar"}
+              </button>
+            </div>
+          ))
+        ) : (
+          <p>No hay horarios registrados aún.</p>
+        )}
       </div>
+
+
 
       {/* Nuevo horario */}
       <h4>Agregar Horario</h4>
@@ -310,7 +363,7 @@ export default function EditProfile() {
           value={newHorario.end}
           onChange={(e) => setNewHorario({ ...newHorario, end: e.target.value })}
         />
-        <button onClick={handleCrearHorario}>Agregar</button>
+        <button type="button" onClick={handleCrearHorario}>Agregar</button>
       </div>
     </div>
   )
