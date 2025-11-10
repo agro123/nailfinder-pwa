@@ -54,32 +54,35 @@ export default function Citas() {
         if (data.success) {
           // Convertimos { "2025-11-06": [ ... ] } a un array plano
           const citasArray = Object.entries(data.data).flatMap(([fecha, citas]) =>
-            citas
-              // Filtrar por branch si es compañía
-              .filter(c => !companyId || c.branchid === branchId)
-              .map(c => ({
-                id: c.id,
-                fecha,
-                hora: c.startat?.slice(0, 5) || '00:00',
-                cliente: companyId
-                  ? `Cliente ${c.clientid}`
-                  : `Empleado ${c.employeeid}`,
-                servicio: Array.isArray(c.services)
-                  ? c.services.map(s => s.title).join(', ')
-                  : 'Sin servicio',
-                estado:
-                  c.status === 1
-                    ? 'pendiente'
-                    : c.status === 2
-                    ? 'confirmada'
-                    : c.status === 98
-                    ? 'cancelada'
-                    : c.status === 99
-                    ? 'negada'
-                    : 'otro',
-                tipo: 'api'
-              }))
-          )
+          citas
+            .filter(c => !companyId || c.branchid === branchId)
+            .map(c => ({
+              id: c.id,
+              fecha,
+              hora: c.startat?.slice(0, 5) || '00:00',
+              cliente: companyId
+                ? `Cliente ${c.clientid}`
+                : `Empleado ${c.employeeid}`,
+              servicio: Array.isArray(c.services)
+                ? c.services.map(s => s.title).join(', ')
+                : 'Sin servicio',
+              estado:
+                c.status === 1
+                  ? 'pendiente'
+                  : c.status === 2
+                  ? 'confirmada'
+                  : c.status === 98
+                  ? 'cancelada'
+                  : c.status === 99
+                  ? 'negada'
+                  : 'otro',
+              tipo: companyId
+                ? c.clientid === userId
+                  ? 'manual'  // Creada por el negocio (el mismo cliente que está logeado)
+                  : 'cliente' // Creada por otro cliente
+                : 'api' // Para empleados
+            }))
+        )
 
           setCitas(citasArray)
         } else {
@@ -119,29 +122,72 @@ export default function Citas() {
     cargarServicios()
   }, [userId])
 
-  // === Cargar horarios disponibles ===
   useEffect(() => {
     const cargarHorarios = async () => {
-      if (!servicio || !userId || !companyId) return
+      if (!servicio || !companyId) return;
       try {
-        const fechaISO = date.toISOString().split('T')[0]
-        const url = `http://localhost:3000/api/public/getAvailableHours?date=${fechaISO}&serviceId=${servicio}&userId=${userId}&companyId=${companyId}`
-        console.log("🗓️ Solicitando disponibilidad:", url)
+        const fechaISO = date.toISOString().split('T')[0];
 
-        const response = await fetch(url)
-        const result = await response.json()
-        console.log("📥 Respuesta getAvailableHours:", result)
+        // Obtener profesionales que tengan este servicio
+        const resProfs = await fetch(
+          `http://localhost:3000/api/public/listProfessionals?id_company=${companyId}`
+        );
+        const dataProfs = await resProfs.json();
+        console.log("Profesionales: ", dataProfs);
+        
+        const profesionales = Array.isArray(dataProfs.data?.profesionales)
+          ? dataProfs.data.profesionales
+          : [];
+
+        // Filtrar profesionales que tengan el servicio seleccionado
+        const profConServicio = profesionales.find(p =>
+          Array.isArray(p.services) && p.services.some(s => s.id === parseInt(servicio))
+        );
+
+        if (!profConServicio) {
+          console.warn("No hay profesionales con este servicio");
+          setHorariosDisponibles([]);
+          return;
+        }
+
+        const professionalId = profConServicio.professional_id || profConServicio.id || profConServicio.user_id;
+        const branchId = profConServicio.branch_id || profConServicio.branchid;
+
+        // Construir URL de horarios
+        let url = `http://localhost:3000/api/public/getAvailableHours?date=${fechaISO}&serviceId=${servicio}&userId=${professionalId}&companyId=${companyId}`;
+        if (branchId) url += `&branchId=${branchId}`;
+
+        console.log("🗓️ Solicitando disponibilidad:", url);
+
+        const response = await fetch(url);
+        const result = await response.json();
+        console.log("📥 Respuesta getAvailableHours:", result);
 
         if (result.success) {
-          const diaData = (result.data || []).find(d => d.date === fechaISO)
-          setHorariosDisponibles(diaData?.availableHours || [])
+          const diaData = (result.data || []).find(d => d.date === fechaISO);
+
+          if (diaData?.periods) {
+            // Combinar todos los periodos en un array plano
+            const horarios = [
+              ...(diaData.periods.morning || []),
+              ...(diaData.periods.afternoon || []),
+              ...(diaData.periods.night || [])
+            ];
+            setHorariosDisponibles(horarios);
+          } else {
+            setHorariosDisponibles([]);
+          }
+        } else {
+          setHorariosDisponibles([]);
+          console.warn("No se encontraron horarios:", result.message);
         }
       } catch (err) {
-        console.error("Error al cargar horarios:", err)
+        console.error("Error al cargar horarios:", err);
       }
-    }
-    cargarHorarios()
-  }, [servicio, date, userId, companyId])
+    };
+
+    cargarHorarios();
+  }, [servicio, date, companyId]);
 
   const fechaSeleccionada = date.toISOString().split('T')[0]
   const citasDia = citas.filter(c => c.fecha === fechaSeleccionada)
@@ -188,54 +234,60 @@ export default function Citas() {
     }
   }
 
-  // === Crear nueva cita (igual que antes, solo se usa hora del selector) ===
+  // === Crear nueva cita
   const crearCita = async () => {
     if (!clienteNombre || !clienteTelefono || !hora || !servicio) {
-      alert('Por favor completa todos los campos obligatorios.')
-      return
+      alert('Por favor completa todos los campos obligatorios.');
+      return;
+    }
+
+    if (!companyId || !branchId || !userId) {
+      alert('No se pudo obtener la información del usuario o de la compañía.');
+      return;
     }
 
     try {
-      setAccionEnProceso(true)
-      const body = {
-        clientData: {
-          name: clienteNombre,
-          phone: clienteTelefono,
-          email: clienteEmail || null,
-        },
-        employeeId: userId,
-        branchId: branchId,
-        date: fechaSeleccionada,
-        startAt: hora,
-        endAt: calcularHoraFin(hora, 60),
-        services: [parseInt(servicio)],
-      }
+      setAccionEnProceso(true);
 
-      const res = await fetch('http://localhost:3000/api/public/createAppointmentGuest', {
+      // Construimos el body con todos los campos requeridos
+      const body = {
+        clientId: userId,                   // ID del cliente
+        companyId: companyId,               // ID de la compañía
+        branchId: branchId,                 // ID de la sucursal
+        date: fechaSeleccionada,            // Fecha en formato YYYY-MM-DD
+        startAt: hora,                      // Hora de inicio, ej. "09:00"
+        endAt: calcularHoraFin(hora, 60),  // Hora de fin, ej. "10:00"
+        services: [parseInt(servicio)]      // Array con ID(s) de servicio(s)
+      };
+
+      const res = await fetch('http://localhost:3000/api/public/createAppointment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
+        body: JSON.stringify(body)
+      });
 
-      const data = await res.json()
+      const data = await res.json();
+
       if (data.success) {
-        alert('✅ Cita creada exitosamente.')
-        setShowForm(false)
-        setClienteNombre('')
-        setClienteTelefono('')
-        setClienteEmail('')
-        setHora('')
-        setServicio('')
-        setHorariosDisponibles([])
+        alert('✅ Cita creada exitosamente.');
+        setShowForm(false);
+        setClienteNombre('');
+        setClienteTelefono('');
+        setClienteEmail('');
+        setHora('');
+        setServicio('');
+        setHorariosDisponibles([]);
       } else {
-        alert('❌ No se pudo crear la cita.')
+        alert(`❌ No se pudo crear la cita: ${data.message || 'Error desconocido'}`);
+        console.error('Error backend:', data);
       }
     } catch (err) {
-      console.error('Error creando cita:', err)
+      console.error('Error creando cita:', err);
+      alert('⚠️ Error de conexión con el servidor.');
     } finally {
-      setAccionEnProceso(false)
+      setAccionEnProceso(false);
     }
-  }
+  };
 
   const calcularHoraFin = (inicio, duracionMin) => {
     const [h, m] = inicio.split(':').map(Number)
@@ -275,10 +327,16 @@ export default function Citas() {
           citasDia.map(cita => (
             <div key={cita.id} className={`cita-card estado-${cita.estado}`}>
               <div className="cita-hora">{cita.hora}</div>
+
               <div className="cita-info">
                 <strong>{cita.cliente}</strong>
                 <p>{cita.servicio}</p>
                 <span className={`estado-tag ${cita.estado}`}>{cita.estado}</span>
+
+                {/* 🔹 Mostrar si la cita fue manual o por cliente */}
+                <span className={`tipo-cita ${cita.tipo}`}>
+                  {cita.tipo === 'manual' ? 'Creada manualmente' : 'Cliente'}
+                </span>
               </div>
 
               <div className="acciones">
