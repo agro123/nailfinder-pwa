@@ -6,22 +6,18 @@ import "./css/Profesionales.css";
 export default function Profesionales() {
   const navigate = useNavigate();
 
-  // Estados
   const [view, setView] = useState("list");
   const [editing, setEditing] = useState(null);
   const [showSheet, setShowSheet] = useState(false);
   const [professionals, setProfessionals] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Estados para servicios y categorías
   const [servicios, setServicios] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [companyId, setCompanyId] = useState(null);
-  const [error, setError] = useState(null);
+  const [mensaje, setMensaje] = useState(null);
   const [cargando, setCargando] = useState(true);
 
   const [newProfessional, setNewProfessional] = useState({
-    company_id: "",
     name: "",
     email: "",
     phone: "",
@@ -31,106 +27,93 @@ export default function Profesionales() {
     imgProfile: null,
   });
 
-  // 🔹 Cargar empresa y servicios del usuario
+  const authUser = JSON.parse(localStorage.getItem("auth_user"));
+  const userId = authUser?.id;
+  const company_id = authUser?.company?.company_id;
+
+  // === CARGAR EMPRESA Y SERVICIOS ===
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const authUser = JSON.parse(localStorage.getItem("auth_user"));
-        const userId = authUser?.id;
-
-        // Obtener los negocios del usuario
         const negociosResp = await fetch("http://localhost:3000/api/public/getCompanys");
         const negociosData = await negociosResp.json();
         const company = negociosData?.data?.negocios?.find((c) => c.user_id === userId);
         const companyIdFound = company?.company_id || company?.id;
         setCompanyId(companyIdFound);
 
-        // Obtener servicios de la empresa
+        // Cargar servicios
         const serviciosResp = await fetch(
           `http://localhost:3000/api/public/verServicios?idCompany=${companyIdFound}`
         );
         const serviciosData = await serviciosResp.json();
         if (serviciosData.success && serviciosData.data?.servicios) {
           setServicios(serviciosData.data.servicios);
-          const cats = [...new Set(serviciosData.data.servicios.map((s) => s.category_name || "Sin categoría"))];
-          setCategorias(["Todas", ...cats]);
-        } else {
-          setError(serviciosData.message || "Error al obtener servicios");
+          const cats = [
+            "Todas",
+            ...new Set(serviciosData.data.servicios.map((s) => s.category_name || "Sin categoría")),
+          ];
+          setCategorias(cats);
         }
       } catch (err) {
-        console.error("Error al conectar con el backend:", err);
-        setError("Error de conexión con el servidor");
+        console.error("Error al conectar con backend:", err);
+        setMensaje("Error de conexión con el servidor");
       } finally {
         setCargando(false);
       }
     };
-
     fetchData();
   }, []);
 
-  // 🔹 Cargar profesionales desde API
+  // === CARGAR PROFESIONALES ===
   useEffect(() => {
-    const fetchProfessionals = async () => {
-      try {
-        if (!companyId) return;
-        const res = await fetch(
-          `http://localhost:3000/api/public/listProfessionals?id_company=${companyId}`
-        );
-        if (!res.ok) throw new Error(res.statusText);
-        const data = await res.json();
-        const profs = Array.isArray(data.data?.profesionales) ? data.data.profesionales : [];
-        const profsWithId = profs.map((p, idx) => ({
-          id: idx,
-          company_id: companyId,
-          name: p.user_name || "Sin nombre",
-          specialty: p.branch_description || "Sin especialidad",
-          phone: p.user_phone || "",
-          email: p.user_email || "",
-          photo: p.user_img || "/default-avatar.png",
-          services: p.services || [],
-          branch_address: p.branch_address || "",
-        }));
-        setProfessionals(profsWithId);
-      } catch (err) {
-        console.error("Error al cargar profesionales:", err);
-        setProfessionals([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+    if (!companyId) return;
     fetchProfessionals();
   }, [companyId]);
 
-  // 🔹 Guardar nuevo profesional en backend
-  const handleSubmit = async () => {
+  const fetchProfessionals = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/public/listProfessionals?id_company=${companyId}`
+      );
+      const data = await res.json();
+
+      const profs = Array.isArray(data.data?.profesionales) ? data.data.profesionales : [];
+      setProfessionals(
+        profs.map((p) => ({
+          id: p.professional_id || p.id || p.user_id,
+          name: p.user_name || "Sin nombre",
+          email: p.user_email || "",
+          phone: p.user_phone || "",
+          specialty: p.branch_description || "Sin especialidad",
+          photo: p.user_img || "/default-avatar.png",
+        }))
+      );
+    } catch (err) {
+      console.error("Error al cargar profesionales:", err);
+      setMensaje("Error cargando profesionales");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // === CREAR PROFESIONAL ===
+  const handleCreateProfessional = async () => {
     if (!newProfessional.name || !newProfessional.email) {
-      alert("Completa todos los campos obligatorios");
+      setMensaje("Completa todos los campos obligatorios");
       return;
     }
 
     try {
-      const body = {
-        ...newProfessional,
-        company_id: companyId, // ✅ nombre exacto que espera el backend
-      };
-
+      const body = { ...newProfessional, company_id: companyId };
       const res = await fetch("http://localhost:3000/api/private/signup-professional", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
-      if (!res.ok) {
-        const text = await res.text();
-        console.error("Error HTTP:", res.status, text);
-        alert("Error al crear profesional");
-        return;
-      }
-
       const data = await res.json();
       if (data.success) {
-        alert("Profesional creado correctamente");
+        setMensaje("✅ Profesional creado correctamente");
         setView("list");
         setEditing(null);
         setNewProfessional({
@@ -142,32 +125,88 @@ export default function Profesionales() {
           sede_id: 5,
           imgProfile: null,
         });
-        // Recargar lista de profesionales
-        const reload = await fetch(
-          `http://localhost:3000/api/public/listProfessionals?id_company=${companyId}`
-        );
-        const reloadData = await reload.json();
-        const profs = Array.isArray(reloadData.data?.profesionales) ? reloadData.data.profesionales : [];
-        setProfessionals(profs.map((p, idx) => ({
-          id: idx,
-          name: p.user_name || "Sin nombre",
-          specialty: p.branch_description || "Sin especialidad",
-          phone: p.user_phone || "",
-          email: p.user_email || "",
-          photo: p.user_img || "/default-avatar.png",
-          services: p.services || [],
-          branch_address: p.branch_address || "",
-        })));
+        fetchProfessionals();
       } else {
-        alert(data.message || "Error al crear profesional");
+        setMensaje(data.message || "Error al crear profesional");
       }
     } catch (err) {
-      console.error("Error de red:", err);
-      alert("Error de red al crear profesional");
+      console.error("Error al crear profesional:", err);
+      setMensaje("Error de red al crear profesional");
     }
   };
 
-  // 🔹 Subir foto
+  // === ACTUALIZAR PROFESIONAL ===
+  const handleUpdateProfessional = async () => {
+    if (!editing?.id) {
+      setMensaje("No se encontró el ID del profesional a editar");
+      return;
+    }
+
+    try {
+      const body = {
+        userId: editing.id,
+        name: newProfessional.name,
+        email: newProfessional.email,
+        phone: newProfessional.phone,
+        dialingcode: newProfessional.dialingcode,
+      };
+      console.log("🟨 Enviando al backend:", JSON.stringify(body, null, 2));
+      const res = await fetch("http://localhost:3000/api/private/editInformationProfessional", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      console.log("Respuesta", data)
+      if (data.success) {
+        setMensaje("✅ Profesional actualizado correctamente");
+        setEditing(null);
+        setView("list");
+        fetchProfessionals();
+      } else {
+        setMensaje(`❌ Error: ${data.message || "No se pudo actualizar"}`);
+      }
+    } catch (error) {
+      console.error("Error actualizando profesional:", error);
+      setMensaje("Error de red al actualizar profesional");
+    }
+  };
+
+  // === ELIMINAR PROFESIONAL ===
+  const handleDeleteProfessional = async (id) => {
+    const prof = professionals.find((p) => p.id === id);
+    if (!prof) {
+      setMensaje("No se encontró el profesional");
+      return;
+    }
+
+    if (!window.confirm(`¿Seguro que deseas eliminar a ${prof.name}?`)) return;
+
+    try {
+      const res = await fetch("http://localhost:3000/api/private/deleteProfessional", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ professionalId: prof.id, userId }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setMensaje("✅ Profesional eliminado correctamente");
+        fetchProfessionals();
+        setShowSheet(false);
+        setEditing(null);
+      } else {
+        setMensaje(`❌ Error: ${data.message || "No se pudo eliminar"}`);
+      }
+    } catch (err) {
+      console.error("Error eliminando profesional:", err);
+      setMensaje("Error de red al eliminar profesional");
+    }
+  };
+
+  // === Subir imagen (solo preview) ===
   const handlePhoto = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -187,11 +226,13 @@ export default function Profesionales() {
     reader.readAsDataURL(file);
   };
 
+  // === UI ===
   if (loading || cargando) return <p>Cargando...</p>;
 
   return (
     <div className="prof-container">
-      {/* Lista de profesionales */}
+      {mensaje && <div className="mensaje">{mensaje}</div>}
+
       {view === "list" && (
         <>
           <h2>Equipo</h2>
@@ -201,8 +242,13 @@ export default function Profesionales() {
                 key={p.id}
                 className="prof-card"
                 onClick={() => {
-                  setEditing(p.id);
-                  setNewProfessional(p);
+                  setEditing(p);
+                  setNewProfessional({
+                    name: p.name,
+                    email: p.email,
+                    phone: p.phone,
+                    dialingcode: "57",
+                  });
                   setShowSheet(true);
                 }}
               >
@@ -214,20 +260,24 @@ export default function Profesionales() {
               </div>
             ))}
           </div>
+
           <button className="add-btn" onClick={() => setView("form")}>
-            Añadir profesional <Plus size={18} style={{ marginLeft: 6 }} />
+            Añadir profesional <Plus size={18} />
           </button>
+
           <button className="add-btn" onClick={() => navigate("/settings")}>
             Volver
           </button>
         </>
       )}
 
-      {/* Formulario */}
+      {/* === FORMULARIO === */}
       {view === "form" && (
         <div className="prof-form">
-          <button onClick={() => setView("list")}><ChevronLeft /> Volver</button>
-          <h2>{editing !== null ? "Editar profesional" : "Añadir colaborador"}</h2>
+          <button onClick={() => setView("list")}>
+            <ChevronLeft /> Volver
+          </button>
+          <h2>{editing ? "Editar profesional" : "Añadir colaborador"}</h2>
 
           <input
             type="text"
@@ -247,21 +297,12 @@ export default function Profesionales() {
             value={newProfessional.phone}
             onChange={(e) => setNewProfessional({ ...newProfessional, phone: e.target.value })}
           />
-
-          <select
-            multiple
-            value={newProfessional.services}
-            onChange={(e) => {
-              const selected = Array.from(e.target.selectedOptions, (opt) => parseInt(opt.value));
-              setNewProfessional({ ...newProfessional, services: selected });
-            }}
-          >
-            {servicios.map((s) => (
-              <option key={s.service_id} value={s.service_id}>
-                {s.title}
-              </option>
-            ))}
-          </select>
+          <input
+            type="text"
+            placeholder="Código país"
+            value={newProfessional.dialingcode}
+            onChange={(e) => setNewProfessional({ ...newProfessional, dialingcode: e.target.value })}
+          />
 
           <input type="file" accept="image/*" onChange={handlePhoto} />
           {newProfessional.imgProfile && (
@@ -272,30 +313,29 @@ export default function Profesionales() {
             />
           )}
 
-          <button onClick={handleSubmit}>
-            {editing !== null ? "Actualizar" : "Registrar"}
+          <button
+            onClick={editing ? handleUpdateProfessional : handleCreateProfessional}
+          >
+            {editing ? "Actualizar profesional" : "Registrar"}
           </button>
         </div>
       )}
 
-      {/* Bottom Sheet */}
-      {showSheet && (
+      {/* === SHEET === */}
+      {showSheet && editing && (
         <>
           <div className="overlay" onClick={() => setShowSheet(false)}></div>
           <div className="bottom-sheet">
-            <button className="edit" onClick={() => setView("form")}>
-              <Edit2 size={16} /> Editar colaborador
-            </button>
             <button
-              className="delete"
+              className="edit"
               onClick={() => {
-                if (window.confirm("¿Eliminar este profesional?")) {
-                  setProfessionals(professionals.filter(p => p.id !== editing));
-                  setShowSheet(false);
-                  setEditing(null);
-                }
+                setView("form");
+                setShowSheet(false);
               }}
             >
+              <Edit2 size={16} /> Editar colaborador
+            </button>
+            <button className="delete" onClick={() => handleDeleteProfessional(editing.id)}>
               <Trash2 size={16} /> Eliminar colaborador
             </button>
           </div>
