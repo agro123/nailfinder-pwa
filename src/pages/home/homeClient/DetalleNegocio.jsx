@@ -26,9 +26,19 @@ export default function DetalleNegocio() {
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('Todas');
     const [loadingCategorias, setLoadingCategorias] = useState(true);
 
+    const [horarios, setHorarios] = useState([]);
+    const [loadingHorarios, setLoadingHorarios] = useState(true);
 
+    // Normalizar para evitar problemas con tildes
+    const normalize = (str) => {
+        return str
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
+    };
 
-  
+    const order = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
+
 
     const serviciosFiltrados = categoriaSeleccionada === 'Todas'
   ? servicios
@@ -203,6 +213,62 @@ export default function DetalleNegocio() {
         setTouchEnd(null);
     };
 
+      // 🔹 HORARIOS 🔹
+    const fetchHorarios = async (id_company) => {
+        try {
+        console.log("📡 Intentando cargar horarios para companyId:", id_company);
+
+        // ✅ Ahora se usa GET con query param
+        const resp = await fetch(`http://localhost:3000/api/public/getCompanyHorarios?id_company=${encodeURIComponent(id_company)}`);
+
+        if (!resp.ok) throw new Error(`HTTP error ${resp.status}`);
+
+        const data = await resp.json();
+        console.log("📥 Respuesta del backend (GET):", data);
+
+        if (data.success && data.data.horarios?.length > 0) {
+            console.log("✅ Horarios obtenidos:", data.data.horarios);
+            setHorarios(data.data.horarios);
+        } else {
+            console.warn("⚠️ No se encontraron horarios o respuesta vacía");
+            setHorarios([]);
+        }
+        } catch (error) {
+        console.error("❌ Error cargando horarios:", error);
+        setHorarios([]);
+        }
+    };
+
+    useEffect(() => {
+        if (!negocio?.company_id) return;
+
+        setLoadingHorarios(true);
+        fetchHorarios(negocio.company_id).finally(() => setLoadingHorarios(false));
+    }, [negocio]);
+
+    const agrupados = horarios.reduce((acc, h) => {
+        const day = normalize(h.weekday);
+        if (!acc[day]) acc[day] = [];
+        acc[day].push(`${h.starthour.slice(0,5)} - ${h.endhour.slice(0,5)}`);
+        return acc;
+    }, {});
+
+    const horariosFinal = Object.keys(agrupados)
+    .sort((a, b) => order.indexOf(a) - order.indexOf(b))
+    .map((day) => {
+            const sortedRanges = agrupados[day].sort((a, b) => {
+            const startA = a.split(" - ")[0];
+            const startB = b.split(" - ")[0];
+            return startA.localeCompare(startB);
+        });
+
+        return {
+            day,
+            ranges: sortedRanges
+        };
+    });
+
+
     return (
         <div className="detalle-container">
         {/* 🔙 Botón para volver */}
@@ -358,18 +424,27 @@ export default function DetalleNegocio() {
         {/* 🕒 Horarios */}
         <div className="detalle-horarios">
             <h3>Horarios</h3>
-            {negocio.schedules?.length > 0 ? (
-            <ul>
-                {negocio.schedules.map((horario, i) => (
-                <li key={i}>
-                    🕓 <strong>{horario.day}</strong>: {horario.open} - {horario.close}
-                </li>
-                ))}
-            </ul>
+
+            {loadingHorarios ? (
+                <p>Cargando horarios...</p>
+            ) : horarios.length > 0 ? (
+                <ul>
+                    {horariosFinal.map((item, i) => (
+                        <li key={i}>
+                        🕓 <strong>
+                                {item.day
+                                .replace("miercoles", "miércoles")
+                                .replace("sabado", "sábado")}
+                            </strong>: {item.ranges.join(" / ")}
+                        </li>
+                    ))}
+                </ul>
+
             ) : (
-            <p>El negocio aún no ha registrado sus horarios.</p>
+                <p>El negocio aún no ha registrado sus horarios.</p>
             )}
         </div>
+
 
         {/* 📍 Ubicación */}
         <div className="detalle-ubicacion">
