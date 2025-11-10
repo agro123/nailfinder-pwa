@@ -23,6 +23,10 @@ export default function Agenda() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    const authUser = JSON.parse(localStorage.getItem("auth_user"));
+    const clientId = authUser?.id
+    console.log("Usuario", clientId);
+
     // 🔹 Cargar disponibilidad desde el backend
     const obtenerDisponibilidad = async (fecha) => {
         try {
@@ -123,9 +127,9 @@ export default function Agenda() {
 
         try {
             const body = {
-                clientId: 1, // ⚠️ cambia esto por el id real del cliente autenticado
+                clientId: clientId, 
                 employeeId: profesional.id, // id del trabajador seleccionado
-                branchId: negocio.branch_id || negocio.id_branch || 14, // ajusta según tu estructura
+                companyId: negocio.company_id, 
                 date: fechaSeleccionada, // formato YYYY-MM-DD
                 startAt: horaSeleccionada, // hora seleccionada, ej: "10:00"
                 endAt: calcularHoraFin(horaSeleccionada, servicio.duration), // función auxiliar abajo 👇
@@ -181,9 +185,9 @@ export default function Agenda() {
 
         const fechaISO = fechaSeleccionada.toISOString().split("T")[0];
         const citaPreview = {
-            clientId: 1, // ⚠️ Cambiar por el ID real del cliente autenticado
+            clientId: clientId, // ⚠️ Cambiar por el ID real del cliente autenticado
             employeeId: profesional.id,
-            branchId: negocio.branch_id || negocio.id_branch || 14,
+            companyId: negocio.company_id,
             date: fechaISO,
             startAt: horaSeleccionada,
             endAt: (() => {
