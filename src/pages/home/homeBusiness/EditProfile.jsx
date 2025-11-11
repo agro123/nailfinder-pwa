@@ -25,6 +25,20 @@ export default function EditProfile() {
   const [horarios, setHorarios] = useState([])
   const [newHorario, setNewHorario] = useState({ day: '', start: '', end: '' })
 
+  // Estado para alertas - CORREGIDO
+  const [alert, setAlert] = useState({ show: false, message: '', type: '' })
+
+  // Mostrar alerta - FUNCIÓN MEJORADA
+  const showAlert = (message, type = 'info') => {
+    console.log(`🔔 Mostrando alerta: ${type} - ${message}`); // Para debug
+    setAlert({ show: true, message, type });
+    
+    // Auto-ocultar después de 5 segundos
+    setTimeout(() => {
+      setAlert({ show: false, message: '', type: '' });
+    }, 5000);
+  };
+
   // Convertir archivo a base64
   const fileToBase64 = (file, renameKey = false) =>
     new Promise((resolve, reject) => {
@@ -48,7 +62,10 @@ export default function EditProfile() {
     const obtenerEmpresa = async () => {
       try {
         const authUser = JSON.parse(localStorage.getItem('auth_user'))
-        if (!authUser) return console.error('No hay usuario autenticado.')
+        if (!authUser) {
+          showAlert('No hay usuario autenticado', 'error')
+          return
+        }
 
         const resp = await fetch('http://localhost:3000/api/public/getCompanys')
         const data = await resp.json()
@@ -70,9 +87,12 @@ export default function EditProfile() {
 
           // Cargar horarios
           if (company.company_id) fetchHorarios(company.company_id)
+        } else {
+          showAlert('No se encontró negocio registrado', 'info')
         }
       } catch (error) {
         console.error('Error obteniendo empresa:', error)
+        showAlert('Error al cargar los datos del negocio', 'error')
       }
     }
     obtenerEmpresa()
@@ -87,48 +107,74 @@ export default function EditProfile() {
   const handleLogoChange = (e) => {
     const file = e.target.files[0]
     if (file) {
+      // Validar tipo de archivo
+      if (!file.type.startsWith('image/')) {
+        showAlert('Por favor selecciona un archivo de imagen válido', 'error')
+        return
+      }
+      
+      // Validar tamaño (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showAlert('La imagen es demasiado grande. Máximo 5MB permitido.', 'error')
+        return
+      }
+      
       setLogoFile(file)
-      setLogoPreview(URL.createObjectURL(file))
+      const previewUrl = URL.createObjectURL(file)
+      setLogoPreview(previewUrl)
+      showAlert('Logo cargado correctamente', 'success')
     }
   }
 
-  // Guardar empresa
+  // Guardar empresa - CORREGIDO CON MEJORES ALERTAS
   const handleGuardar = async () => {
     try {
+      // Validaciones básicas
+      if (!formData.companyname.trim()) {
+        showAlert('El nombre del negocio es requerido', 'warning')
+        return
+      }
+
+      if (!formData.companytype.trim()) {
+        showAlert('El tipo de negocio es requerido', 'warning')
+        return
+      }
+
       const isEdit = !!companyData?.company_id
       const body = {
         id_company: companyData?.company_id || null,
-        companyname: formData.companyname,
-        companytype: formData.companytype,
-        phone: formData.phone,
-        address: formData.address,
+        companyname: formData.companyname.trim(),
+        companytype: formData.companytype.trim(),
+        phone: formData.phone.trim(),
+        address: formData.address.trim(),
         latitude: formData.latitude || null,
         longitude: formData.longitude || null,
       }
 
-      if (logoFile) body.logo = await fileToBase64(logoFile)
-      if (bannerFiles.length > 0) {
-        body.bannerGalery = bannerFiles.map((f) => ({
-          name: f.name,
-          type: f.type,
-          size: f.size,
-          data: f.data,
-          description: 'Imagen agregada por el usuario',
-        }))
+      // Convertir logo a base64 si hay archivo nuevo
+      if (logoFile) {
+        try {
+          body.logo = await fileToBase64(logoFile)
+        } catch (error) {
+          showAlert('Error al procesar la imagen del logo', 'error')
+          return
+        }
       }
 
+      // Limpiar campos vacíos
       Object.keys(body).forEach((key) => {
-        if (
-          body[key] === null ||
-          body[key] === '' ||
-          (Array.isArray(body[key]) && body[key].length === 0)
-        ) delete body[key]
+        if (body[key] === null || body[key] === '' || 
+            (Array.isArray(body[key]) && body[key].length === 0)) {
+          delete body[key]
+        }
       })
 
       const url = isEdit
         ? 'http://localhost:3000/api/public/editCompany'
         : 'http://localhost:3000/api/public/setCompanys'
 
+      console.log('📤 Enviando datos:', body)
+      
       const resp = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -136,15 +182,21 @@ export default function EditProfile() {
       })
 
       const data = await resp.json()
+      console.log('📥 Respuesta del servidor:', data)
+      
       if (resp.ok && data.success) {
-        alert(isEdit ? '✅ Cambios guardados con éxito' : '🏗️ Negocio creado')
-        navigate('/settings')
+        showAlert(
+          isEdit ? 'Negocio actualizado exitosamente' : '🏗️ Negocio creado exitosamente', 
+          'success'
+        )
+        // Navegar después de 2 segundos para que se vea la alerta
+        setTimeout(() => navigate('/settings'), 2000)
       } else {
-        alert('❌ Error al guardar: ' + (data.message || 'Error desconocido'))
+        showAlert(`❌ Error: ${data.message || 'No se pudo guardar el negocio'}`, 'error')
       }
     } catch (error) {
       console.error('Error guardando cambios:', error)
-      alert('⚠️ No se pudieron guardar los cambios')
+      showAlert('⚠️ Error de conexión. Intenta nuevamente.', 'error')
     }
   }
 
@@ -153,7 +205,6 @@ export default function EditProfile() {
     try {
       console.log("📡 Intentando cargar horarios para companyId:", id_company);
 
-      // ✅ Ahora se usa GET con query param
       const resp = await fetch(`http://localhost:3000/api/public/getCompanyHorarios?id_company=${encodeURIComponent(id_company)}`);
 
       if (!resp.ok) throw new Error(`HTTP error ${resp.status}`);
@@ -164,39 +215,31 @@ export default function EditProfile() {
       if (data.success && data.data.horarios?.length > 0) {
         console.log("✅ Horarios obtenidos:", data.data.horarios);
         setHorarios(data.data.horarios);
+        showAlert(`Se cargaron ${data.data.horarios.length} horarios`, 'success')
       } else {
         console.warn("⚠️ No se encontraron horarios o respuesta vacía");
         setHorarios([]);
+        showAlert('No hay horarios registrados', 'info')
       }
     } catch (error) {
       console.error("❌ Error cargando horarios:", error);
       setHorarios([]);
+      showAlert('Error al cargar los horarios', 'error')
     }
   };
 
-
-
-
-
-
   const handleCrearHorario = async () => {
     if (!newHorario.day || !newHorario.start || !newHorario.end) {
-      alert("Completa todos los campos del horario");
+      showAlert("Completa todos los campos del horario", "warning");
       return;
     }
 
-    // usuario autenticado (por si se usa después)
-    const authUser = JSON.parse(localStorage.getItem("auth_user"));
-
-    console.log("🏢 companyData:", companyData);
-
     if (!companyData?.company_id) {
-      alert("No se encontró la empresa asociada al negocio");
+      showAlert("No se encontró la empresa asociada al negocio", "error");
       return;
     }
 
     try {
-      // 🔹 Formato correcto para el backend
       const body = {
         id_company: companyData.company_id,
         horarios: [
@@ -209,7 +252,6 @@ export default function EditProfile() {
         ],
       };
 
-      // 🧩 Log antes del envío
       console.log("📦 Body enviado:", JSON.stringify(body, null, 2));
 
       const resp = await fetch("http://localhost:3000/api/public/createHorarios", {
@@ -226,27 +268,23 @@ export default function EditProfile() {
         data = JSON.parse(text);
       } catch {
         console.error("❌ No se pudo parsear JSON");
+        showAlert("Error en la respuesta del servidor", "error");
         return;
       }
 
       if (data.success) {
-        alert("✅ Horario creado correctamente");
+        showAlert("✅ Horario creado correctamente", "success");
         setNewHorario({ day: "", start: "", end: "" });
-
-        // si tu función usa branchId, puedes obtenerlo aquí si lo requieres
-        if (companyData?.mainBranch?.id) {
-          fetchHorarios(companyData.mainBranch.id);
-        }
+        // Recargar horarios
+        fetchHorarios(companyData.company_id);
       } else {
-        alert("⚠️ Error creando horario: " + (data.message || "Error desconocido"));
+        showAlert(`⚠️ ${data.message || "Error creando horario"}`, "error");
       }
     } catch (error) {
       console.error("Error creando horario:", error);
-      alert("❌ No se pudo crear el horario");
+      showAlert("❌ No se pudo crear el horario", "error");
     }
   };
-
-
 
   const handleToggleHorario = async (horarioId) => {
     try {
@@ -256,16 +294,47 @@ export default function EditProfile() {
         body: JSON.stringify({ horario_id: horarioId }),
       })
       const data = await resp.json()
-      if (data.success && companyData?.mainBranch?.id) fetchHorarios(companyData.mainBranch.id)
+      if (data.success) {
+        showAlert("Horario actualizado correctamente", "success")
+        // Recargar horarios
+        if (companyData?.company_id) {
+          fetchHorarios(companyData.company_id)
+        }
+      } else {
+        showAlert("Error al actualizar el horario", "error")
+      }
     } catch (error) {
       console.error('Error activando/desactivando horario:', error)
+      showAlert("Error al actualizar el horario", "error")
     }
   }
 
   return (
     <div className="edit-profile-container">
+      {/* Flecha para volver */}
+      <button className="back-button" onClick={() => navigate('/settings')}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Volver
+      </button>
+
+      {/* Sistema de Alertas - CORREGIDO */}
+      {alert.show && (
+        <div className={`alert alert-${alert.type}`}>
+          <span className="alert-message">{alert.message}</span>
+          <button 
+            className="alert-close" 
+            onClick={() => setAlert({ show: false, message: '', type: '' })}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <h2>{companyData ? 'Editar Negocio' : 'Registrar Negocio'}</h2>
 
+      {/* Resto del código igual... */}
       {/* Logo */}
       <div className="logo-section">
         <div className="logo-preview-container">
@@ -319,51 +388,83 @@ export default function EditProfile() {
       <button className="save-button" onClick={handleGuardar}>
         {companyData ? 'Guardar Cambios' : 'Crear Negocio'}
       </button>
-      <button className="save-button" onClick={() => navigate('/settings')}>
-        Volver
-      </button>
 
       {/* Horarios */}
-      <h3>Horarios</h3>
-      <div className="horarios-list">
-        {horarios.length > 0 ? (
-          horarios.map((h) => (
-            <div key={h.id} className="horario-item">
-              <span>
-                🕒 <strong>{h.weekday}</strong>: {h.starthour} - {h.endhour} ({h.isopen ? "Activo" : "Inactivo"})
-              </span>
-              <button onClick={() => handleToggleHorario(h.id)}>
-                {h.isopen ? "Desactivar" : "Activar"}
+      <div className="horarios-section">
+        <h3>Horarios de Atención</h3>
+        
+        <div className="horarios-list">
+          {horarios.length > 0 ? (
+            horarios.map((h) => (
+              <div key={h.id} className={`horario-item ${h.isopen ? 'active' : 'inactive'}`}>
+                <div className="horario-info">
+                  <span className="horario-dia">{h.weekday}</span>
+                  <span className="horario-horas">{h.starthour} - {h.endhour}</span>
+                  <span className={`horario-status ${h.isopen ? 'status-active' : 'status-inactive'}`}>
+                    {h.isopen ? "🟢 Activo" : "🔴 Inactivo"}
+                  </span>
+                </div>
+                <button 
+                  className={`toggle-button ${h.isopen ? 'btn-inactive' : 'btn-active'}`}
+                  onClick={() => handleToggleHorario(h.id)}
+                >
+                  {h.isopen ? "Desactivar" : "Activar"}
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="no-horarios">
+              <p>No hay horarios registrados aún.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Formulario para nuevo horario */}
+        <div className="nuevo-horario">
+          <h4>Agregar Nuevo Horario</h4>
+          <div className="horario-form">
+            <div className="form-group">
+              <label>Día de la semana</label>
+              <input
+                type="text"
+                placeholder="Ej: Lunes, Martes..."
+                value={newHorario.day}
+                onChange={(e) => setNewHorario({ ...newHorario, day: e.target.value })}
+                className="horario-input"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Hora de apertura</label>
+              <input
+                type="time"
+                value={newHorario.start}
+                onChange={(e) => setNewHorario({ ...newHorario, start: e.target.value })}
+                className="horario-input"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label>Hora de cierre</label>
+              <input
+                type="time"
+                value={newHorario.end}
+                onChange={(e) => setNewHorario({ ...newHorario, end: e.target.value })}
+                className="horario-input"
+              />
+            </div>
+            
+            <div className="form-group button-container">
+              <button 
+                type="button" 
+                className="btn-agregar-horario"
+                onClick={handleCrearHorario}
+              >
+                Agregar Horario
               </button>
             </div>
-          ))
-        ) : (
-          <p>No hay horarios registrados aún.</p>
-        )}
-      </div>
-
-
-
-      {/* Nuevo horario */}
-      <h4>Agregar Horario</h4>
-      <div className="form-group-inline">
-        <input
-          type="text"
-          placeholder="Día"
-          value={newHorario.day}
-          onChange={(e) => setNewHorario({ ...newHorario, day: e.target.value })}
-        />
-        <input
-          type="time"
-          value={newHorario.start}
-          onChange={(e) => setNewHorario({ ...newHorario, start: e.target.value })}
-        />
-        <input
-          type="time"
-          value={newHorario.end}
-          onChange={(e) => setNewHorario({ ...newHorario, end: e.target.value })}
-        />
-        <button type="button" onClick={handleCrearHorario}>Agregar</button>
+          </div>
+        </div>
       </div>
     </div>
   )
