@@ -8,9 +8,18 @@ export default function Gallery() {
   const [gallery, setGallery] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [company, setCompany] = useState(null);
-  const [isUploading, setIsUploading] = useState(false); // 🆕 estado para controlar subida
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Estado para alertas específico de Gallery
+  const [galleryAlert, setGalleryAlert] = useState({ show: false, message: '', type: '' });
 
   const API_BASE = "http://localhost:3000/api/public";
+
+  // Mostrar alerta específica para Gallery
+  const showAlert = (message, type = 'info') => {
+    setGalleryAlert({ show: true, message, type });
+    setTimeout(() => setGalleryAlert({ show: false, message: '', type: '' }), 5000);
+  };
 
   // 🔹 Convertir archivo a Base64
   const fileToBase64 = (file, renameKey = false) =>
@@ -35,7 +44,10 @@ export default function Gallery() {
     const obtenerEmpresa = async () => {
       try {
         const authUser = JSON.parse(localStorage.getItem("auth_user"));
-        if (!authUser) return console.error("⚠️ No hay usuario autenticado.");
+        if (!authUser) {
+          showAlert("No hay usuario autenticado", "error");
+          return;
+        }
 
         const resp = await fetch(`${API_BASE}/getCompanys`);
         const data = await resp.json();
@@ -64,14 +76,18 @@ export default function Gallery() {
             }));
 
             setGallery(normalizedGallery);
+            showAlert(`Se cargaron ${normalizedGallery.length} imágenes de la galería`, "success");
           } else {
             setGallery([]);
+            showAlert("No hay imágenes en la galería", "info");
           }
         } else {
           console.warn("⚠️ No se encontró empresa para este usuario.");
+          showAlert("No se encontró negocio registrado", "error");
         }
       } catch (err) {
         console.error("❌ Error obteniendo empresa:", err);
+        showAlert("Error al cargar la galería", "error");
       }
     };
 
@@ -81,22 +97,53 @@ export default function Gallery() {
   // 🔹 Seleccionar nuevas imágenes
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    // Validar cantidad de archivos
+    if (files.length > 10) {
+      showAlert("Máximo 10 imágenes permitidas", "warning");
+      return;
+    }
+
+    // Validar tipos de archivo
+    const invalidFiles = files.filter(file => !file.type.startsWith('image/'));
+    if (invalidFiles.length > 0) {
+      showAlert("Solo se permiten archivos de imagen", "error");
+      return;
+    }
+
+    // Validar tamaño (max 5MB por archivo)
+    const oversizedFiles = files.filter(file => file.size > 5 * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      showAlert("Algunas imágenes son demasiado grandes. Máximo 5MB por imagen", "error");
+      return;
+    }
+
     const previews = files.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
     }));
     setSelectedFiles(previews);
+    showAlert(`${files.length} imagen(es) seleccionada(s)`, "success");
   };
 
   // 🔹 Subir nuevas imágenes
   const handleUpload = async () => {
-    if (!company) return alert("⚠️ No se ha cargado el negocio.");
-    if (selectedFiles.length === 0)
-      return alert("Selecciona al menos una imagen.");
-    if (isUploading)
-      return alert("⏳ Espera a que termine la subida anterior.");
+    if (!company) {
+      showAlert("No se ha cargado el negocio", "error");
+      return;
+    }
+    if (selectedFiles.length === 0) {
+      showAlert("Selecciona al menos una imagen", "warning");
+      return;
+    }
+    if (isUploading) {
+      showAlert("Espera a que termine la subida anterior", "warning");
+      return;
+    }
 
     setIsUploading(true);
+    showAlert("⏳ Subiendo imágenes...", "info");
 
     try {
       const convertedFiles = await Promise.all(
@@ -119,6 +166,7 @@ export default function Gallery() {
       await handleGuardar(updatedGallery);
     } catch (err) {
       console.error("❌ Error al convertir o subir imágenes:", err);
+      showAlert("Error al procesar las imágenes", "error");
     } finally {
       setIsUploading(false);
     }
@@ -128,12 +176,14 @@ export default function Gallery() {
   const handleDelete = async (index) => {
     const imageToDelete = gallery[index];
     if (!imageToDelete) return;
+
     if (!window.confirm("¿Eliminar esta imagen?")) return;
 
     // Si la imagen no tiene idBanner (aún no guardada en DB)
     if (!imageToDelete.idBanner) {
       console.warn("⚠️ Imagen sin idBanner (nueva), eliminando localmente:", imageToDelete);
       setGallery((prev) => prev.filter((_, i) => i !== index));
+      showAlert("Imagen eliminada", "success");
       return;
     }
 
@@ -166,24 +216,28 @@ export default function Gallery() {
               description: img.descripcion ?? img.description ?? "",
             }));
           setGallery(updatedFromServer);
+          showAlert("Imagen eliminada correctamente", "success");
         } else {
           setGallery((prev) => prev.filter((_, i) => i !== index));
+          showAlert("Imagen eliminada", "success");
         }
       } else {
         console.error("❌ Error al eliminar banner (backend):", data);
-        alert("No se pudo eliminar la imagen en el servidor.");
+        showAlert("No se pudo eliminar la imagen en el servidor", "error");
       }
     } catch (err) {
       console.error("❌ Error eliminando imagen:", err);
-      alert("Error al eliminar la imagen.");
+      showAlert("Error al eliminar la imagen", "error");
     }
   };
 
   // 🔹 Guardar galería en backend
   const handleGuardar = async (updatedGallery) => {
     try {
-      if (!company?.company_id && !company?.id_company)
-        return alert("⚠️ No se ha identificado el negocio correctamente.");
+      if (!company?.company_id && !company?.id_company) {
+        showAlert("No se ha identificado el negocio correctamente", "error");
+        return;
+      }
 
       const idCompany = company.id_company || company.company_id;
 
@@ -240,11 +294,13 @@ export default function Gallery() {
             }))
           );
         }
+        showAlert("✅ Galería actualizada correctamente", "success");
       } else {
-        alert("❌ Error al actualizar galería: " + (data.message || "Desconocido"));
+        showAlert(`❌ Error al actualizar galería: ${data.message || "Error desconocido"}`, "error");
       }
     } catch (err) {
       console.error("❌ Error guardando galería:", err);
+      showAlert("Error de conexión al guardar la galería", "error");
     }
   };
 
@@ -253,11 +309,24 @@ export default function Gallery() {
     <div className="gallery-container">
       {/* Header */}
       <div className="gallery-header">
-        <button className="back-btn" onClick={() => navigate(-1)}>
+        <button className="back-btn" onClick={() => navigate('/settings')}>
           <ChevronLeft size={24} />
         </button>
         <h2>Galería del negocio</h2>
       </div>
+
+      {/* Sistema de Alertas específico para Gallery */}
+      {galleryAlert.show && (
+        <div className={`gallery-alert alert-${galleryAlert.type}`}>
+          <span className="gallery-alert-message">{galleryAlert.message}</span>
+          <button 
+            className="gallery-alert-close" 
+            onClick={() => setGalleryAlert({ show: false, message: '', type: '' })}
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* Galería existente */}
       <div className="gallery-grid">
@@ -295,9 +364,6 @@ export default function Gallery() {
           {isUploading ? "⏳ Subiendo imágenes..." : "Subir a galería"}
         </button>
       </div>
-      <button className="upload-btn" onClick={() => navigate('/settings')}>
-        Volver
-      </button>
     </div>
   );
 }
