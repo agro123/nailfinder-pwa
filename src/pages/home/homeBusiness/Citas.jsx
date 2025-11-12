@@ -63,38 +63,39 @@ export default function Citas() {
         if (data.success) {
           // Convertimos { "2025-11-06": [ ... ] } a un array plano
           const citasArray = Object.entries(data.data).flatMap(([fecha, citas]) =>
-          citas
-            .filter(c => !companyId || c.branchid === branchId)
-            .map(c => ({
-              id: c.id,
-              fecha,
-              hora: c.startat?.slice(0, 5) || '00:00',
-              cliente: companyId
-                ? `Cliente ${c.clientid}`
-                : `Empleado ${c.employeeid}`,
-              servicio: Array.isArray(c.services)
-                ? c.services.map(s => s.title).join(', ')
-                : 'Sin servicio',
-              estado:
-                c.status === 1
-                  ? 'pendiente'
-                  : c.status === 2
-                  ? 'confirmada'
-                  : c.status === 98
-                  ? 'cancelada'
-                  : c.status === 99
-                  ? 'negada'
-                  : 'otro',
-              tipo: companyId
-                ? c.clientid === userId
-                  ? 'manual'  // Creada por el negocio (el mismo cliente que está logeado)
-                  : 'cliente' // Creada por otro cliente
-                : 'api' // Para empleados
-            }))
-        )
+            citas
+              .filter(c => !companyId || c.branchid === branchId)
+              .map(c => ({
+                id: c.id,
+                fecha,
+                hora: c.startat?.slice(0, 5) || '00:00',
+                // 🔹 CAMBIO AQUÍ: Usar el nombre real del cliente
+                cliente: companyId
+                  ? c.client?.name || `Cliente ${c.clientid}` // Usar nombre del cliente si está disponible
+                  : c.employee?.name || `Empleado ${c.employeeid}`, // Usar nombre del empleado si está disponible
+                servicio: Array.isArray(c.services)
+                  ? c.services.map(s => s.title).join(', ')
+                  : 'Sin servicio',
+                estado:
+                  c.status === 1
+                    ? 'pendiente'
+                    : c.status === 2
+                    ? 'confirmada'
+                    : c.status === 98
+                    ? 'cancelada'
+                    : c.status === 99
+                    ? 'negada'
+                    : 'otro',
+                tipo: companyId
+                  ? c.clientid === userId
+                    ? 'manual'  // Creada por el negocio (el mismo cliente que está logeado)
+                    : 'cliente' // Creada por otro cliente
+                  : 'api' // Para empleados
+              }))
+          )
 
           setCitas(citasArray)
-          showAlert(`Se cargaron ${citasArray.length} citas para esta fecha`, 'success')
+          showAlert('Citas cargadas correctamente', 'success')
         } else {
           console.error('Error al cargar citas:', data)
           showAlert('Error al cargar las citas', 'error')
@@ -126,7 +127,6 @@ export default function Citas() {
         const serviciosData = await serviciosResp.json()
         if (serviciosData.success && serviciosData.data?.servicios) {
           setServiciosDisponibles(serviciosData.data.servicios)
-          showAlert('Servicios cargados correctamente', 'success')
         }
       } catch (err) {
         console.error("Error al obtener servicios:", err)
