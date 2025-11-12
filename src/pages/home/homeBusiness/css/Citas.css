@@ -39,10 +39,13 @@
   transition: transform 0.2s ease;
 }
 
-.calendar-wrapper:hover {
+/* .calendar-wrapper:hover {
   transform: translateY(-2px);
+} */
+.calendar-wrapper:hover {
+  transform: none; /* Esto elimina el movimiento */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); /* Efecto más sutil */
 }
-
 .custom-calendar {
   border: none !important;
   width: 100%;
