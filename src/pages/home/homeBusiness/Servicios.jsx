@@ -10,8 +10,16 @@ export default function ServiciosBusiness() {
   const [categorias, setCategorias] = useState([])
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState('Todas')
   const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
   const [companyId, setCompanyId] = useState(null)
+
+  // Estado para alertas específico de Servicios
+  const [serviciosAlert, setServiciosAlert] = useState({ show: false, message: '', type: '' })
+
+  // Mostrar alerta específica para Servicios
+  const showAlert = (message, type = 'info') => {
+    setServiciosAlert({ show: true, message, type })
+    setTimeout(() => setServiciosAlert({ show: false, message: '', type: '' }), 5000)
+  }
 
   // 🔁 Cargar servicios y categorías
   useEffect(() => {
@@ -31,6 +39,12 @@ export default function ServiciosBusiness() {
         const companyIdFound = company?.company_id || company?.id
         setCompanyId(companyIdFound)
 
+        if (!companyIdFound) {
+          showAlert('No se encontró negocio registrado', 'error')
+          setCargando(false)
+          return
+        }
+
         // ✅ Obtener servicios de la empresa
         const resServicios = await fetch(
           `http://localhost:3000/api/public/verServicios?idCompany=${companyIdFound}`,
@@ -47,12 +61,13 @@ export default function ServiciosBusiness() {
           // Extraer categorías únicas
           const cats = [...new Set(lista.map((s) => s.category_name || 'Sin categoría'))]
           setCategorias(['Todas', ...cats])
+          showAlert(`Se cargaron ${lista.length} servicios`, 'success')
         } else {
-          setError(data.message || 'Error al obtener servicios')
+          showAlert(data.message || 'Error al obtener servicios', 'error')
         }
       } catch (err) {
         console.error('Error al conectar con el backend:', err)
-        setError('Error de conexión con el servidor')
+        showAlert('Error de conexión con el servidor', 'error')
       } finally {
         setCargando(false)
       }
@@ -87,6 +102,7 @@ export default function ServiciosBusiness() {
   // ❌ Eliminar servicio
   const handleDelete = async (servicio) => {
     if (!window.confirm(`¿Eliminar el servicio "${servicio.title}"?`)) return
+    
     try {
       const authUser = JSON.parse(localStorage.getItem('auth_user'))
       const userId = authUser?.id
@@ -99,6 +115,8 @@ export default function ServiciosBusiness() {
       const company = neg?.data?.negocios?.find((c) => c.user_id === userId)
       const companyId = company.company_id
 
+      showAlert('Eliminando servicio...', 'info')
+
       const res = await fetch('http://localhost:3000/api/public/deleteServicio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -110,20 +128,33 @@ export default function ServiciosBusiness() {
 
       const data = await res.json()
       if (data.success) {
-        alert('✅ Servicio eliminado correctamente')
+        showAlert('Servicio eliminado correctamente', 'success')
         setServicios((prev) => prev.filter((s) => s.service_id !== servicio.service_id))
       } else {
-        alert('❌ Error al eliminar el servicio')
+        showAlert(`Error al eliminar el servicio: ${data.message || 'Error desconocido'}`, 'error')
       }
     } catch (err) {
       console.error('Error eliminando servicio:', err)
-      alert('Error al conectar con el servidor')
+      showAlert('Error de conexión con el servidor', 'error')
     }
   }
 
   return (
     <div className="servicios-container">
       <h2 className="servicios-title">Servicios por Categoría</h2>
+
+      {/* Sistema de Alertas específico para Servicios */}
+      {serviciosAlert.show && (
+        <div className={`servicios-alert alert-${serviciosAlert.type}`}>
+          <span className="servicios-alert-message">{serviciosAlert.message}</span>
+          <button 
+            className="servicios-alert-close" 
+            onClick={() => setServiciosAlert({ show: false, message: '', type: '' })}
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* 🔍 Barra de búsqueda */}
       <div className="servicios-busqueda">
@@ -152,8 +183,6 @@ export default function ServiciosBusiness() {
       {/* 🧾 Lista agrupada */}
       {cargando ? (
         <p>Cargando servicios...</p>
-      ) : error ? (
-        <p className="error">{error}</p>
       ) : Object.keys(serviciosPorCategoria).length > 0 ? (
         <div className="servicios-list">
           {Object.entries(serviciosPorCategoria).map(([categoria, lista]) => (
@@ -164,7 +193,7 @@ export default function ServiciosBusiness() {
                   <div>
                     <h4 className="servicio-nombre">{servicio.title}</h4>
                     <p className="servicio-precio">
-                      💰 {servicio.price.toLocaleString('es-CO')} COP
+                      💰 {servicio.price?.toLocaleString('es-CO') || '0'} COP
                     </p>
                   </div>
                   <div className="servicio-actions">
@@ -190,7 +219,7 @@ export default function ServiciosBusiness() {
         <p className="sin-resultados">No se encontraron servicios</p>
       )}
 
-      {/* 🚀 Botones flotantes (igual que tu diseño) */}
+      {/* 🚀 Botones flotantes */}
       <div className="floating-buttons">
         <button className="floating-btn secondary" onClick={handleAddCategoria}>
           <Layers size={22} />
