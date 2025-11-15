@@ -1,74 +1,639 @@
+/* Contenedor principal para las citas de usuario */
 .citasusuario-container {
-  font-family: 'Poppins', sans-serif;
-  background-color: #fff;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding-bottom: 70px;
+  padding: 24px;
+  max-width: 700px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(233, 30, 99, 0.08);
+  color: #444;
 }
 
+.citasusuario-container:hover {
+  box-shadow: 0 6px 25px rgba(233, 30, 99, 0.12);
+}
+
+/* Header */
 .citasusuario-header {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 16px;
-  border-bottom: 1px solid #eee;
+  gap: 16px;
 }
 
 .citasusuario-header h2 {
-  font-size: 20px;
-  color: #0bb397;
+  font-weight: 600;
+  font-size: 24px;
+  color: #e25b7a;
   margin: 0;
 }
 
-.no-citasusuario {
-  text-align: center;
-  margin-top: 50px;
-  color: #777;
+/* Filtros */
+.filtros-container {
+  display: flex;
+  gap: 12px;
+  background-color: #f5f5f5;
+  padding: 6px;
+  border-radius: 16px;
 }
 
+.btn-filtro {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: transparent;
+  color: #666;
+}
+
+.btn-filtro:hover {
+  background-color: #e8e8e8;
+  color: #333;
+}
+
+.btn-filtro.activo {
+  background-color: #e25b7a;
+  color: white;
+  box-shadow: 0 2px 8px rgba(226, 91, 122, 0.3);
+}
+
+/* Mensaje de carga */
+.loading-message {
+  text-align: center;
+  color: #666;
+  font-size: 16px;
+  padding: 32px;
+}
+
+/* Lista de citas */
 .citasusuario-list {
-  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
+  padding: 12px;
 }
 
 .citasusuario-card {
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  padding: 14px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  transition: box-shadow 0.3s ease;
+  gap: 8px;
+}
+
+.citasusuario-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.citasusuario-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
 }
 
 .citasusuario-info h3 {
-  margin: 0;
-  font-size: 17px;
+  font-size: 16px;
+  font-weight: 600;
   color: #333;
+  margin: 0;
 }
 
-.servicio {
-  font-size: 14px;
-  color: #0bb397;
-  font-weight: 500;
+.citasusuario-info .servicio,
+.citasusuario-info .fecha,
+.citasusuario-info .hora {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+.citasusuario-info .estado {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: fit-content;
   margin-top: 4px;
 }
 
-.fecha, .hora {
-  font-size: 13px;
-  color: #666;
-  margin-top: 2px;
+/* Estados de citas */
+.citasusuario-info .estado.confirmada {
+  background-color: #4caf50;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
 }
 
-.estado {
-  margin-top: 6px;
+.citasusuario-info .estado.pendiente {
+  background-color: #ff9800;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(255, 152, 0, 0.3);
+}
+
+.citasusuario-info .estado.cancelada {
+  background-color: #9e9e9e;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(158, 158, 158, 0.3);
+}
+
+.citasusuario-info .estado.pasada {
+  background-color: #f44336;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(244, 67, 54, 0.3);
+}
+
+
+.citasusuario-info .estado::before,
+.citasusuario-card .estado::before,
+.estado-badge::before {
+  display: none !important;
+  content: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Botón de cancelar cita */
+.btn-cancelar-cita {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
+  cursor: pointer;
+  background-color: #ffebee;
+  color: #c62828;
+  transition: all 0.2s ease;
+  margin-top: 4px;
 }
 
-.confirmada {
-  color: #00a890;
+.btn-cancelar-cita:hover {
+  background-color: #ef5350;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(239, 83, 80, 0.3);
 }
 
-.pendiente {
-  color: #f0ad4e;
+.btn-cancelar-cita:active {
+  transform: translateY(0);
 }
+
+/* Mensajes de error y estados vacíos */
+.error-message {
+  text-align: center;
+  color: #f44336;
+  font-size: 14px;
+  padding: 16px;
+  background-color: #ffebee;
+  border-radius: 12px;
+  margin: 16px;
+}
+
+.no-citasusuario {
+  text-align: center;
+  color: #777;
+  font-size: 16px;
+  padding: 32px;
+}
+
+
+.fila-estado-boton {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.fila-estado-boton .estado {
+  margin: 0; /* eliminar margen extra */
+}
+
+.fila-estado-boton .btn-cancelar-cita {
+  margin-top: 0 !important; /* quita el empuje hacia abajo */
+}
+
+.cita-header {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* espacio entre logo y nombre */
+  margin-bottom: 8px;
+}
+
+.cita-logo {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.cita-nombre {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.modal-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin: 0 auto 16px auto;
+  display: block;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.modal-detalle {
+  background-color: #fff;
+  border-radius: 20px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  position: relative;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  animation: modalSlideIn 0.3s ease;
+  z-index: 2001;
+  transition: none !important;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #f5f5f5;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: #666;
+  z-index: 2002;
+  pointer-events: auto;
+}
+
+.modal-close:hover {
+  background-color: #e25b7a;
+  color: white;
+  transform: rotate(90deg);
+}
+
+.modal-detalle h2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 20px 0;
+  padding-right: 40px;
+}
+
+.modal-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.modal-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modal-info-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.info-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+}
+
+.info-value {
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+.info-value.total {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e25b7a;
+}
+
+.servicios-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.servicio-item {
+  background-color: #f9f9f9;
+  padding: 10px 12px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.servicio-nombre {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  flex: 1;
+}
+
+.servicio-duracion {
+  font-size: 12px;
+  color: #666;
+  background-color: #e8e8e8;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.servicio-precio {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4caf50;
+}
+
+.estado-badge {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: fit-content;
+}
+
+.estado-badge.confirmada {
+  background-color: #4caf50;
+  color: #ffffff;
+}
+
+.estado-badge.pendiente {
+  background-color: #ff9800;
+  color: #ffffff;
+}
+
+.estado-badge.cancelada {
+  background-color: #9e9e9e;
+  color: #ffffff;
+}
+
+.estado-badge.pasada {
+  background-color: #f44336;
+  color: #ffffff;
+}
+
+/* Modal de confirmación */
+.modal-confirmacion {
+  background-color: #fff;
+  border-radius: 16px;
+  max-width: 400px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  animation: modalSlideIn 0.3s ease;
+  z-index: 2001;
+  text-align: center;
+}
+
+.modal-confirmacion h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 12px 0;
+}
+
+.modal-confirmacion > p {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 16px 0;
+}
+
+.confirmacion-info {
+  background-color: #f9f9f9;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.confirmacion-info p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.confirmacion-info p strong {
+  color: #e25b7a;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-confirmar-no,
+.btn-confirmar-si {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.btn-confirmar-no {
+  background-color: #e8e8e8;
+  color: #555;
+}
+
+.btn-confirmar-no:hover:not(:disabled) {
+  background-color: #d0d0d0;
+}
+
+.btn-confirmar-si {
+  background-color: #e25b7a;
+  color: white;
+}
+
+.btn-confirmar-si:hover:not(:disabled) {
+  background-color: #d44a68;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(226, 91, 122, 0.3);
+}
+
+.btn-confirmar-no:disabled,
+.btn-confirmar-si:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Animación del modal */
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ----- RESPONSIVE GENERAL ----- */
+@media (max-width: 768px) {
+  .citasusuario-container {
+    margin: 16px;
+    padding: 16px;
+  }
+
+  .citasusuario-list {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .citasusuario-card {
+    padding: 12px;
+  }
+
+  /* Logo + nombre de empresa */
+  .cita-header {
+    gap: 10px;
+  }
+
+  .cita-logo {
+    width: 38px;
+    height: 38px;
+  }
+
+  .cita-nombre {
+    font-size: 16px;
+  }
+
+  .modal-detalle {
+    margin: 16px;
+    max-width: calc(100% - 32px);
+    padding: 20px;
+  }
+
+  .modal-logo {
+    width: 70px;
+    height: 70px;
+  }
+
+  .modal-info-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .modal-detalle h2 {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .btn-cancelar-cita {
+    font-size: 12px;
+    padding: 7px 12px;
+  }
+
+  .modal-confirmacion {
+    margin: 16px;
+    max-width: calc(100% - 32px);
+    padding: 20px;
+  }
+}
+
+/* ----- RESPONSIVE PARA CELULARES MUY PEQUEÑOS (≤ 480px) ----- */
+@media (max-width: 480px) {
+
+  /* Logo + nombre en formato reducido */
+  .cita-header {
+    gap: 8px;
+  }
+
+  .cita-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .cita-nombre {
+    font-size: 15px;
+  }
+
+  /* Fecha / hora / servicio más compactos */
+  .citasusuario-info .servicio,
+  .citasusuario-info .fecha,
+  .citasusuario-info .hora {
+    font-size: 12px;
+  }
+
+  /* Botón cancelar */
+  .btn-cancelar-cita {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  /* Grid modal vertical y más compacto */
+  .modal-info-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .modal-logo {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 12px;
+  }
+}
+@media (max-width: 350px) {
+  .citasusuario-info .estado {
+    text-align: center;
+    justify-content: center;
+    display: flex;   /* Asegura alineación */
+    width: 80%;     /* Ocupa todo el espacio para centrar */
+    padding: 3px 4px;
+  }
+}
+
 
