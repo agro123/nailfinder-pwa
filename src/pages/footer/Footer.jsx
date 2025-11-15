@@ -25,8 +25,8 @@ export default function FooterNav({ tipo }) {
     return (
       <footer className="footercliente">
         <button
-          className={`footercliente-btn ${location.pathname === '/home' ? 'active' : ''}`}
-          onClick={() => go('/home')}
+          className={`footercliente-btn ${location.pathname === '/' ? 'active' : ''}`}
+          onClick={() => go('/')}
         >
           🏠<span>Inicio</span>
         </button>

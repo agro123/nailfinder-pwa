@@ -22,7 +22,7 @@ export default function BusinessLocation({ onNext, onBack, setMessage, setType, 
     if (onNext) {
       // Enviar los datos de este paso
       onNext({
-        companytype: mode === "local" ? "negocio" : "domicilio",
+        companytype: mode === "local" ? "Local" : "domicilio",
         address,
         // incluir la ubicación seleccionada (si existe)
         location: pickedLocation || null,

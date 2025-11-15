@@ -1,0 +1,849 @@
+/* === EDITAR PERFIL (Estilo unificado y RESPONSIVE con SETTINGS PAGE) === */
+
+.edit-profile-container {
+  font-family: 'Poppins', sans-serif;
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 2rem 1.5rem;
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  border: 1px solid #fce2e8;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  color: #333;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* --- CONTENEDORES DE FORMULARIO CON PADDING INTERNO --- */
+.form-group,
+.horarios-section,
+.logo-section,
+.nuevo-horario {
+  box-sizing: border-box;
+}
+
+/* --- RESPONSIVE DESIGN MEJORADO --- */
+
+/* Móviles */
+@media (max-width: 600px) {
+  .edit-profile-container {
+    padding: 1.5rem 1.2rem; /* Aumentado el padding lateral */
+    margin: 1rem 0.8rem; /* Margen lateral reducido pero existente */
+    border-radius: 12px;
+  }
+
+  /* Asegurar que los inputs tengan espacio interno suficiente */
+  input[type="text"],
+  input[type="time"],
+  textarea,
+  .horario-input {
+    font-size: 0.85rem;
+    padding: 12px 14px !important; /* Padding aumentado para móviles */
+    border-radius: 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Espacio adicional para grupos de formulario */
+  .form-group {
+    margin-bottom: 0.5rem;
+  }
+
+  .form-group-inline {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 0 -0.2rem; /* Compensación pequeña para el grid */
+  }
+
+  /* Horarios en móviles */
+  .horario-form {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0 0.2rem;
+  }
+
+  .horario-item {
+    margin: 0 -0.5rem; /* Compensación para el contenedor */
+    padding: 14px 16px;
+    border-radius: 10px;
+  }
+
+  /* Alertas en móviles */
+  .alert {
+    margin: 0 -1.2rem 1rem -1.2rem; /* Compensación con el padding del contenedor */
+    border-radius: 0;
+    border-left: none;
+    border-top: 4px solid;
+    padding: 14px 1.2rem;
+  }
+
+  /* Sección de horarios */
+  .horarios-section {
+    margin: 1.5rem -0.5rem 0 -0.5rem;
+    padding: 1.5rem 1rem 0 1rem;
+  }
+
+  .nuevo-horario {
+    margin: 0 -0.5rem;
+    padding: 1.2rem;
+  }
+
+  /* Botones en móviles */
+  .save-button,
+  .btn-agregar-horario,
+  .toggle-button {
+    padding: 14px 16px !important;
+    font-size: 0.9rem;
+    border-radius: 12px;
+  }
+
+  /* Logo section en móviles */
+  .logo-section {
+    padding: 0 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+/* Tablets pequeñas */
+@media (min-width: 601px) and (max-width: 768px) {
+  .edit-profile-container {
+    padding: 2rem 1.8rem;
+    margin: 1.5rem 1rem;
+  }
+
+  .horario-form {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding: 0 0.5rem;
+  }
+
+  input[type="text"],
+  input[type="time"],
+  textarea {
+    padding: 11px 14px;
+    font-size: 0.9rem;
+  }
+
+  .form-group-inline {
+    gap: 1.2rem;
+    margin: 0 -0.3rem;
+  }
+}
+
+/* Tablets grandes */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .edit-profile-container {
+    padding: 2.5rem 2rem;
+    margin: 2rem 1.5rem;
+    max-width: 680px;
+  }
+}
+
+/* Ajustes generales para todos los inputs */
+input[type="text"],
+input[type="time"],
+textarea,
+.horario-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #fce2e8;
+  border-radius: 12px;
+  background-color: #fff7f9;
+  color: #333;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+input[type="text"]:focus,
+input[type="time"]:focus,
+textarea:focus,
+.horario-input:focus {
+  border-color: #e25b7a;
+  outline: none;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(226, 91, 122, 0.15);
+}
+
+/* Asegurar que los contenedores de formulario tengan el ancho correcto */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #555;
+  padding-left: 2px;
+}
+
+/* Contenedor principal asegura el spacing */
+.edit-profile-container > *:not(.back-button):not(.alert) {
+  padding: 0 0.2rem;
+}
+
+/* Mejoras específicas para la sección de horarios en todos los dispositivos */
+.horarios-section {
+  margin-top: 2rem;
+  padding: 2rem 0.5rem 0 0.5rem;
+  border-top: 2px solid #f8f9fa;
+  box-sizing: border-box;
+}
+
+.nuevo-horario {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+  margin: 0 -0.2rem;
+  box-sizing: border-box;
+}
+
+/* Asegurar que los botones tengan buen tamaño táctil en móviles */
+@media (max-width: 600px) {
+  .back-button {
+    padding: 12px 0;
+    margin-left: -0.2rem;
+  }
+  
+  .btn-editar-logo {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Resto del CSS se mantiene igual... */
+
+/* --- BOTÓN VOLVER --- */
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #e25b7a;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: all 0.2s ease;
+  align-self: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.back-button:hover {
+  color: #c94c69;
+  transform: translateX(-2px);
+}
+
+.back-button svg {
+  transition: transform 0.2s ease;
+}
+
+.back-button:hover svg {
+  transform: translateX(-2px);
+}
+
+/* --- SISTEMA DE ALERTAS CORREGIDO - POSICIONAMIENTO FIXED --- */
+.alert {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  animation: slideIn 0.3s ease;
+  border: 1px solid;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  min-width: 300px;
+  max-width: 90%;
+}
+
+.alert::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+}
+
+.alert-success {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.alert-success::before {
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+}
+
+.alert-error {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.alert-error::before {
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.alert-warning::before {
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+}
+
+.alert-info {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+.alert-info::before {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.alert-message {
+  flex: 1;
+  font-weight: 500;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  padding-right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alert-message::before {
+  font-size: 1.2rem;
+}
+
+.alert-success .alert-message::before {
+  content: '✅';
+}
+
+.alert-error .alert-message::before {
+  content: '❌';
+}
+
+.alert-warning .alert-message::before {
+  content: '⚠️';
+}
+
+.alert-info .alert-message::before {
+  content: 'ℹ️';
+}
+
+.alert-close {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  color: inherit;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.alert-close:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+  transform: scale(1.1);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Efecto de desvanecimiento al cerrar */
+.alert.fade-out {
+  animation: slideOutUp 0.3s ease-in forwards;
+}
+
+@keyframes slideOutUp {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+}
+
+/* Responsive para alertas */
+@media (max-width: 600px) {
+  .alert {
+    top: 15px;
+    min-width: 280px;
+    max-width: 85%;
+    padding: 14px 16px;
+  }
+  
+  .alert-message {
+    font-size: 0.9rem;
+  }
+  
+  .alert-close {
+    width: 24px;
+    height: 24px;
+    font-size: 1.2rem;
+  }
+}
+
+/* --- TÍTULO PRINCIPAL --- */
+.edit-profile-container h2 {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #e25b7a;
+  border-left: 4px solid #e25b7a;
+  padding-left: 12px;
+  display: inline-block;
+  align-self: center;
+  margin-bottom: 0.5rem;
+  padding-right: 12px;
+}
+
+/* --- SECCIÓN LOGO --- */
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 0 1rem;
+}
+
+.logo-preview-container {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #ffe6eb;
+  background-color: #fff7f9;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.logo-placeholder {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.btn-editar-logo {
+  margin-top: 0.8rem;
+  background-color: #e25b7a;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-editar-logo:hover {
+  background-color: #d34669;
+  transform: translateY(-2px);
+}
+
+/* --- FORMULARIO --- */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 0.3rem;
+}
+
+.form-group-inline {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  padding: 0 0.3rem;
+}
+
+/* --- BOTONES --- */
+.save-button {
+  width: 100%;
+  background-color: #e25b7a;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 20px;
+  font-weight: 300;
+  font-size: 1.3rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(226, 91, 122, 0.3);
+  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.save-button:hover {
+  background-color: #c94c69;
+  transform: translateY(-2px);
+}
+
+/* --- SECCIÓN HORARIOS MEJORADA Y RESPONSIVE --- */
+.horarios-section {
+  margin-top: 2rem;
+  padding: 2rem 0.5rem 0 0.5rem;
+  border-top: 2px solid #f8f9fa;
+  box-sizing: border-box;
+}
+
+.horarios-section h3 {
+  color: #e25b7a;
+  font-size: 1.3rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #ffe6eb;
+  padding-bottom: 0.8rem;
+  padding-left: 0.5rem;
+}
+
+.horarios-section h4 {
+  color: #555;
+  font-size: 1.1rem;
+  margin-bottom: 1.2rem;
+  padding-left: 0.5rem;
+}
+
+/* Lista de horarios - MEJORADO */
+.horarios-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 2rem;
+  padding: 0 0.3rem;
+}
+
+.horario-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s ease;
+  flex-wrap: wrap;
+}
+
+.horario-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.horario-item.active {
+  border-left: 4px solid #10b981;
+}
+
+.horario-item.inactive {
+  border-left: 4px solid #6c757d;
+  opacity: 0.7;
+}
+
+.horario-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.horario-dia {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.horario-horas {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.horario-status {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 12px;
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.status-active {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-inactive {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Botones de horarios */
+.toggle-button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 100px;
+  margin-left: 1rem;
+}
+
+.btn-active {
+  background-color: #10b981;
+  color: white;
+}
+
+.btn-active:hover {
+  background-color: #059669;
+}
+
+.btn-inactive {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-inactive:hover {
+  background-color: #5a6268;
+}
+
+/* Formulario nuevo horario - COMPLETAMENTE RESPONSIVE */
+.horario-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.2rem;
+  align-items: end;
+}
+
+.horario-form .form-group {
+  margin-bottom: 0;
+  padding: 0;
+}
+
+.horario-form .form-group label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.button-container {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+}
+
+.btn-agregar-horario {
+  background-color: #e25b7a;
+  color: white;
+  margin-top: 2.5rem;
+  margin-bottom: 0.5rem; 
+  border: none;
+  border-radius: 50px;
+  padding: 14px 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  width: 100%;
+  font-size: 0.95rem;
+  height: fit-content;
+}
+
+.btn-agregar-horario:hover {
+  background-color: #d34669;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(226, 91, 122, 0.3);
+}
+
+.no-horarios {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: #6c757d;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  border: 2px dashed #dee2e6;
+  margin: 0 0.5rem;
+}
+
+/* --- RESPONSIVE DESIGN PARA HORARIOS --- */
+
+/* Móviles pequeños */
+@media (max-width: 480px) {
+  .horario-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px;
+  }
+  
+  .horario-info {
+    min-width: auto;
+    gap: 8px;
+  }
+  
+  .toggle-button {
+    margin-left: 0;
+    min-width: auto;
+    width: 100%;
+    padding: 12px;
+  }
+  
+  .horario-form {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .horarios-section h3 {
+    font-size: 1.2rem;
+    padding-left: 0;
+  }
+  
+  .horarios-section h4 {
+    font-size: 1rem;
+    padding-left: 0;
+  }
+}
+
+/* Móviles medianos a tablets */
+@media (max-width: 768px) {
+  .horario-form {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .button-container {
+    margin-top: 0.5rem;
+  }
+  
+  .btn-agregar-horario {
+    padding: 16px 20px;
+    font-size: 1rem;
+  }
+  
+  .horario-item {
+    padding: 14px 16px;
+  }
+}
+
+/* Tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .horario-form {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .button-container {
+    grid-column: span 2;
+  }
+}
+
+/* Escritorio */
+@media (min-width: 1025px) {
+  .horario-form {
+    grid-template-columns: 2fr 1fr 1fr auto;
+    gap: 1.2rem;
+  }
+  
+  .button-container {
+    grid-column: auto;
+  }
+}
+
+/* Asegurar que los inputs de horarios tengan buen estilo */
+.horario-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #fce2e8;
+  border-radius: 10px;
+  background-color: #fff7f9;
+  color: #333;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+.horario-input:focus {
+  border-color: #e25b7a;
+  outline: none;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(226, 91, 122, 0.15);
+}
+
+/* Estilo específico para inputs de tiempo */
+input[type="time"].horario-input {
+  padding: 11px 14px;
+}
+
+/* Mejoras visuales para el contenedor de nuevo horario */
+.nuevo-horario {
+  background-color: #f8f9fa;
+  padding: 1.8rem;
+  border-radius: 14px;
+  border: 1px solid #e9ecef;
+  margin: 0 -0.2rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  .nuevo-horario {
+    padding: 1.4rem;
+    margin: 0 -0.5rem;
+  }
+  
+  .horarios-section {
+    padding: 1.5rem 0.3rem 0 0.3rem;
+  }
+  
+  .horarios-list {
+    padding: 0 0.1rem;
+  }
+}

@@ -1,11 +1,27 @@
-.home-container {
+body {
+  background-color: #f9f0f5;
+  margin: 0;
   font-family: 'Poppins', sans-serif;
-  background-color: #fff;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding-bottom: 70px;
 }
+
+
+.home-container {
+  padding: 24px;
+  max-width: 700px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(233, 30, 99, 0.08);
+  font-family: 'Poppins', sans-serif;
+  color: #444;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.home-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(233, 30, 99, 0.12);
+}
+
 
 /* Header */
 .header {
@@ -18,7 +34,7 @@
 .logo {
   font-weight: 600;
   font-size: 20px;
-  color: #0bb397;
+  color: #e25b7a;
   margin-bottom: 8px;
 }
 
@@ -35,46 +51,67 @@
 /* Filtros */
 .filters {
   display: flex;
-  gap: 8px;
+  gap: 12px;
   overflow-x: auto;
   padding: 0 16px 12px;
+  scroll-behavior: smooth; /* mantiene el scroll suave */
 }
 
 .filter-btn {
-  background-color: #e9f6f4;
-  color: #00a890;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 20px;
-  font-weight: 500;
-  flex-shrink: 0;
-  white-space: nowrap;
+  background-color: #fff;
+  border: 1px solid #f8b8c6;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  color: #e25b7a;
+  font-weight: 500;
+  transition: all 0.25s ease;
+  flex-shrink: 0; /* evita que los botones se achiquen */
+  white-space: nowrap; /* evita que el texto se corte */
 }
 
 .filter-btn:hover {
-  background-color: #d9f1ed;
+  background-color: #ffe6eb;
+  transform: translateY(2px);
 }
+
+.filter-btn.active {
+  background-color: #e25b7a;
+  color: white;
+  border-color: #e25b7a;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
 
 /* Secciones */
 .section {
   padding: 0 16px;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
 }
 
 .section-title {
   font-size: 16px;
   font-weight: 600;
-  margin-bottom: 10px;
   color: #333;
+  margin-bottom: 12px;
+  border-left: 4px solid #e25b7a;
+  padding-left: 8px;
+}
+
+.recommended-list {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 6px;
 }
 
 /* Emoji genérico (sustituto de imagen) */
 .emoji-box {
   font-size: 60px;
   text-align: center;
-  background: #e9f6f4;
+  background-color: #ffe6eb !important;
   border-radius: 16px;
   width: 100%;
   height: 150px;
@@ -143,3 +180,92 @@
 
 
 
+
+
+
+
+
+/* Imagen del logo o banner dentro de las tarjetas */
+.company-logo {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+
+.company-status {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 4px 10px 8px;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.company-status.active {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.company-status.inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+
+.recommended-card h4 {
+  font-size: 14px;
+  margin: 6px 10px 0;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+.recommended-card .emoji-box {
+  height: 100px;
+}
+
+
+.section+.section {
+  border-top: 1px solid #f1f1f1;
+  padding-top: 20px;
+}
+
+
+
+/* Indicador circular de estado (activo/inactivo) */
+.company-status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.company-status-dot.active {
+  background-color: #b6f3c4;
+  /* verde pastel */
+  box-shadow: 0 0 4px rgba(0, 128, 0, 0.2);
+}
+
+.company-status-dot.inactive {
+  background-color: #f7b6b6;
+  /* rojo pastel */
+  box-shadow: 0 0 4px rgba(255, 0, 0, 0.2);
+}
+
+/* Contenedor que alinea el punto con el texto */
+.status-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #666;
+  margin: 4px 10px 10px;
+}

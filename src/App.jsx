@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import FooterNav from './pages/footer/Footer'
 import { useAuth } from './context/AuthContext'
 /* Business */
 import SettingsBusines from './pages/home/homeBusiness/Settings'
+import EditProfile from './pages/home/homeBusiness/EditProfile'
 import CitasBusiness from './pages/home/homeBusiness/Citas'
 import ClienteBusiness from './pages/home/homeBusiness/Clientes'
 import ServiciosBusiness from './pages/home/homeBusiness/Servicios'
+import AddService from './pages/home/homeBusiness/AddService'
+import EditService from './pages/home/homeBusiness/EditService'
+import AddCategoria from './pages/home/homeBusiness/AddCategoria'
+import Gallery from './pages/home/homeBusiness/Gallery'
+import Profesionales from './pages/home/homeBusiness/Profesionales'
 /*Client*/
 import Home from './pages/home/homeClient/Home'
 import HomeOther from './pages/home/homeClient/Other'
 import CitasUsuario from './pages/home/homeClient/CitasUsuario'
 import PerfilUsuario from './pages/home/homeClient/PerfilUsuario'
+import DetalleNegocio from './pages/home/homeClient/DetalleNegocio'
+import ProfesionalesCliente from './pages/home/homeClient/ProfesionalesCliente'
+import Agenda from './pages/home/homeClient/Agenda'
 /* Auth */
 import Login from './pages/auth/Login'
 import ProtectedRoute from './routes/ProtectedRoute'
@@ -21,7 +30,6 @@ import RegisterB from './pages/auth/RegisterBusiness'
 import Recover from './pages/auth/RecoverPassword'
 import ResetPassword from './pages/auth/ResetPassword'
 import ExampleMap from './pages/example/ExampleMap'
-
 
 
 export default function App() {
@@ -52,7 +60,7 @@ export default function App() {
 
   const hideFooterRoutes = ['/login', '/register', '/registerB', '/recover', '/reset-password', '/', '/other']
   const businessRoutes = ['/settings', '/citas', '/clientes', '/servicios']
-  const clientRoutes = ['/home', '/citasusuario', '/perfilusuario']
+  const clientRoutes = ['/', '/citasusuario', '/perfilusuario']
 
   //const shouldShowFooter = token && businessRoutes.some(r => location.pathname.startsWith(r))
 
@@ -70,6 +78,7 @@ export default function App() {
         {installed && <div className="installed">Aplicación instalada ✅</div>}
 
         <Routes>
+          {/* <Route path="/" element={<Navigate to="/login" replace />} /> */}
           {/* Public routes (login, register...) */}
           <Route element={<PublicRoute />}>
             <Route path="/login" element={<Login />} />
@@ -84,14 +93,24 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             {/* Business */}
             <Route path="/settings" element={<SettingsBusines />} />
+            <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/citas" element={<CitasBusiness />} />
             <Route path="/clientes" element={<ClienteBusiness />} />
             <Route path="/servicios" element={<ServiciosBusiness />} />
+            <Route path="/add_service" element={<AddService />} />
+            <Route path="/edit_service" element={<EditService />} />
+            <Route path="/add_categoria" element={<AddCategoria />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/profesionales" element={<Profesionales />} />
             {/* Client */}
-            <Route path="/home" element={<Home />} />
+            <Route path="/" element={<Home />} />
             <Route path="/other" element={<HomeOther />} />
             <Route path="/perfilusuario" element={<PerfilUsuario />} />
             <Route path="/citasusuario" element={<CitasUsuario />} /> 
+            <Route path="/detalle/:id" element={<DetalleNegocio />} />
+            <Route path="/profesionales/:idServicio" element={<ProfesionalesCliente />} />
+            <Route path="/agenda/:idProfesional" element={<Agenda />} />
+
           </Route>
           
           {/* Fallback */}
