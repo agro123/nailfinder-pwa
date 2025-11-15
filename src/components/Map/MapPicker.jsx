@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import './Map.css';
 
@@ -63,6 +63,8 @@ const MapPicker = ({
   height = '400px',
   width = '100%',
   markerColor = '#e25b7a',
+  // radius in meters (optional). If provided and a location is selected, a circle will be drawn.
+  radius = null,
 }) => {
   // internal selected position (uncontrolled) unless `value` is provided
   const [selected, setSelected] = useState(defaultValue);
@@ -113,6 +115,13 @@ const MapPicker = ({
               {`Lat: ${selected.lat.toFixed(6)}, Lng: ${selected.lng.toFixed(6)}`}
             </Popup>
           </Marker>
+        )}
+        {selected && radius && (
+          <Circle
+            center={[selected.lat, selected.lng]}
+            radius={radius}
+            pathOptions={{ color: markerColor, fillColor: markerColor, fillOpacity: 0.12 }}
+          />
         )}
       </MapContainer>
     </div>
