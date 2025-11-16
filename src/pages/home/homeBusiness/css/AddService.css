@@ -1,11 +1,11 @@
 /* 🌸 === CONTENEDOR PRINCIPAL === */
 .form-container {
-  max-width: 380px;
+  max-width: 420px;
   margin: 40px auto;
   background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(226, 91, 122, 0.1);
-  padding: 24px 20px;
+  border-radius: 18px;
+  box-shadow: 0 6px 16px rgba(226, 91, 122, 0.12);
+  padding: 26px 22px;
   font-family: 'Poppins', sans-serif;
   transition: all 0.3s ease;
   box-sizing: border-box;
@@ -16,10 +16,9 @@
 .form-container h2 {
   text-align: center;
   color: #e25b7a;
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   font-weight: 600;
-  margin-bottom: 16px;
-  word-wrap: break-word;
+  margin-bottom: 18px;
 }
 
 /* 🧾 === INPUTS Y SELECTS === */
@@ -33,7 +32,7 @@
   border-radius: 12px;
   font-size: 0.95rem;
   color: #333;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   background-color: #fff7f9;
   transition: border-color 0.2s ease, background-color 0.2s ease;
   box-sizing: border-box;
@@ -42,7 +41,17 @@
   white-space: normal;
 }
 
-/* 🔤 === CAMPOS ESPECÍFICOS: NOMBRE, DESCRIPCIÓN Y PRECIO === */
+/* Focus */
+.form-container input[type="text"]:focus,
+.form-container input[type="number"]:focus,
+.form-container select:focus,
+.form-container textarea:focus {
+  border-color: #e25b7a;
+  background-color: #fff1f5;
+  outline: none;
+}
+
+/* Campos específicos */
 .form-container input[name="nombre"],
 .form-container input[name="precio"] {
   max-width: 100%;
@@ -50,14 +59,14 @@
 }
 
 .form-container textarea[name="descripcion"] {
-  min-height: 80px;
-  max-height: 150px;
+  min-height: 90px;
+  max-height: 160px;
   resize: vertical;
   overflow-y: auto;
   line-height: 1.4;
 }
 
-/* 🔍 Evita desbordes de texto en campos */
+/* Evitar desbordes */
 .form-container input,
 .form-container textarea {
   overflow: hidden;
@@ -100,14 +109,121 @@
 .personal-item input[type="checkbox"] {
   accent-color: #e25b7a;
   margin-right: 10px;
+  width: 18px;
+  height: 18px;
+}
+
+/* 🎨 === GALERÍA === */
+.gallery-containerAS {
+  margin-top: 18px;
+  min-height: fit-content;
+}
+
+.gallery-title {
+  font-weight: 600;
+  color: #e25b7a;
+  margin-bottom: 10px;
+  font-size: 1.15rem;
+}
+
+/* ⭐ Evita que los botones bajen */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+  gap: 12px;
+  
+  max-height: 180px;     
+  overflow-y: auto;      
+  padding-right: 4px;    
+}
+
+/* Scroll bonito */
+.gallery-grid::-webkit-scrollbar {
+  width: 6px;
+}
+.gallery-grid::-webkit-scrollbar-thumb {
+  background: #f2a5b9;
+  border-radius: 6px;
+}
+.gallery-grid::-webkit-scrollbar-track {
+  background: #ffe6ef;
+}
+
+/* 📸 Item */
+.gallery-item {
+  width: 100%;
+  height: 95px;
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  background-color: #ffe9f0;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  border: 1px solid #f8c9d7;
+}
+
+.gallery-item:hover {
+  transform: scale(1.04);
+  box-shadow: 0 4px 12px rgba(226, 91, 122, 0.25);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ❌ Botón eliminar */
+.gallery-remove-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #e25b7a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.gallery-remove-btn:hover {
+  background: #ffffff;
+  transform: scale(1.1);
+}
+
+/* ➕ Caja de subir */
+.gallery-upload-box {
+  height: 95px;
+  border-radius: 14px;
+  border: 2px dashed #f4a2b7;
+  background: linear-gradient(135deg, #fff5f8, #ffe9f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-size: 2rem;
+  color: #e25b7a;
+  font-weight: bold;
+}
+
+.gallery-upload-box:hover {
+  background: #ffe3ec;
+  border-color: #e25b7a;
+  transform: scale(1.05);
 }
 
 /* 💾 === BOTONES === */
 .button-group {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   margin-top: 20px;
-  flex-wrap: wrap;
 }
 
 .btn-primary {
@@ -116,7 +232,7 @@
   color: white;
   border: none;
   padding: 12px;
-  border-radius: 12px;
+  border-radius: 14px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -128,19 +244,13 @@
   transform: translateY(-2px);
 }
 
-.btn-primary:disabled {
-  background-color: #f7c1cc;
-  cursor: not-allowed;
-  transform: none;
-}
-
 .btn-secondary {
   flex: 1;
-  background-color: #f1f1f1;
+  background-color: #f3f3f3;
   color: #555;
   border: none;
   padding: 12px;
-  border-radius: 12px;
+  border-radius: 14px;
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -148,7 +258,7 @@
 }
 
 .btn-secondary:hover {
-  background-color: #e0e0e0;
+  background-color: #e2e2e2;
 }
 
 /* 🔁 === INDICADOR DE PASOS === */
@@ -182,22 +292,19 @@
     font-size: 1.4rem;
   }
 
-  .btn-primary,
-  .btn-secondary {
-    width: 100%;
-    font-size: 0.95rem;
+  .gallery-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
   }
 
-  .button-group {
-    flex-direction: column;
-  }
-
-  /* Asegurar que los textos se ajusten bien en pantallas pequeñas */
   .form-container input,
   .form-container textarea,
   .form-container select {
     font-size: 0.9rem;
     padding: 10px 12px;
+  }
+
+  .button-group {
+    flex-direction: column;
   }
 
   .form-container textarea[name="descripcion"] {
