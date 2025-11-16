@@ -13,7 +13,7 @@ export default function NuevoServicioForm() {
   const [tipo, setTipo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState("");
-  const [duration, setDuration] = useState("");  // ← NUEVO
+  const [duration, setDuration] = useState("");
 
   const [categorias, setCategorias] = useState([]);
   const [companyId, setCompanyId] = useState(null);
@@ -34,6 +34,9 @@ export default function NuevoServicioForm() {
     setTimeout(() => setAlerta({ show: false, message: "", type: "" }), 4000);
   };
 
+  /** =============================
+   *        CARGAR CATEGORÍAS
+   * ============================== */
   useEffect(() => {
     const loadCategorias = async () => {
       try {
@@ -50,6 +53,9 @@ export default function NuevoServicioForm() {
     loadCategorias();
   }, []);
 
+  /** =============================
+   *        CARGAR EMPRESA
+   * ============================== */
   useEffect(() => {
     const obtenerEmpresa = async () => {
       try {
@@ -75,6 +81,9 @@ export default function NuevoServicioForm() {
     obtenerEmpresa()
   }, []);
 
+  /** =============================
+   *     CARGAR PROFESIONALES
+   * ============================== */
   useEffect(() => {
     if (companyId) fetchProfessionals();
   }, [companyId]);
@@ -107,6 +116,9 @@ export default function NuevoServicioForm() {
     }
   };
 
+  /** =============================
+   *        GALERÍA IMÁGENES
+   * ============================== */
   const handleAddImages = (e) => {
     const files = Array.from(e.target.files);
 
@@ -127,12 +139,18 @@ export default function NuevoServicioForm() {
     setGaleria(newFiles);
   };
 
+  /** =============================
+   *   SELECCIONAR PROFESIONALES
+   * ============================== */
   const togglePersonal = (id) => {
     setPersonalSeleccionado((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     );
   };
 
+  /** =============================
+   *      FILE → BASE64
+   * ============================== */
   const fileToBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -152,6 +170,9 @@ export default function NuevoServicioForm() {
       reader.onerror = (err) => reject(err);
     });
 
+  /** =============================
+   *   ⏳ GUARDAR SERVICIO COMPLETO
+   * ============================== */
   const handleGuardar = async () => {
     if (!companyId) {
       showAlert("Debe existir empresa asociada.", "error");
@@ -159,9 +180,9 @@ export default function NuevoServicioForm() {
     }
 
     setGuardando(true);
-
     const token = localStorage.getItem("auth_token");
 
+    // Convertir imágenes
     const galeryBase64 = await Promise.all(
       galeria.map((file) => fileToBase64(file))
     );
@@ -172,12 +193,10 @@ export default function NuevoServicioForm() {
       companyid: Number(companyId),
       servicecategoryid: Number(categoria),
       price: Number(precio),
-      duration: Number(duration),  // ← NUEVO
+      duration: Number(duration),
       professionals: personalSeleccionado,
       galery: galeryBase64
     };
-
-    console.log("📤 Enviando payload:", payload);
 
     try {
       const res = await fetch("http://localhost:3000/api/public/createServicio", {
@@ -190,14 +209,43 @@ export default function NuevoServicioForm() {
       });
 
       const data = await res.json();
-      console.log("Respuesta:", data);
 
-      if (data.success) {
-        showAlert("Servicio creado correctamente 🎉", "success");
-        setTimeout(() => navigate("/servicios"), 800);
-      } else {
+      if (!data.success) {
         showAlert("Error al crear servicio: " + data.message, "error");
+        setGuardando(false);
+        return;
       }
+      console.log("Esto es lo que recibo: ", data)
+      // Tomar el último servicio creado
+      const servicios = data.data?.servicios;
+      const serviceId = servicios?.[0]?.service_id;
+      if (!serviceId) {
+        showAlert("No se recibió el ID del servicio creado", "error");
+        return;
+      }
+
+      // ============================
+      //   ASIGNAR PROFESIONALES
+      // ============================
+      for (const professionalId of personalSeleccionado) {
+        console.log("id profefional: ", professionalId)
+        console.log("id service: ", serviceId)
+        await fetch("http://localhost:3000/api/private/addProfessionalService", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            serviceId: Number(serviceId),
+            userId: Number(professionalId)
+          })
+        });
+      } 
+
+      showAlert("Servicio creado correctamente 🎉", "success");
+      setTimeout(() => navigate("/servicios"), 800);
+
     } catch (err) {
       console.error("Error:", err);
       showAlert("No se pudo conectar al servidor", "error");
@@ -206,6 +254,9 @@ export default function NuevoServicioForm() {
     }
   };
 
+  // ==============================
+  //           RENDER
+  // ==============================
   return (
     <div className="form-container">
       
@@ -223,6 +274,7 @@ export default function NuevoServicioForm() {
         ))}
       </div>
 
+      {/* Paso 1 */}
       {paso === 1 && (
         <>
           <input
@@ -235,9 +287,7 @@ export default function NuevoServicioForm() {
           <select value={categoria} onChange={(e) => setCategoria(e.target.value)}>
             <option value="">Selecciona una categoría</option>
             {categorias.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
+              <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
 
@@ -249,6 +299,7 @@ export default function NuevoServicioForm() {
         </>
       )}
 
+      {/* Paso 2 */}
       {paso === 2 && (
         <div>
           <input
@@ -258,7 +309,6 @@ export default function NuevoServicioForm() {
             onChange={(e) => setPrecio(e.target.value)}
           />
 
-          {/* NUEVO INPUT */}
           <input
             type="number"
             placeholder="Duración del servicio (minutos)"
@@ -296,6 +346,7 @@ export default function NuevoServicioForm() {
         </div>
       )}
 
+      {/* Paso 3 */}
       {paso === 3 && (
         <div className="personal-container">
           <label>Selecciona el personal disponible:</label>
