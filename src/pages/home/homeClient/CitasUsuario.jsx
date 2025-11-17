@@ -15,67 +15,56 @@ export default function CitasUsuario() {
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
   const [citaACancelar, setCitaACancelar] = useState(null);
   
+  // 🆕 Nuevo estado para el modal de error
+  const [modalErrorCancelacion, setModalErrorCancelacion] = useState(false);
+  const [mensajeErrorCancelacion, setMensajeErrorCancelacion] = useState("");
+  const [nombreNegocioError, setNombreNegocioError] = useState("");
 
   const obtenerCompanies = async () => {
     try {
       const res = await fetch("http://localhost:3000/api/public/getCompanys");
       const response = await res.json();
 
-      console.log("💬 Respuesta getCompanys:", response);
-
       if (response.success && Array.isArray(response.data?.negocios)) {
         const mapa = {};
-
         response.data.negocios.forEach(company => {
           mapa[company.company_id] = {
             nombre: company.company_name,
             logo: company.logo_uri
           };
         });
-
         return mapa;
       } else {
         console.error("⚠ Estructura inesperada:", response.data);
         return {};
       }
-
     } catch (err) {
       console.error("Error obteniendo compañías:", err);
       return {};
     }
   };
 
-
-
-
   const obtenerCitas = async (mapaCompanies) => {
     try {
       const fechaHoy = new Date().toISOString().split("T")[0];
-
       const res = await fetch(
         `http://localhost:3000/api/private/clientAppointments?clientId=${user.id}&date=${fechaHoy}&limit=100&offset=0`
       );
-
       const response = await res.json();
 
       if (response.success && response.data) {
         const citasArray = [];
-
         Object.keys(response.data).forEach((fecha) => {
           const citasDia = response.data[fecha];
-
           if (Array.isArray(citasDia)) {
             citasDia.forEach((cita) => {
               let citaPasada = false;
-
               try {
                 const fechaStr = String(cita.date).includes("T")
                   ? String(cita.date).split("T")[0]
                   : String(cita.date);
-
                 const horaFin = String(cita.endat || "00:00:00");
                 const fechaHoraISO = `${fechaStr}T${horaFin}`;
-
                 citaPasada = new Date(fechaHoraISO) < new Date();
               } catch (err) {}
 
@@ -86,8 +75,6 @@ export default function CitasUsuario() {
 
               citasArray.push({
                 id: cita.id,
-
-                // 👇 AQUI: usamos companyid → nombre real
                 negocio: mapaCompanies[cita.companyid]?.nombre || "Negocio no disponible",
                 logo: mapaCompanies[cita.companyid]?.logo || null,
                 servicio: cita.services?.map((s) => s.title).join(", ") || "Sin servicio",
@@ -134,16 +121,12 @@ export default function CitasUsuario() {
   useEffect(() => {
     const cargarDatos = async () => {
       if (!user?.id) return;
-
       setLoading(true);
-
-      const mapaCompanies = await obtenerCompanies(); // primero empresas
-      await obtenerCitas(mapaCompanies);             // luego citas usando el mapa
+      const mapaCompanies = await obtenerCompanies();
+      await obtenerCitas(mapaCompanies);
     };
-
     cargarDatos();
   }, [user?.id]);
-
 
   const aplicarFiltro = (tipoFiltro, citas = todasLasCitas) => {
     const ahora = new Date();
@@ -154,30 +137,26 @@ export default function CitasUsuario() {
           const fechaStr = String(cita.fechaOriginal).includes('T') 
             ? String(cita.fechaOriginal).split('T')[0] 
             : String(cita.fechaOriginal);
-
           const fechaCita = new Date(fechaStr + 'T00:00:00');
           const hoy = new Date(ahora.toISOString().split('T')[0] + 'T00:00:00');
-
           return (
             fechaCita >= hoy &&
             !cita.citaPasada &&
-            cita.estado !== "Cancelada"   // 👈 FILTRA LAS CANCELADAS
+            cita.estado !== "Cancelada"
           );
         } catch {
           return false;
         }
       });
-
       setCitasFiltradas(proximasCitas);
     } else if (tipoFiltro === "historial") {
       const historialOrdenado = [...citas].sort((a, b) => {
         const fechaA = new Date(a.fechaOriginal);
         const fechaB = new Date(b.fechaOriginal);
-        return fechaB - fechaA; // 👈 DESCENDENTE
-    });
-
-  setCitasFiltradas(historialOrdenado);
-}
+        return fechaB - fechaA;
+      });
+      setCitasFiltradas(historialOrdenado);
+    }
     
     setFiltroActivo(tipoFiltro);
   };
@@ -206,6 +185,19 @@ export default function CitasUsuario() {
     setCitaACancelar(null);
   };
 
+  // 🆕 Funciones para el modal de error
+  const abrirModalError = (mensaje, nombreNegocio) => {
+    setMensajeErrorCancelacion(mensaje);
+    setNombreNegocioError(nombreNegocio);
+    setModalErrorCancelacion(true);
+  };
+
+  const cerrarModalError = () => {
+    setModalErrorCancelacion(false);
+    setMensajeErrorCancelacion("");
+    setNombreNegocioError("");
+  };
+
   const cancelarCita = async () => {
     if (!citaACancelar) return;
 
@@ -225,88 +217,39 @@ export default function CitasUsuario() {
 
       const response = await res.json();
 
+      console.log('🔍 Respuesta del servidor:', response); // Debug
+
       if (response.success) {
         // Recargar citas
-        const fechaHoy = new Date().toISOString().split('T')[0];
-        
-        const resCitas = await fetch(
-          `http://localhost:3000/api/private/clientAppointments?clientId=${user.id}&date=${fechaHoy}&limit=100&offset=0`
-        );
-        
-        const responseCitas = await resCitas.json();
-
-        if (responseCitas.success && responseCitas.data) {
-          const citasArray = [];
-          
-          Object.keys(responseCitas.data).forEach(fecha => {
-            const citasDia = responseCitas.data[fecha];
-            
-            if (Array.isArray(citasDia)) {
-              citasDia.forEach(cita => {
-                let citaPasada = false;
-                
-                try {
-                  const fechaStr = String(cita.date).includes('T') 
-                    ? String(cita.date).split('T')[0] 
-                    : String(cita.date);
-                  
-                  const horaFin = String(cita.endat || '00:00:00');
-                  
-                  const fechaHoraISO = `${fechaStr}T${horaFin}`;
-                  const fechaHoraFinalizacion = new Date(fechaHoraISO);
-                  const ahora = new Date();
-                  
-                  citaPasada = fechaHoraFinalizacion < ahora;
-                } catch (err) {
-                  console.error('Error al calcular si la cita pasó:', err);
-                }
-                
-                let duracionTotal = 0;
-                if (cita.services && Array.isArray(cita.services)) {
-                  duracionTotal = cita.services.reduce((total, service) => {
-                    return total + (service.duration || 0);
-                  }, 0);
-                }
-                
-                citasArray.push({
-                  id: cita.id,
-                  negocio: mapaCompanies[cita.companyid]?.nombre || 'Negocio no disponible',
-                  logo: mapaCompanies[cita.companyid]?.logo || null,
-                  servicio: cita.services?.map(service => service.title).join(', ') || 'Sin servicio',
-                  serviciosDetalle: cita.services || [],
-                  fecha: new Date(cita.date).toLocaleDateString('es-ES', { 
-                    weekday: 'long', 
-                    day: 'numeric', 
-                    month: 'long' 
-                  }),
-                  hora: `${cita.startat?.slice(0, 5) || '00:00'} - ${cita.endat?.slice(0, 5) || '00:00'}`,
-                  estado: cita.status === 1 ? "Pendiente" 
-                        : cita.status === 2 ? "Aprobada" 
-                        : cita.status === 98 ? "Cancelada"
-                        : cita.status === 99 ? "Negada"
-                        : "Desconocido",
-                  fechaOriginal: cita.date,
-                  citaPasada: citaPasada && cita.status === 2,
-                  empleado: cita.employee?.name || 'No asignado',
-                  duracionTotal: duracionTotal,
-                  totalCost: cita.totalcost || 0,
-                  datosCompletos: cita
-                });
-              });
-            }
-          });
-
-          setTodasLasCitas(citasArray);
-          aplicarFiltro(filtroActivo, citasArray);
-        }
-
+        const mapaCompanies = await obtenerCompanies();
+        await obtenerCitas(mapaCompanies);
         cerrarModalConfirmacion();
         alert('Cita cancelada exitosamente');
       } else {
-        alert(response.message || 'Error al cancelar la cita');
+        // 🆕 Detectar si es el error de "menos de 1 hora"
+        const errorCode = response.code || response.error?.code || response.data?.code;
+        const errorMessage = response.message || '';
+        
+        // Verificar si el mensaje contiene el texto específico de cancelación tardía
+        const esCancelacionTardia = 
+          errorCode === 'tooLateToCancel' || 
+          errorMessage.toLowerCase().includes('al menos una hora') ||
+          errorMessage.toLowerCase().includes('una hora de antelación');
+        
+        if (esCancelacionTardia) {
+          cerrarModalConfirmacion();
+          abrirModalError(
+            response.message || 'La cita está muy próxima a comenzar',
+            citaACancelar.negocio
+          );
+        } else {
+          cerrarModalConfirmacion();
+          alert(response.message || 'Error al cancelar la cita');
+        }
       }
     } catch (err) {
       console.error('Error al cancelar la cita:', err);
+      cerrarModalConfirmacion();
       alert('Error de conexión al servidor');
     } finally {
       setCancelando(false);
@@ -317,7 +260,6 @@ export default function CitasUsuario() {
     if (!valor) return "0";
     return Number(valor).toLocaleString("es-CO");
   };
-
 
   return (
     <div className="citasusuario-container">
@@ -369,7 +311,6 @@ export default function CitasUsuario() {
                       className="cita-logo"
                     />
                   )}
-
                   <h3 className="cita-nombre">{cita.negocio}</h3>
                 </div>
                 <p className="servicio">{cita.servicio}</p>
@@ -399,11 +340,10 @@ export default function CitasUsuario() {
                           abrirModalConfirmacion(cita);
                         }}
                       >
-                        ❌ Cancelar cita
+                        ✖ Cancelar cita
                       </button>
                   )}
                 </div>
-
               </div>
             </div>
           ))}
@@ -424,7 +364,6 @@ export default function CitasUsuario() {
                   className="modal-logo"
                 />
               )}
-
               <h2 className="cita-nombre">{citaSeleccionada.negocio}</h2>
             </div>
             
@@ -517,6 +456,29 @@ export default function CitasUsuario() {
                 {cancelando ? 'Cancelando...' : 'Sí, cancelar'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🆕 Modal de error de cancelación (menos de 1 hora) */}
+      {modalErrorCancelacion && (
+        <div className="modal-overlay" onClick={cerrarModalError}>
+          <div className="modal-error-cancelacion" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-error-icon">⚠️</div>
+            <h3>No se puede cancelar</h3>
+            <p className="modal-error-mensaje">
+              La cita está muy próxima a comenzar y no puede ser cancelada en este momento.
+            </p>
+            <div className="modal-error-contacto">
+              <p>Por favor, comunícate directamente con:</p>
+              <p className="nombre-negocio">{nombreNegocioError}</p>
+            </div>
+            <button 
+              className="btn-entendido" 
+              onClick={cerrarModalError}
+            >
+              Entendido
+            </button>
           </div>
         </div>
       )}
