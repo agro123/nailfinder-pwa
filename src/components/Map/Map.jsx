@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import './Map.css';
@@ -96,6 +96,8 @@ const MapComponent = ({
   center = { lat: 51.505, lng: -0.09 },
   height = '500px',
   width = '100%',
+  userLocation = null, // { lat, lng } to display as a circle
+  userLocationOptions = {}, // { radius, color, fillColor, fillOpacity }
 }) => {
   const [focusedIndex, setFocusedIndex] = useState(null);
 
@@ -122,6 +124,17 @@ const MapComponent = ({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
+        {userLocation && (
+          <Circle
+            center={[userLocation.lat, userLocation.lng]}
+            radius={userLocationOptions.radius || 14}
+            pathOptions={{
+              color: userLocationOptions.color || '#aed0ffff',
+              fillColor: userLocationOptions.fillColor || userLocationOptions.color || '#3388ff',
+              fillOpacity: userLocationOptions.fillOpacity != null ? userLocationOptions.fillOpacity : 0.9
+            }}
+          />
+        )}
         {coordinates.map((coord, index) => (
           <CustomMarker
             key={index}
