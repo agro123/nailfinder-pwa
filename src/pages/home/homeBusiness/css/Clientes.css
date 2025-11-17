@@ -106,7 +106,46 @@
   color: #666;
 }
 
-/* === Botón Ver perfil === */
+/* === Botones de acción por cliente === */
+.acciones-cliente {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-editar,
+.btn-eliminar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-editar {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.btn-editar:hover {
+  background-color: #357ab8;
+  transform: scale(1.05);
+}
+
+.btn-eliminar {
+  background-color: #e25b7a;
+  color: white;
+}
+
+.btn-eliminar:hover {
+  background-color: #d14868;
+  transform: scale(1.05);
+}
+
+/* === Botón Ver perfil (opcional) === */
 .cliente-btn {
   background-color: #e25b7a;
   color: white;
@@ -161,6 +200,95 @@
   font-size: 1rem;
   margin-top: 30px;
   font-weight: 500;
+}
+
+/* === MODAL === */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-cliente {
+  background: #fff;
+  border-radius: 18px;
+  padding: 24px 30px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-cliente h3 {
+  color: #e25b7a;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.modal-cliente label {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.modal-cliente input {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  transition: all 0.25s ease;
+}
+
+.modal-cliente input:focus {
+  border-color: #e25b7a;
+  box-shadow: 0 0 6px rgba(226,91,122,0.3);
+}
+
+/* === Botones modal === */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-cancelar {
+  background: #ccc;
+  color: #333;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-cancelar:hover {
+  background: #b3b3b3;
+}
+
+.btn-confirmar {
+  background: #e25b7a;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-confirmar:hover {
+  background: #d14868;
+  transform: scale(1.05);
 }
 
 /* === RESPONSIVIDAD === */
@@ -228,4 +356,43 @@
     height: 50px;
     font-size: 22px;
   }
+
+  .modal-cliente {
+    padding: 20px 18px;
+  }
+}
+
+/* ===== ALERTAS ===== */
+
+.alert {
+  margin: 0 -1.2rem 1rem -1.2rem;
+  padding: 14px 1.2rem;
+  border-radius: 0;
+  border-top: 4px solid;
+  font-weight: 500;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.alert-info {
+  background: #e8f4ff;
+  border-color: #3ba0ff;
+  color: #0b5fa8;
+}
+
+.alert-success {
+  background: #e5ffea;
+  border-color: #2ecc71;
+  color: #1e8449;
+}
+
+.alert-error {
+  background: #ffe5e5;
+  border-color: #ff4d4d;
+  color: #a10000;
+}
+
+/* Animación suave */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
