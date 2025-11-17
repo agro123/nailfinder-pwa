@@ -98,6 +98,13 @@ export default function ExampleMap() {
     setPickedLocation({ lat: context.lat, lng: context.lng });
   };
 
+  // control to show/hide user's location marker on the examples
+  const [showUserLocation, setShowUserLocation] = useState(false);
+
+  const toggleShowUserLocation = () => {
+    setShowUserLocation((s) => !s);
+  };
+
   // Determine centers: if we have userLocation center on it, otherwise use default center
   const center = userLocation || { lat: 3.37, lng: -76.53 };
 
@@ -113,6 +120,25 @@ export default function ExampleMap() {
         {(locationStatus === 'denied' || locationStatus === 'unavailable') && (
           <div>No se dispone de ubicación; se usan las ubicaciones por defecto.</div>
         )}
+        <div style={{ marginTop: 8 }}>
+          <button onClick={toggleShowUserLocation} disabled={!userLocation}>
+            {showUserLocation ? 'Ocultar mi ubicación' : 'Mostrar mi ubicación'}
+          </button>
+          <button
+            onClick={() => {
+              if (userLocation) {
+                // center maps by setting userLocation (already used as center variable)
+                // small UX: also ensure the showUserLocation is true so marker becomes visible
+                setShowUserLocation(true);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }}
+            style={{ marginLeft: 8 }}
+            disabled={!userLocation}
+          >
+            Centrar en mi ubicación
+          </button>
+        </div>
       </div>
 
       <section style={{ marginBottom: 24 }}>
@@ -125,6 +151,7 @@ export default function ExampleMap() {
             center={center}
             height="100%"
             width="100%"
+            userLocation={showUserLocation ? userLocation : null}
           />
         </div>
       </section>
@@ -141,6 +168,7 @@ export default function ExampleMap() {
             height="100%"
             width="100%"
             markerColor="#e25b7a"
+            userLocation={showUserLocation ? userLocation : null}
           />
         </div>
         <div style={{ marginTop: 8 }}>
@@ -160,6 +188,7 @@ export default function ExampleMap() {
             height="100%"
             width="100%"
             markerColor="#e25b7a"
+            userLocation={showUserLocation ? userLocation : null}
           />
         </div>
       </section>
