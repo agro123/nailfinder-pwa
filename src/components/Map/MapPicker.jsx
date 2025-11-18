@@ -65,6 +65,8 @@ const MapPicker = ({
   markerColor = '#e25b7a',
   // radius in meters (optional). If provided and a location is selected, a circle will be drawn.
   radius = null,
+  userLocation = null,
+  userLocationOptions = {},
 }) => {
   // internal selected position (uncontrolled) unless `value` is provided
   const [selected, setSelected] = useState(defaultValue);
@@ -115,6 +117,17 @@ const MapPicker = ({
               {`Lat: ${selected.lat.toFixed(6)}, Lng: ${selected.lng.toFixed(6)}`}
             </Popup>
           </Marker>
+        )}
+        {userLocation && (
+          <Circle
+            center={[userLocation.lat, userLocation.lng]}
+            radius={userLocationOptions.radius || 14}
+            pathOptions={{
+              color: userLocationOptions.color || '#aed0ffff',
+              fillColor: userLocationOptions.fillColor || userLocationOptions.color || '#3388ff',
+              fillOpacity: userLocationOptions.fillOpacity != null ? userLocationOptions.fillOpacity : 0.9,
+            }}
+          />
         )}
         {selected && radius && (
           <Circle
