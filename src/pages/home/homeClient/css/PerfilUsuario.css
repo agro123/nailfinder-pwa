@@ -1,7 +1,8 @@
 .perfilusuario-container {
   padding: 20px;
-  margin-bottom: 70px; /* para no tapar el footer */
+  margin-bottom: 120px; /* Aumentado para no tapar el footer */
   text-align: center;
+  padding-bottom: 40px; /* Espacio extra al final */
 }
 
 .perfilusuario-title {
@@ -18,6 +19,145 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
+/* Sección del mapa */
+.perfilusuario-map-section {
+  margin: 20px 0;
+}
+
+.perfilusuario-map-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* Estadísticas del mapa */
+.map-stats {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.stat-badge {
+  background-color: #0bb397;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 4px rgba(11, 179, 151, 0.3);
+}
+
+.stat-badge.other-companies-badge {
+  background-color: #ff6b6b;
+  box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+}
+
+.perfilusuario-map-container {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  overflow: hidden;
+  margin-bottom: 15px; /* Espacio antes de la leyenda */
+}
+
+
+/* Estilos base del marcador */
+.custom-marker {
+  width: 25px !important;
+  height: 25px !important;
+  border-radius: 50% 50% 50% 0 !important;
+  transform: rotate(-45deg) !important;
+  border: 3px solid #ffffff !important;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
+  transition: transform 0.2s ease !important;
+}
+
+.custom-marker:hover {
+  transform: rotate(-45deg) scale(1.1) !important;
+}
+
+/* Forzar que los marcadores siempre mantengan su color */
+.leaflet-marker-icon {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+.location-coords {
+  margin-top: 10px;
+  padding: 8px;
+  background-color: #fff;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.location-coords small {
+  color: #666;
+  font-size: 12px;
+}
+
+.location-loading,
+.location-error {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 15px 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.location-loading {
+  color: #0bb397;
+  font-weight: 500;
+}
+
+.location-error {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+/* Leyenda del mapa */
+.map-legend {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  border: 2px solid #ffffff;
+}
+
+.legend-dot.user-location-dot {
+  background-color: #0bb397;
+}
+
+.legend-dot.other-business-dot {
+  background-color: #ff6b6b;
+}
+
 .logout-btn-cliente {
   background-color: #0bb397;
   color: white;
@@ -27,8 +167,27 @@
   cursor: pointer;
   font-size: 16px;
   transition: background 0.3s;
+  margin-top: 20px;
 }
 
 .logout-btn-cliente:hover {
   background-color: #099c85;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .map-stats {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .stat-badge {
+    width: 100%;
+    max-width: 250px;
+    justify-content: center;
+  }
+  
+  .map-legend {
+    text-align: left;
+  }
 }
