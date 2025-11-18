@@ -22,7 +22,7 @@ export default function PerfilUsuario() {
       
       markers.forEach((marker, index) => {
         const shouldBeGreen = currentLocation && index === 0;
-        const color = shouldBeGreen ? '#0bb397' : '#ff6b6b';
+        const color = shouldBeGreen ? '#6c200a' : '#fc4b08';
         
         // Forzar el color sobrescribiendo el estilo inline
         marker.style.setProperty('background-color', color, 'important');
@@ -156,7 +156,7 @@ export default function PerfilUsuario() {
       lat: currentLocation.lat,
       lng: currentLocation.lng,
       label: "📍 Tu ubicación actual",
-      iconColor: "#0bb397", // Verde SOLO para tu ubicación
+      iconColor: "#6c200a", // Verde SOLO para tu ubicación
       isUserLocation: true
     });
   }
@@ -174,7 +174,7 @@ export default function PerfilUsuario() {
       lat: parseFloat(company.latitude),
       lng: parseFloat(company.longitude),
       label: popupContent,
-      iconColor: "#ff6b6b", // ROJO para TODOS los negocios
+      iconColor: "#fc4b08", // ROJO para TODOS los negocios
       companyData: company
     });
   });
