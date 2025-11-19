@@ -29,6 +29,9 @@ export default function Profesionales() {
     setAlert({ show: true, message, type });
     setTimeout(() => setAlert({ show: false, message: "", type: "" }), 4000);
   };
+  
+  const authUser = JSON.parse(localStorage.getItem("auth_user"));
+  const userId = authUser?.id;
 
   // Estado del formulario
   const [newProfessional, setNewProfessional] = useState({
@@ -36,12 +39,9 @@ export default function Profesionales() {
     email: "",
     phone: "",
     services: [],
-    sede_id: 5,
+    sede_id: authUser.mainBranch?.id,
     imgProfile: null,
   });
-
-  const authUser = JSON.parse(localStorage.getItem("auth_user"));
-  const userId = authUser?.id;
 
   // =============================
   // 🟦 CARGAR EMPRESA Y SERVICIOS
