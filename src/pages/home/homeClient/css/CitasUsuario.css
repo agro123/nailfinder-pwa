@@ -528,85 +528,247 @@
   cursor: not-allowed;
 }
 
-  .modal-error-cancelacion {
-    background-color: #fff;
-    border-radius: 16px;
-    max-width: 450px;
-    width: 100%;
-    padding: 32px 24px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-    animation: modalSlideIn 0.3s ease;
-    z-index: 2001;
-    text-align: center;
-  }
+.modal-error-cancelacion {
+  background-color: #fff;
+  border-radius: 16px;
+  max-width: 450px;
+  width: 100%;
+  padding: 32px 24px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  animation: modalSlideIn 0.3s ease;
+  z-index: 2001;
+  text-align: center;
+}
 
-  .modal-error-icon {
-    font-size: 64px;
-    margin-bottom: 16px;
-    animation: shake 0.5s ease;
-  }
+.modal-error-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  animation: shake 0.5s ease;
+}
 
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    75% { transform: translateX(10px); }
-  }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
 
-  .modal-error-cancelacion h3 {
-    font-size: 22px;
-    font-weight: 700;
-    color: #d32f2f;
-    margin: 0 0 12px 0;
-  }
+.modal-error-cancelacion h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #d32f2f;
+  margin: 0 0 12px 0;
+}
 
-  .modal-error-mensaje {
-    font-size: 15px;
-    color: #555;
-    margin: 0 0 20px 0;
-    line-height: 1.5;
-  }
+.modal-error-mensaje {
+  font-size: 15px;
+  color: #555;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
 
-  .modal-error-contacto {
-    background-color: #fff3e0;
-    border-left: 4px solid #ff9800;
-    padding: 16px;
-    border-radius: 8px;
-    margin-bottom: 24px;
-  }
+.modal-error-contacto {
+  background-color: #fff3e0;
+  border-left: 4px solid #ff9800;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
 
-  .modal-error-contacto p {
-    margin: 4px 0;
-    font-size: 14px;
-    color: #666;
-  }
+.modal-error-contacto p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #666;
+}
 
-  .modal-error-contacto .nombre-negocio {
-    font-size: 16px;
-    font-weight: 700;
-    color: #e25b7a;
-    margin-top: 8px;
-  }
+.modal-error-contacto .nombre-negocio {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e25b7a;
+  margin-top: 8px;
+}
 
-  .btn-entendido {
-    padding: 12px 32px;
-    border: none;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    background-color: #e25b7a;
-    color: white;
-    transition: all 0.2s ease;
-    width: 100%;
-    max-width: 200px;
-  }
+.btn-entendido {
+  padding: 12px 32px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: #e25b7a;
+  color: white;
+  transition: all 0.2s ease;
+  width: 100%;
+  max-width: 200px;
+}
 
-  .btn-entendido:hover {
-    background-color: #d44a68;
-    transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(226, 91, 122, 0.3);
-  }
+.btn-entendido:hover {
+  background-color: #d44a68;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(226, 91, 122, 0.3);
+}
 
+  /* Botón de calificar cita */
+.btn-calificar-cita {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: #fff8e1;
+  color: #f57c00;
+  transition: all 0.2s ease;
+  margin-top: 4px;
+}
+
+.btn-calificar-cita:hover {
+  background-color: #ffa726;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 167, 38, 0.3);
+}
+
+.btn-calificar-cita:active {
+  transform: translateY(0);
+}
+
+/* Modal de calificación */
+.modal-calificacion {
+  background-color: #fff;
+  border-radius: 20px;
+  max-width: 500px;
+  width: 100%;
+  padding: 28px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  animation: modalSlideIn 0.3s ease;
+  z-index: 2001;
+  position: relative;
+}
+
+.modal-calificacion h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 20px 0;
+  text-align: center;
+}
+
+.calificacion-negocio {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #f9f9f9;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.calificacion-logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.calificacion-nombre {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.calificacion-estrellas-container {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.calificacion-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.estrellas-selector {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.estrella-btn {
+  background: none;
+  border: none;
+  font-size: 32px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  filter: grayscale(100%);
+  opacity: 0.4;
+  padding: 0;
+}
+
+.estrella-btn.activa {
+  filter: grayscale(0%);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.estrella-btn:hover {
+  transform: scale(1.2);
+}
+
+.estrellas-texto {
+  display: block;
+  font-size: 14px;
+  color: #f57c00;
+  font-weight: 600;
+}
+
+.calificacion-campo {
+  margin-bottom: 20px;
+}
+
+.calificacion-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.calificacion-input:focus {
+  outline: none;
+  border-color: #e25b7a;
+}
+
+.calificacion-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color 0.2s ease;
+}
+
+.calificacion-textarea:focus {
+  outline: none;
+  border-color: #e25b7a;
+}
+
+.contador-caracteres {
+  display: block;
+  text-align: right;
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+}
 
 /* Animación del modal */
 @keyframes modalSlideIn {
@@ -618,6 +780,57 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Modal de éxito calificación */
+.modal-exito-calificacion {
+  background-color: #fff;
+  border-radius: 16px;
+  max-width: 400px;
+  width: 100%;
+  padding: 32px 24px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  animation: modalSlideIn 0.3s ease;
+  z-index: 2001;
+  text-align: center;
+}
+
+.exito-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  animation: celebrar 0.6s ease;
+}
+
+@keyframes celebrar {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.2) rotate(-10deg); }
+  75% { transform: scale(1.2) rotate(10deg); }
+}
+
+.modal-exito-calificacion h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #4caf50;
+  margin: 0 0 8px 0;
+}
+
+.modal-exito-calificacion p {
+  font-size: 15px;
+  color: #666;
+  margin: 0 0 24px 0;
+}
+
+/* Texto de cita ya calificada */
+.texto-calificada {
+  font-size: 13px;
+  font-weight: 600;
+  color: #4caf50;
+  padding: 8px 14px;
+  background-color: #f1f8f4;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* ----- RESPONSIVE GENERAL ----- */
@@ -671,7 +884,8 @@
     text-align: center;
   }
 
-  .btn-cancelar-cita {
+  .btn-cancelar-cita,
+  .btn-calificar-cita {
     font-size: 12px;
     padding: 7px 12px;
   }
@@ -703,7 +917,37 @@
     padding: 14px;
   }
 
+  .modal-calificacion {
+    margin: 16px;
+    max-width: calc(100% - 32px);
+    padding: 24px 20px;
+  }
+
+  .modal-calificacion h3 {
+    font-size: 20px;
+  }
+
+  .estrella-btn {
+    font-size: 28px;
+  }
+
+  .calificacion-logo {
+    width: 45px;
+    height: 45px;
+  }
+
+  .modal-exito-calificacion {
+    margin: 16px;
+    max-width: calc(100% - 32px);
+    padding: 28px 20px;
+  }
+  
+  .texto-calificada {
+    font-size: 12px;
+    padding: 7px 12px;
+  }
 }
+
 
 /* ----- RESPONSIVE PARA CELULARES MUY PEQUEÑOS (≤ 480px) ----- */
 @media (max-width: 480px) {
@@ -730,7 +974,8 @@
   }
 
   /* Botón cancelar */
-  .btn-cancelar-cita {
+  .btn-cancelar-cita,
+  .btn-calificar-cita {
     padding: 6px 10px;
     font-size: 11px;
   }
@@ -784,6 +1029,42 @@
   .btn-entendido {
     padding: 11px 28px;
     font-size: 14px;
+  }
+
+  .modal-calificacion {
+    padding: 20px 16px;
+  }
+
+  .modal-calificacion h3 {
+    font-size: 18px;
+  }
+
+  .estrella-btn {
+    font-size: 24px;
+    gap: 6px;
+  }
+
+  .calificacion-input,
+  .calificacion-textarea {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .exito-icon {
+    font-size: 52px;
+  }
+  
+  .modal-exito-calificacion h3 {
+    font-size: 20px;
+  }
+  
+  .modal-exito-calificacion p {
+    font-size: 14px;
+  }
+  
+  .texto-calificada {
+    font-size: 11px;
+    padding: 6px 10px;
   }
 }
 @media (max-width: 350px) {
