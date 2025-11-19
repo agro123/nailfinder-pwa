@@ -147,7 +147,7 @@ export default function EditProfile() {
       reader.onerror = (error) => reject(error)
     })
 
-  // Cargar datos de la empresa
+  // Cargar datos de la empresa - MODIFICADO PARA USAR getCompanyById
   useEffect(() => {
     const obtenerEmpresa = async () => {
       try {
@@ -157,34 +157,65 @@ export default function EditProfile() {
           return
         }
 
-        const resp = await fetch('http://localhost:3000/api/public/getCompanys')
-        const data = await resp.json()
+        // Primero obtenemos la lista de empresas para encontrar el ID
+        const respLista = await fetch('http://localhost:3000/api/public/getCompanys')
+        const dataLista = await respLista.json()
 
-        const company = data?.data?.negocios?.find((c) => c.user_id === authUser.id)
+        const company = dataLista?.data?.negocios?.find((c) => c.user_id === authUser.id)
         if (company) {
-          console.log('🏢 Empresa encontrada:', company)
-          setCompanyData(company)
-          setFormData({
-            companyname: company.company_name || '',
-            companytype: company.business_type || '',
-            phone: company.company_phone || '',
-            address: company.company_address || '',
-            latitude: company.latitude || '',
-            longitude: company.longitude || '',
-          })
+          console.log('🏢 Empresa encontrada en lista:', company)
+          
+          // Ahora obtenemos los datos completos usando getCompanyById
+          const respCompleta = await fetch(`http://localhost:3000/api/public/getCompanyById?id=${company.company_id}`)
+          const dataCompleta = await respCompleta.json()
+          console.log('📋 Datos :', dataCompleta)
+          if (dataCompleta.success && dataCompleta.data) {
+            const companyDataCompleta = dataCompleta.data
+            console.log('📋 Datos completos de la empresa:', companyDataCompleta)
+            
+            setCompanyData(companyDataCompleta)
+            setFormData({
+              companyname: companyDataCompleta.company_name || '',
+              companytype: companyDataCompleta.business_type || '',
+              phone: companyDataCompleta.company_phone || '',
+              address: companyDataCompleta.company_address || '',
+              latitude: companyDataCompleta.latitude || '',
+              longitude: companyDataCompleta.longitude || '',
+            })
 
-          if (company.logo_uri) setLogoPreview(company.logo_uri)
+            if (companyDataCompleta.logo_uri) setLogoPreview(companyDataCompleta.logo_uri)
 
-          // Establecer ubicación en el mapa si existe
-          if (company.latitude && company.longitude) {
-            setPickedLocation({
-              lat: Number(company.latitude),
-              lng: Number(company.longitude),
-            });
+            // Establecer ubicación en el mapa si existe
+            if (companyDataCompleta.latitude && companyDataCompleta.longitude) {
+              setPickedLocation({
+                lat: Number(companyDataCompleta.latitude),
+                lng: Number(companyDataCompleta.longitude),
+              });
+            }
+
+            // Cargar horarios
+            if (companyDataCompleta.company_id) fetchHorarios(companyDataCompleta.company_id)
+          } else {
+            // Fallback: usar datos básicos si getCompanyById falla
+            console.warn('⚠️ Falló getCompanyById, usando datos básicos')
+            setCompanyData(company)
+            setFormData({
+              companyname: company.company_name || '',
+              companytype: company.business_type || '',
+              phone: company.company_phone || '',
+              address: company.company_address || '',
+              latitude: company.latitude || '',
+              longitude: company.longitude || '',
+            })
+            if (company.logo_uri) setLogoPreview(company.logo_uri)
+            if (company.latitude && company.longitude) {
+              setPickedLocation({
+                lat: Number(company.latitude),
+                lng: Number(company.longitude),
+              });
+            }
+            if (company.company_id) fetchHorarios(company.company_id)
           }
-
-          // Cargar horarios
-          if (company.company_id) fetchHorarios(company.company_id)
         } else {
           showAlert('No se encontró negocio registrado', 'info')
         }
