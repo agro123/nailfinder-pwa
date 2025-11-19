@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./css/DetalleNegocio.css";
 import ReactDOM from "react-dom";
 import { ChevronLeft } from "lucide-react";
+import MapComponent from "../../../components/Map/Map";
 
 export default function DetalleNegocio() {
     const { id } = useParams();
@@ -29,6 +30,22 @@ export default function DetalleNegocio() {
     const [horarios, setHorarios] = useState([]);
     const [loadingHorarios, setLoadingHorarios] = useState(true);
 
+
+    const calcularPromedioCalificaciones = () => {
+        if (!negocio?.calificaciones || negocio.calificaciones.length === 0) {
+            return null;
+        }
+        
+        const suma = negocio.calificaciones.reduce((acc, review) => {
+            return acc + (parseFloat(review.calificacion) || 0);
+        }, 0);
+        
+        const promedio = suma / negocio.calificaciones.length;
+        return promedio.toFixed(1); // Redondear a 1 decimal
+    };
+
+    const promedioCalificaciones = calcularPromedioCalificaciones();    
+
     // Normalizar para evitar problemas con tildes
     const normalize = (str) => {
         return str
@@ -44,6 +61,49 @@ export default function DetalleNegocio() {
   ? servicios
   : servicios.filter(s => s.category_name === categoriaSeleccionada);
 
+
+      // Forzar color rojizo del marcador en el mapa
+    useEffect(() => {
+        const forceMarkerColors = () => {
+            const markers = document.querySelectorAll('.custom-marker');
+            
+            markers.forEach((marker) => {
+                const color = '#fc4b08'; // Rojizo para el negocio
+                
+                // Forzar el color sobrescribiendo el estilo inline
+                marker.style.setProperty('background-color', color, 'important');
+            });
+        };
+
+        // Ejecutar varias veces para asegurar que se aplique
+        const timers = [
+            setTimeout(forceMarkerColors, 300),
+            setTimeout(forceMarkerColors, 600),
+            setTimeout(forceMarkerColors, 1000),
+            setTimeout(forceMarkerColors, 1500)
+        ];
+
+        // Observar cambios en el DOM para reaplicar colores cuando cambie algo
+        const observer = new MutationObserver(() => {
+            forceMarkerColors();
+        });
+
+        // Observar el contenedor del mapa
+        const mapContainer = document.querySelector('.leaflet-container');
+        if (mapContainer) {
+            observer.observe(mapContainer, {
+                attributes: true,
+                subtree: true,
+                attributeFilter: ['style']
+            });
+        }
+
+        return () => {
+            timers.forEach(timer => clearTimeout(timer));
+            observer.disconnect();
+        };
+    }, [negocio]);
+    
     // 🔒 Bloqueo de retroceso si viene desde una confirmación de cita
     useEffect(() => {
     if (state?.desdeConfirmacion) {
@@ -315,11 +375,11 @@ export default function DetalleNegocio() {
             <h2>{negocio.company_name}</h2>
             <div className="detalle-rating">
                 <span className="estrella">⭐</span>
-                {negocio.rating ? (
+                {promedioCalificaciones ? (
                 <>
-                    <span className="rating-valor">{negocio.rating}</span>
+                    <span className="rating-valor">{promedioCalificaciones}</span>
                     <span className="rating-total">
-                    ({negocio.reviews_count || 0} Reseñas)
+                    ({negocio.calificaciones?.length || 0} Reseñas)
                     </span>
                 </>
                 ) : (
@@ -446,7 +506,7 @@ export default function DetalleNegocio() {
         </div>
 
 
-        {/* 📍 Ubicación */}
+        {/* 🌍 Ubicación */}
         <div className="detalle-ubicacion">
             <h3>Ubicación</h3>
             {negocio.latitude && negocio.longitude ? (
@@ -455,13 +515,25 @@ export default function DetalleNegocio() {
                 📍 <strong>Latitud:</strong> {negocio.latitude} |{" "}
                 <strong>Longitud:</strong> {negocio.longitude}
                 </p>
-                <div className="map-container">
-                <iframe
-                    title="Mapa del negocio"
-                    src={`https://www.google.com/maps?q=${negocio.latitude},${negocio.longitude}&z=15&output=embed`}
-                    allowFullScreen
-                    loading="lazy"
-                ></iframe>
+                <div className="detalle-map-container">
+                <MapComponent
+                    coordinates={[
+                    {
+                        lat: parseFloat(negocio.latitude),
+                        lng: parseFloat(negocio.longitude),
+                        label: `${negocio.logo_uri?.startsWith('http') ? '🪴' : '🌸'} ${negocio.company_name}`,
+                        iconColor: "#fc4b08",
+                        companyData: negocio
+                    }
+                    ]}
+                    zoom={15}
+                    center={{
+                    lat: parseFloat(negocio.latitude),
+                    lng: parseFloat(negocio.longitude)
+                    }}
+                    height="400px"
+                    width="100%"
+                />
                 </div>
             </>
             ) : (
@@ -581,16 +653,16 @@ export default function DetalleNegocio() {
             document.body
             )}
 
-        {/* ⭐ Reseñas */}
+{/* ⭐ Reseñas */}
         <div className="detalle-resenas">
             <h3>Reseñas</h3>
-            {negocio.reviews?.length > 0 ? (
-            <div className="resenas-lista">
-                {negocio.reviews.map((review, i) => (
+            {negocio.calificaciones?.length > 0 ? (
+            <div className={`resenas-lista ${negocio.calificaciones.length > 2 ? 'scrollable' : ''}`}>
+                {negocio.calificaciones.map((review, i) => (
                 <div key={i} className="resena-item">
-                    <p className="resena-autor">⭐ {review.user}</p>
-                    <p className="resena-texto">“{review.comment}”</p>
-                    <p className="resena-rating">Puntuación: {review.rating}/5</p>
+                    <p className="resena-rating">⭐ Calificación: {review.calificacion}/5</p>
+                    <p className="resena-cliente">👤 Nombre de cliente: {review.clientName}</p>
+                    <p className="resena-texto">"​{review.descripcion || 'Sin comentario'}"​</p>
                 </div>
                 ))}
             </div>
@@ -598,6 +670,6 @@ export default function DetalleNegocio() {
             <p>Este negocio aún no tiene reseñas.</p>
             )}
         </div>
-        </div>
+    </div>
     );
 }

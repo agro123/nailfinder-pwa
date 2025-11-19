@@ -243,6 +243,8 @@ export default function RegisterBusiness() {
                 ...formData,
                 companytype: data.companytype,
                 address: data.address,
+                latitude: data.location ? data.location.lat : null,
+                longitude: data.location ? data.location.lng : null
               };
 
               setFormData(updatedData);

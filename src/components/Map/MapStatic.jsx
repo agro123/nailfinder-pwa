@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import './Map.css';
 
@@ -54,6 +54,8 @@ const MapStatic = ({
   height = '300px',
   width = '100%',
   markerColor = '#e25b7a',
+  userLocation = null,
+  userLocationOptions = {},
 }) => {
   const icon = createDivIcon(markerColor);
 
@@ -74,6 +76,17 @@ const MapStatic = ({
         tap={false}
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        {userLocation && (
+          <Circle
+            center={[userLocation.lat, userLocation.lng]}
+            radius={userLocationOptions.radius || 14}
+            pathOptions={{
+              color: userLocationOptions.color || '#aed0ffff',
+              fillColor: userLocationOptions.fillColor || userLocationOptions.color || '#3388ff',
+              fillOpacity: userLocationOptions.fillOpacity != null ? userLocationOptions.fillOpacity : 0.9,
+            }}
+          />
+        )}
         {coordinates.map((c, i) => (
           <Marker
             key={i}
