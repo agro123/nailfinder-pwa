@@ -653,15 +653,15 @@ export default function DetalleNegocio() {
             document.body
             )}
 
-        {/* ⭐ Reseñas */}
+{/* ⭐ Reseñas */}
         <div className="detalle-resenas">
             <h3>Reseñas</h3>
             {negocio.calificaciones?.length > 0 ? (
-            <div className="resenas-lista">
+            <div className={`resenas-lista ${negocio.calificaciones.length > 2 ? 'scrollable' : ''}`}>
                 {negocio.calificaciones.map((review, i) => (
                 <div key={i} className="resena-item">
                     <p className="resena-rating">⭐ Calificación: {review.calificacion}/5</p>
-                    <p className="resena-cliente">👤 Nombre: {review.clientName}</p>
+                    <p className="resena-cliente">👤 Nombre de cliente: {review.clientName}</p>
                     <p className="resena-texto">"​{review.descripcion || 'Sin comentario'}"​</p>
                 </div>
                 ))}

@@ -394,7 +394,7 @@
 
 
 
-/* ⭐ Reseñas */
+/* ⭐ Reseñas - Actualizado para DetalleNegocio.css */
 .detalle-resenas {
   margin-top: 25px;
   border-top: 1px solid #ffe2ec;
@@ -414,9 +414,43 @@
   gap: 10px;
 }
 
+/* 🌸 Cuando hay más de 2 reseñas, activar scroll */
+.resenas-lista.scrollable {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* 🌸 Scrollbar estilo rosa minimalista (igual que galerías) */
+.resenas-lista.scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.resenas-lista.scrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.resenas-lista.scrollable::-webkit-scrollbar-thumb {
+  background: #f8b7cd; /* Rosa suave para mantener consistencia */
+  border-radius: 10px;
+}
+
+.resenas-lista.scrollable::-webkit-scrollbar-thumb:hover {
+  background: #e91e63; /* Rosa más intenso al hover */
+}
+
+/* Firefox */
+.resenas-lista.scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: #f8b7cd #f1f1f1;
+}
+
+/* 🌸 Cada reseña individual */
 .resena-item {
   background: #fff6fa;
   border: 1px solid #ffd6e0;
+  border-left: 4px solid #e91e63; /* Borde rosa intenso a la izquierda */
   border-radius: 12px;
   padding: 10px 15px;
   box-shadow: 0 2px 8px rgba(233, 30, 99, 0.05);
@@ -424,25 +458,46 @@
 }
 
 .resena-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 3px 12px rgba(233, 30, 99, 0.08);
+  transform: translateX(3px); /* Se mueve ligeramente a la derecha */
+  box-shadow: 0 3px 12px rgba(233, 30, 99, 0.12);
 }
 
-.resena-autor {
+.resena-rating {
   font-weight: 600;
   color: #e91e63;
-  margin: 0;
+  margin: 0 0 5px 0;
+  font-size: 14px;
+}
+
+.resena-cliente {
+  color: #777;
+  font-size: 13px;
+  margin: 5px 0;
 }
 
 .resena-texto {
   font-style: italic;
   color: #555;
-  margin: 5px 0;
+  margin: 5px 0 0 0;
+  line-height: 1.5;
+  font-size: 14px;
 }
 
-.resena-rating {
-  font-size: 13px;
-  color: #777;
+/* 🌸 Responsive para móviles */
+@media (max-width: 768px) {
+  .resenas-lista.scrollable {
+    max-height: 350px;
+  }
+  
+  .resena-item {
+    padding: 10px 12px;
+  }
+
+  .resena-rating,
+  .resena-cliente,
+  .resena-texto {
+    font-size: 13px;
+  }
 }
 
 
@@ -528,6 +583,21 @@
   .galeria-img {
     height: 180px;
   }
+
+    .resenas-lista.scrollable {
+    max-height: 350px;
+  }
+  
+  .resena-item {
+    padding: 10px 12px;
+  }
+
+  .resena-rating,
+  .resena-cliente,
+  .resena-texto {
+    font-size: 13px;
+  }
+
 }
 
 @media (max-width: 480px) {
@@ -555,6 +625,20 @@
 
   .galeria-img {
     height: 150px;
+  }
+
+    .resenas-lista.scrollable {
+    max-height: 300px;
+  }
+  
+  .resena-item {
+    padding: 8px 10px;
+  }
+
+  .resena-rating,
+  .resena-cliente,
+  .resena-texto {
+    font-size: 12px;
   }
 }
 
