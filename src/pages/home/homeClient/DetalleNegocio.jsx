@@ -30,6 +30,22 @@ export default function DetalleNegocio() {
     const [horarios, setHorarios] = useState([]);
     const [loadingHorarios, setLoadingHorarios] = useState(true);
 
+
+    const calcularPromedioCalificaciones = () => {
+        if (!negocio?.calificaciones || negocio.calificaciones.length === 0) {
+            return null;
+        }
+        
+        const suma = negocio.calificaciones.reduce((acc, review) => {
+            return acc + (parseFloat(review.calificacion) || 0);
+        }, 0);
+        
+        const promedio = suma / negocio.calificaciones.length;
+        return promedio.toFixed(1); // Redondear a 1 decimal
+    };
+
+    const promedioCalificaciones = calcularPromedioCalificaciones();    
+
     // Normalizar para evitar problemas con tildes
     const normalize = (str) => {
         return str
@@ -359,11 +375,11 @@ export default function DetalleNegocio() {
             <h2>{negocio.company_name}</h2>
             <div className="detalle-rating">
                 <span className="estrella">⭐</span>
-                {negocio.rating ? (
+                {promedioCalificaciones ? (
                 <>
-                    <span className="rating-valor">{negocio.rating}</span>
+                    <span className="rating-valor">{promedioCalificaciones}</span>
                     <span className="rating-total">
-                    ({negocio.reviews_count || 0} Reseñas)
+                    ({negocio.calificaciones?.length || 0} Reseñas)
                     </span>
                 </>
                 ) : (
@@ -640,13 +656,13 @@ export default function DetalleNegocio() {
         {/* ⭐ Reseñas */}
         <div className="detalle-resenas">
             <h3>Reseñas</h3>
-            {negocio.reviews?.length > 0 ? (
+            {negocio.calificaciones?.length > 0 ? (
             <div className="resenas-lista">
-                {negocio.reviews.map((review, i) => (
+                {negocio.calificaciones.map((review, i) => (
                 <div key={i} className="resena-item">
-                    <p className="resena-autor">⭐ {review.user}</p>
-                    <p className="resena-texto">“{review.comment}”</p>
-                    <p className="resena-rating">Puntuación: {review.rating}/5</p>
+                    <p className="resena-rating">⭐ Calificación: {review.calificacion}/5</p>
+                    <p className="resena-cliente">👤 Nombre: {review.clientName}</p>
+                    <p className="resena-texto">"​{review.descripcion || 'Sin comentario'}"​</p>
                 </div>
                 ))}
             </div>
@@ -654,6 +670,6 @@ export default function DetalleNegocio() {
             <p>Este negocio aún no tiene reseñas.</p>
             )}
         </div>
-        </div>
+    </div>
     );
 }
