@@ -116,7 +116,25 @@ export default function EditProfile() {
     }));
   };
 
-  const center = userLocation || { lat: 3.37, lng: -76.53 };
+  const center = useMemo(() => {
+    // Si ya tenemos datos del negocio con ubicación, usamos esa
+    if (companyData?.latitude && companyData?.longitude) {
+      return {
+        lat: Number(companyData.latitude),
+        lng: Number(companyData.longitude)
+      };
+    }
+    // Si el usuario ha seleccionado una ubicación en el mapa
+    if (pickedLocation) {
+      return pickedLocation;
+    }
+    // Si tenemos la ubicación del usuario
+    if (userLocation) {
+      return userLocation;
+    }
+    // Por defecto
+    return { lat: 3.37, lng: -76.53 };
+  }, [companyData, pickedLocation, userLocation]);
 
   // Mostrar alerta - FUNCIÓN MEJORADA
   const showAlert = (message, type = 'info') => {
@@ -178,7 +196,7 @@ export default function EditProfile() {
               companyname: companyDataCompleta.company_name || '',
               companytype: companyDataCompleta.business_type || '',
               phone: companyDataCompleta.company_phone || '',
-              address: companyDataCompleta.company_address || '',
+              address: companyDataCompleta.address || '',
               latitude: companyDataCompleta.latitude || '',
               longitude: companyDataCompleta.longitude || '',
             })
@@ -203,7 +221,7 @@ export default function EditProfile() {
               companyname: company.company_name || '',
               companytype: company.business_type || '',
               phone: company.company_phone || '',
-              address: company.company_address || '',
+              address: company.address || '',
               latitude: company.latitude || '',
               longitude: company.longitude || '',
             })
