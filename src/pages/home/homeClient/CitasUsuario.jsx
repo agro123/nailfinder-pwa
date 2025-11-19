@@ -15,10 +15,20 @@ export default function CitasUsuario() {
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
   const [citaACancelar, setCitaACancelar] = useState(null);
   
-  // 🆕 Nuevo estado para el modal de error
   const [modalErrorCancelacion, setModalErrorCancelacion] = useState(false);
   const [mensajeErrorCancelacion, setMensajeErrorCancelacion] = useState("");
   const [nombreNegocioError, setNombreNegocioError] = useState("");
+
+  // Estados para modal de calificación
+  const [modalCalificacion, setModalCalificacion] = useState(false);
+  const [citaACalificar, setCitaACalificar] = useState(null);
+  const [calificacionEstrellas, setCalificacionEstrellas] = useState(5);
+  const [tituloResena, setTituloResena] = useState("");
+  const [descripcionResena, setDescripcionResena] = useState("");
+  const [enviandoResena, setEnviandoResena] = useState(false);
+  
+  // Estado para modal de éxito
+  const [modalExitoCalificacion, setModalExitoCalificacion] = useState(false);
 
   const obtenerCompanies = async () => {
     try {
@@ -101,6 +111,7 @@ export default function CitasUsuario() {
                 duracionTotal,
                 totalCost: cita.totalcost || 0,
                 datosCompletos: cita,
+                yaCalificada: cita.rated || false, // 🆕 Verificar si ya fue calificada
               });
             });
           }
@@ -185,7 +196,6 @@ export default function CitasUsuario() {
     setCitaACancelar(null);
   };
 
-  // 🆕 Funciones para el modal de error
   const abrirModalError = (mensaje, nombreNegocio) => {
     setMensajeErrorCancelacion(mensaje);
     setNombreNegocioError(nombreNegocio);
@@ -217,20 +227,17 @@ export default function CitasUsuario() {
 
       const response = await res.json();
 
-      console.log('🔍 Respuesta del servidor:', response); // Debug
+      console.log('🔍 Respuesta del servidor:', response);
 
       if (response.success) {
-        // Recargar citas
         const mapaCompanies = await obtenerCompanies();
         await obtenerCitas(mapaCompanies);
         cerrarModalConfirmacion();
         alert('Cita cancelada exitosamente');
       } else {
-        // 🆕 Detectar si es el error de "menos de 1 hora"
         const errorCode = response.code || response.error?.code || response.data?.code;
         const errorMessage = response.message || '';
         
-        // Verificar si el mensaje contiene el texto específico de cancelación tardía
         const esCancelacionTardia = 
           errorCode === 'tooLateToCancel' || 
           errorMessage.toLowerCase().includes('al menos una hora') ||
@@ -253,6 +260,80 @@ export default function CitasUsuario() {
       alert('Error de conexión al servidor');
     } finally {
       setCancelando(false);
+    }
+  };
+
+  const calificarCita = (cita) => {
+    // 🆕 Verificar si ya fue calificada
+    if (cita.yaCalificada) {
+      alert("Ya has calificado esta cita anteriormente");
+      return;
+    }
+    
+    setCitaACalificar(cita);
+    setCalificacionEstrellas(5);
+    setTituloResena("");
+    setDescripcionResena("");
+    setModalCalificacion(true);
+  };
+
+  const cerrarModalCalificacion = () => {
+    setModalCalificacion(false);
+    setCitaACalificar(null);
+    setCalificacionEstrellas(5);
+    setTituloResena("");
+    setDescripcionResena("");
+  };
+
+  const enviarCalificacion = async () => {
+    if (!citaACalificar) return;
+    
+    if (!tituloResena.trim()) {
+      alert("Por favor ingresa un título para tu reseña");
+      return;
+    }
+    if (!descripcionResena.trim()) {
+      alert("Por favor ingresa un comentario");
+      return;
+    }
+
+    setEnviandoResena(true);
+
+    const datosResena = {
+      id_cliente: user.id,
+      id_cita: citaACalificar.id,
+      id_company: citaACalificar.datosCompletos.companyid,
+      title: tituloResena.trim(),
+      description: descripcionResena.trim(),
+      rate: calificacionEstrellas
+    };
+    
+    console.log('📝 Datos de reseña a enviar:', datosResena);
+
+    try {
+      const res = await fetch('http://localhost:3000/api/private/rateService', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(datosResena)
+      });
+
+      const response = await res.json();
+      console.log('✅ Respuesta del servidor:', response);
+
+      if (response.success) {
+        // NO HAY ALERT AQUÍ - Solo cerramos y mostramos modal
+        cerrarModalCalificacion();
+        setModalExitoCalificacion(true);
+      } else {
+        alert(response.message || 'Error al enviar la calificación');
+      }
+    } catch (err) {
+      console.error('❌ Error al enviar calificación:', err);
+      alert('Error de conexión al servidor');
+    } finally {
+      setEnviandoResena(false);
     }
   };
 
@@ -331,6 +412,25 @@ export default function CitasUsuario() {
                     {cita.citaPasada ? "Finalizada" : cita.estado}
                   </p>
 
+                  {/* Botón de calificar para citas finalizadas */}
+                  {cita.citaPasada && !cita.yaCalificada && (
+                    <button
+                      className="btn-calificar-cita"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        calificarCita(cita);
+                      }}
+                    >
+                      ⭐ Calificar
+                    </button>
+                  )}
+
+                  {/* Mostrar si ya fue calificada */}
+                  {cita.citaPasada && cita.yaCalificada && (
+                    <span className="texto-calificada">✓ Calificada</span>
+                  )}
+
+                  {/* Botón de cancelar para citas activas */}
                   {!cita.citaPasada && 
                   (cita.estado === "Pendiente" || cita.estado === "Aprobada") && (
                       <button
@@ -460,7 +560,7 @@ export default function CitasUsuario() {
         </div>
       )}
 
-      {/* 🆕 Modal de error de cancelación (menos de 1 hora) */}
+      {/* Modal de error de cancelación */}
       {modalErrorCancelacion && (
         <div className="modal-overlay" onClick={cerrarModalError}>
           <div className="modal-error-cancelacion" onClick={(e) => e.stopPropagation()}>
@@ -478,6 +578,100 @@ export default function CitasUsuario() {
               onClick={cerrarModalError}
             >
               Entendido
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de calificación */}
+      {modalCalificacion && citaACalificar && (
+        <div className="modal-overlay" onClick={cerrarModalCalificacion}>
+          <div className="modal-calificacion" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={cerrarModalCalificacion}>✕</button>
+            
+            <h3>Calificar servicio</h3>
+            
+            <div className="calificacion-negocio">
+              {citaACalificar.logo && (
+                <img src={citaACalificar.logo} alt="Logo" className="calificacion-logo" />
+              )}
+              <p className="calificacion-nombre">{citaACalificar.negocio}</p>
+            </div>
+
+            <div className="calificacion-estrellas-container">
+              <label className="calificacion-label">Calificación:</label>
+              <div className="estrellas-selector">
+                {[1, 2, 3, 4, 5].map((estrella) => (
+                  <button
+                    key={estrella}
+                    type="button"
+                    className={`estrella-btn ${estrella <= calificacionEstrellas ? 'activa' : ''}`}
+                    onClick={() => setCalificacionEstrellas(estrella)}
+                  >
+                    ⭐
+                  </button>
+                ))}
+              </div>
+              <span className="estrellas-texto">{calificacionEstrellas} de 5</span>
+            </div>
+
+            <div className="calificacion-campo">
+              <label className="calificacion-label">Título de tu reseña:</label>
+              <input
+                type="text"
+                className="calificacion-input"
+                placeholder="Ej: Excelente servicio"
+                value={tituloResena}
+                onChange={(e) => setTituloResena(e.target.value)}
+                maxLength={100}
+              />
+            </div>
+
+            <div className="calificacion-campo">
+              <label className="calificacion-label">Comentario:</label>
+              <textarea
+                className="calificacion-textarea"
+                placeholder="Cuéntanos sobre tu experiencia..."
+                value={descripcionResena}
+                onChange={(e) => setDescripcionResena(e.target.value)}
+                rows={4}
+                maxLength={500}
+              />
+              <span className="contador-caracteres">{descripcionResena.length}/500</span>
+            </div>
+
+            <div className="modal-actions">
+              <button 
+                className="btn-confirmar-no" 
+                onClick={cerrarModalCalificacion}
+                disabled={enviandoResena}
+              >
+                Cancelar
+              </button>
+              <button 
+                className="btn-confirmar-si" 
+                onClick={enviarCalificacion}
+                disabled={enviandoResena}
+              >
+                {enviandoResena ? 'Enviando...' : 'Enviar calificación'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🆕 Modal de éxito al calificar */}
+      {modalExitoCalificacion && (
+        <div className="modal-overlay" onClick={() => setModalExitoCalificacion(false)}>
+          <div className="modal-exito-calificacion" onClick={(e) => e.stopPropagation()}>
+            <div className="exito-icon">🎉</div>
+            <h3>¡Gracias por tu calificación!</h3>
+            <p>Tu opinión nos ayuda a mejorar</p>
+            <button 
+              className="btn-entendido" 
+              onClick={() => setModalExitoCalificacion(false)}
+            >
+              Aceptar
             </button>
           </div>
         </div>
