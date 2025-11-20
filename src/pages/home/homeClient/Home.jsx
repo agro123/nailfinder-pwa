@@ -191,7 +191,6 @@ export default function Home() {
           parseFloat(e.promedio_calificacion) <= 5
   );
 
-  console.log("Negocios recomendados:", recomendados);
   const locales = empresasFiltradas.filter(
     (e) => e.business_type?.toLowerCase() === "local"
   );
