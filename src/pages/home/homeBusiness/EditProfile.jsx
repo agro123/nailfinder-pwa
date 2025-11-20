@@ -36,6 +36,9 @@ export default function EditProfile() {
   const [userLocation, setUserLocation] = useState(null)
   const [locationStatus, setLocationStatus] = useState("pending")
 
+  // 🔥 NUEVO: Estado para el radio de trabajo
+  const [workRadius, setWorkRadius] = useState(5) // Radio en kilómetros
+
   // Puntos de ejemplo cerca (puedes cambiarlos por negocios reales)
   const points = [
     {
@@ -136,6 +139,20 @@ export default function EditProfile() {
     return { lat: 3.37, lng: -76.53 };
   }, [companyData, pickedLocation, userLocation]);
 
+  // 🔥 NUEVO: Determinar si es un negocio de domicilio
+  const isDomicilioBusiness = useMemo(() => {
+    const companyType = formData.companytype?.toLowerCase() || companyData?.business_type?.toLowerCase();
+    return companyType === 'domicilio' || companyType === 'a domicilio' || companyType === 'servicio a domicilio';
+  }, [formData.companytype, companyData]);
+
+  // 🔥 NUEVO: Manejar cambio del radio de trabajo
+  const handleRadiusChange = (e) => {
+    const newRadius = parseInt(e.target.value);
+    if (newRadius >= 1 && newRadius <= 50) {
+      setWorkRadius(newRadius);
+    }
+  };
+
   // Mostrar alerta - FUNCIÓN MEJORADA
   const showAlert = (message, type = 'info') => {
     console.log(`🔔 Mostrando alerta: ${type} - ${message}`); // Para debug
@@ -200,6 +217,11 @@ export default function EditProfile() {
               latitude: companyDataCompleta.latitude || '',
               longitude: companyDataCompleta.longitude || '',
             })
+
+            // 🔥 NUEVO: Cargar radio de trabajo si existe
+            if (companyDataCompleta.work_radius) {
+              setWorkRadius(companyDataCompleta.work_radius);
+            }
 
             if (companyDataCompleta.logo_uri) setLogoPreview(companyDataCompleta.logo_uri)
 
@@ -273,7 +295,7 @@ export default function EditProfile() {
     }
   }
 
-  // Guardar empresa - CORREGIDO CON MEJORES ALERTAS
+  // Guardar empresa - MODIFICADO PARA INCLUIR RADIO DE TRABAJO
   const handleGuardar = async () => {
     try {
       // Validaciones básicas
@@ -296,6 +318,8 @@ export default function EditProfile() {
         address: formData.address.trim(),
         latitude: formData.latitude || null,
         longitude: formData.longitude || null,
+        // 🔥 NUEVO: Incluir radio de trabajo solo si es negocio a domicilio
+        ...(isDomicilioBusiness && { work_radius: workRadius }),
       }
 
       // Convertir logo a base64 si hay archivo nuevo
@@ -547,6 +571,49 @@ export default function EditProfile() {
           <input type="text" name="longitude" value={formData.longitude} readOnly />
         </div>
       </div>
+
+      {/* 🔥 NUEVO: RADIO DE TRABAJO SOLO PARA DOMICILIO */}
+      {isDomicilioBusiness && (
+        <div className="work-radius-section">
+          <h3>Radio de Trabajo</h3>
+          <p>Define el área de cobertura para tus servicios a domicilio</p>
+          
+          <div className="form-group">
+            <label>Radio de trabajo (kilómetros)</label>
+            <input
+              type="range"
+              min="1"
+              max="50"
+              value={workRadius}
+              onChange={handleRadiusChange}
+              className="radius-slider"
+            />
+            <div className="radius-value">
+              <span>{workRadius} km</span>
+            </div>
+          </div>
+
+          {/* Mapa para visualizar el radio de trabajo */}
+          <div style={{ height: 300, borderRadius: 12, overflow: "hidden", marginTop: '15px' }}>
+            <MapPicker
+              value={pickedLocation}
+              onChange={handlePickChange}
+              center={center}
+              zoom={12}
+              height="100%"
+              width="100%"
+              markerColor="#e25b7a"
+              showRadius={true}
+              radius={workRadius * 1000} // Convertir a metros
+              radiusColor="#e25b7a33"
+            />
+          </div>
+
+          <div className="radius-info">
+            <p>🗺️ Tu área de cobertura se muestra en el mapa. Los clientes dentro de este radio podrán solicitarte servicios a domicilio.</p>
+          </div>
+        </div>
+      )}
 
       <button className="save-button" onClick={handleGuardar}>
         {companyData ? 'Guardar Cambios' : 'Crear Negocio'}

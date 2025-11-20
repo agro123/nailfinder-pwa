@@ -847,3 +847,38 @@ input[type="time"].horario-input {
     padding: 0 0.1rem;
   }
 }
+
+/* Estilos para la sección de radio de trabajo */
+.work-radius-section {
+  margin: 25px 0;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  background: #f9f9f9;
+}
+
+.radius-slider {
+  width: 100%;
+  margin: 10px 0;
+}
+
+.radius-value {
+  text-align: center;
+  font-weight: bold;
+  color: #e25b7a;
+  font-size: 1.1em;
+}
+
+.radius-info {
+  margin-top: 15px;
+  padding: 12px;
+  background: #e8f4fd;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.radius-info p {
+  margin: 0;
+  font-size: 0.9em;
+  color: #555;
+}
