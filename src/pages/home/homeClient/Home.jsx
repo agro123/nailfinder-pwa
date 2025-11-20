@@ -141,6 +141,7 @@ export default function Home() {
           nuevaCategoria
         )}`
       );
+      console.log("Respuesta de empresas:", res.data);
       if (res.data.success) {
         const negocios = res.data.data.negocios || [];
         setTodasEmpresas(negocios);
@@ -186,8 +187,11 @@ export default function Home() {
 
   // Filtro por tipo de negocio
   const recomendados = empresasFiltradas.filter(
-    (e) => (e.bannersgalery?.length > 0 || e.categories?.length > 0) && e.status
+    (e) => parseFloat(e.promedio_calificacion) >= 4 && 
+          parseFloat(e.promedio_calificacion) <= 5
   );
+
+  console.log("Negocios recomendados:", recomendados);
   const locales = empresasFiltradas.filter(
     (e) => e.business_type?.toLowerCase() === "local"
   );
