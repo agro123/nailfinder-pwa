@@ -205,6 +205,18 @@ export default function Agenda() {
         console.log("🟢 Vista previa del JSON que se enviará:", citaPreview);
     }, [fechaSeleccionada, horaSeleccionada, servicio, profesional, negocio]);
 
+    const formatoPrecio = (precio) => {
+        if (precio === null || precio === undefined || precio === "") return "No especificado";
+
+        const numero = typeof precio === 'string' ? parseFloat(precio) : precio;
+        if (Number.isNaN(numero)) return "No especificado";
+
+        return `$${numero.toLocaleString('es-CO', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        })}`;
+    };
+
 
     return (
         <div className="agenda-container">
@@ -285,10 +297,11 @@ export default function Agenda() {
                             )}
                             <div>
                                 <h3>{negocio?.company_name || "Negocio sin nombre"}</h3>
-                                {negocio?.rating ? (
-                                    <p className="reseña">⭐ {negocio.rating} / 5 ({negocio.reviews_count || 0} reseñas)</p>
+                                {negocio?.promedio_calificacion ? (
+                                    <p className="reseña-valoracion">⭐ {negocio.promedio_calificacion} ({negocio.calificaciones?.length || 0} Reseñas)</p>
+                                    
                                 ) : (
-                                    <p className="reseña">Sin reseñas aún</p>
+                                    <p className="reseña-total">Sin reseñas aún</p>
                                 )}
                             </div>
                         </div>
@@ -305,12 +318,12 @@ export default function Agenda() {
                             <h4>🧾 Detalle</h4>
                             <div className="servicio-item">
                                 <span>{servicio?.title || "Servicio seleccionado"}</span>
-                                <span>{servicio?.price ? `$${servicio.price}` : "No especificado"}</span>
+                                <span>{formatoPrecio(servicio?.price)}</span>
                             </div>
                             <hr />
                             <div className="total">
                                 <span>Total</span>
-                                <span>{servicio?.price ? `$${servicio.price}` : "No especificado"}</span>
+                                <span>{formatoPrecio(servicio?.price)}</span>
                             </div>
                         </div>
 

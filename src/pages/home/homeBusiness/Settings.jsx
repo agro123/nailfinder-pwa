@@ -141,21 +141,18 @@ export default function Settings() {
           <span>Equipo</span>
         </div>
 
-        <div className="grid-item">
-          <Share2 size={22} />
-          <span>Compartir</span>
+        <div 
+          className="grid-item"
+          onClick={() => navigate('/historial')}
+          style={{ cursor: 'pointer'}}
+        >
+          <Clock size={18} />
+        <span>Historial de citas</span>
         </div>
       </section>
 
-
-      {/* Historial */}
-      <div className="history-btn">
-        <Clock size={18} />
-        <span>Historial de citas</span>
-      </div>
-
       {/* Notificaciones */}
-      <section className="notifications-section">
+      {/* <section className="notifications-section">
         <div className="notif-header">
           <h4>Notificaciones</h4>
           <Bell size={20} />
@@ -184,7 +181,7 @@ export default function Settings() {
             <span className="slider" />
           </label>
         </div>
-      </section>
+      </section> */}
 
       <button className="logout-btn" onClick={handleLogout}>
         Cerrar sesión

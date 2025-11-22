@@ -39,10 +39,13 @@
   transition: transform 0.2s ease;
 }
 
-.calendar-wrapper:hover {
+/* .calendar-wrapper:hover {
   transform: translateY(-2px);
+} */
+.calendar-wrapper:hover {
+  transform: none; /* Esto elimina el movimiento */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); /* Efecto más sutil */
 }
-
 .custom-calendar {
   border: none !important;
   width: 100%;
@@ -492,4 +495,156 @@
   color: green;
   font-weight: bold;
   margin-left: 0.5rem;
+}
+
+/* === SISTEMA DE ALERTAS ESPECÍFICO PARA CITAS === */
+.citas-alert {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  animation: citasSlideIn 0.3s ease;
+  border: 1px solid;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 800px;
+  box-sizing: border-box;
+}
+
+.citas-alert::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+}
+
+.citas-alert.alert-success {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.citas-alert.alert-success::before {
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+}
+
+.citas-alert.alert-error {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.citas-alert.alert-error::before {
+  background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+}
+
+.citas-alert.alert-warning {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+.citas-alert.alert-warning::before {
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%);
+}
+
+.citas-alert.alert-info {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+.citas-alert.alert-info::before {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.citas-alert-message {
+  flex: 1;
+  font-weight: 500;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  padding-right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.citas-alert-message::before {
+  font-size: 1.2rem;
+}
+
+.citas-alert.alert-success .citas-alert-message::before {
+  content: '✅';
+}
+
+.citas-alert.alert-error .citas-alert-message::before {
+  content: '❌';
+}
+
+.citas-alert.alert-warning .citas-alert-message::before {
+  content: '⚠️';
+}
+
+.citas-alert.alert-info .citas-alert-message::before {
+  content: 'ℹ️';
+}
+
+.citas-alert-close {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  color: inherit;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.citas-alert-close:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+  transform: scale(1.1);
+}
+
+@keyframes citasSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive para alertas de Citas */
+@media (max-width: 768px) {
+  .citas-alert {
+    padding: 12px 16px;
+    margin-bottom: 1rem;
+    max-width: 95%;
+  }
+  
+  .citas-alert-message {
+    font-size: 0.9rem;
+  }
+  
+  .citas-alert-close {
+    width: 24px;
+    height: 24px;
+    font-size: 1.2rem;
+  }
 }

@@ -13,6 +13,9 @@ export default function Citas() {
   const [loading, setLoading] = useState(false)
   const [accionEnProceso, setAccionEnProceso] = useState(false)
 
+  // Estado para alertas específico de Citas
+  const [citasAlert, setCitasAlert] = useState({ show: false, message: '', type: '' })
+
   // 🔹 Campos de nueva cita
   const [clienteNombre, setClienteNombre] = useState('')
   const [clienteTelefono, setClienteTelefono] = useState('')
@@ -26,7 +29,13 @@ export default function Citas() {
   const branchId = user.mainBranch?.id
   const userId = user?.id
 
-  // === Obtener citas (mantener tu versión actual) ===
+  // Mostrar alerta específica para Citas
+  const showAlert = (message, type = 'info') => {
+    setCitasAlert({ show: true, message, type })
+    setTimeout(() => setCitasAlert({ show: false, message: '', type: '' }), 5000)
+  }
+
+  // === Obtener citas ===
   useEffect(() => {
     const obtenerCitas = async () => {
       setLoading(true)
@@ -54,42 +63,46 @@ export default function Citas() {
         if (data.success) {
           // Convertimos { "2025-11-06": [ ... ] } a un array plano
           const citasArray = Object.entries(data.data).flatMap(([fecha, citas]) =>
-          citas
-            .filter(c => !companyId || c.branchid === branchId)
-            .map(c => ({
-              id: c.id,
-              fecha,
-              hora: c.startat?.slice(0, 5) || '00:00',
-              cliente: companyId
-                ? `Cliente ${c.clientid}`
-                : `Empleado ${c.employeeid}`,
-              servicio: Array.isArray(c.services)
-                ? c.services.map(s => s.title).join(', ')
-                : 'Sin servicio',
-              estado:
-                c.status === 1
-                  ? 'pendiente'
-                  : c.status === 2
-                  ? 'confirmada'
-                  : c.status === 98
-                  ? 'cancelada'
-                  : c.status === 99
-                  ? 'negada'
-                  : 'otro',
-              tipo: companyId
-                ? c.clientid === userId
-                  ? 'manual'  // Creada por el negocio (el mismo cliente que está logeado)
-                  : 'cliente' // Creada por otro cliente
-                : 'api' // Para empleados
-            }))
-        )
+            citas
+              .filter(c => !companyId || c.branchid === branchId)
+              .map(c => ({
+                id: c.id,
+                fecha,
+                hora: c.startat?.slice(0, 5) || '00:00',
+                // 🔹 CAMBIO AQUÍ: Usar el nombre real del cliente
+                cliente: companyId
+                  ? c.client?.name || `Cliente ${c.clientid}` // Usar nombre del cliente si está disponible
+                  : c.employee?.name || `Empleado ${c.employeeid}`, // Usar nombre del empleado si está disponible
+                servicio: Array.isArray(c.services)
+                  ? c.services.map(s => s.title).join(', ')
+                  : 'Sin servicio',
+                estado:
+                  c.status === 1
+                    ? 'pendiente'
+                    : c.status === 2
+                    ? 'confirmada'
+                    : c.status === 98
+                    ? 'cancelada'
+                    : c.status === 99
+                    ? 'negada'
+                    : 'otro',
+                tipo: companyId
+                  ? c.clientid === userId
+                    ? 'manual'  // Creada por el negocio (el mismo cliente que está logeado)
+                    : 'cliente' // Creada por otro cliente
+                  : 'api' // Para empleados
+              }))
+          )
 
           setCitas(citasArray)
+          showAlert('Citas cargadas correctamente', 'success')
         } else {
           console.error('Error al cargar citas:', data)
+          showAlert('Error al cargar las citas', 'error')
         }
       } catch (err) {
         console.error('Error al obtener citas:', err)
+        showAlert('Error de conexión al cargar citas', 'error')
       } finally {
         setLoading(false)
       }
@@ -117,6 +130,7 @@ export default function Citas() {
         }
       } catch (err) {
         console.error("Error al obtener servicios:", err)
+        showAlert('Error al cargar los servicios', 'error')
       }
     }
     cargarServicios()
@@ -147,6 +161,7 @@ export default function Citas() {
         if (!profConServicio) {
           console.warn("No hay profesionales con este servicio");
           setHorariosDisponibles([]);
+          showAlert('No hay profesionales disponibles para este servicio', 'warning')
           return;
         }
 
@@ -174,15 +189,19 @@ export default function Citas() {
               ...(diaData.periods.night || [])
             ];
             setHorariosDisponibles(horarios);
+            showAlert(`${horarios.length} horarios disponibles encontrados`, 'success')
           } else {
             setHorariosDisponibles([]);
+            showAlert('No hay horarios disponibles para esta fecha', 'info')
           }
         } else {
           setHorariosDisponibles([]);
+          showAlert('No se encontraron horarios disponibles', 'warning')
           console.warn("No se encontraron horarios:", result.message);
         }
       } catch (err) {
         console.error("Error al cargar horarios:", err);
+        showAlert('Error al cargar los horarios disponibles', 'error')
       }
     };
 
@@ -192,7 +211,7 @@ export default function Citas() {
   const fechaSeleccionada = date.toISOString().split('T')[0]
   const citasDia = citas.filter(c => c.fecha === fechaSeleccionada)
 
-  // === Cambiar estado de cita (mantener igual) ===
+  // === Cambiar estado de cita ===
   const cambiarEstadoCita = async (id, nuevoEstado) => {
     setAccionEnProceso(true)
     try {
@@ -222,13 +241,13 @@ export default function Citas() {
               : c
           )
         )
-        alert('✅ Estado de cita actualizado correctamente.')
+        showAlert('Estado de cita actualizado correctamente', 'success')
       } else {
-        alert('❌ Error al cambiar el estado de la cita.')
+        showAlert('Error al cambiar el estado de la cita', 'error')
       }
     } catch (error) {
       console.error('Error al cambiar estado:', error)
-      alert('⚠️ Error de conexión con el servidor.')
+      showAlert('Error de conexión con el servidor', 'error')
     } finally {
       setAccionEnProceso(false)
     }
@@ -237,17 +256,18 @@ export default function Citas() {
   // === Crear nueva cita
   const crearCita = async () => {
     if (!clienteNombre || !clienteTelefono || !hora || !servicio) {
-      alert('Por favor completa todos los campos obligatorios.');
+      showAlert('Por favor completa todos los campos obligatorios', 'warning')
       return;
     }
 
     if (!companyId || !branchId || !userId) {
-      alert('No se pudo obtener la información del usuario o de la compañía.');
+      showAlert('No se pudo obtener la información del usuario o de la compañía', 'error')
       return;
     }
 
     try {
       setAccionEnProceso(true);
+      showAlert('Creando cita...', 'info')
 
       // Construimos el body con todos los campos requeridos
       const body = {
@@ -269,7 +289,7 @@ export default function Citas() {
       const data = await res.json();
 
       if (data.success) {
-        alert('✅ Cita creada exitosamente.');
+        showAlert('Cita creada exitosamente', 'success')
         setShowForm(false);
         setClienteNombre('');
         setClienteTelefono('');
@@ -278,12 +298,12 @@ export default function Citas() {
         setServicio('');
         setHorariosDisponibles([]);
       } else {
-        alert(`❌ No se pudo crear la cita: ${data.message || 'Error desconocido'}`);
+        showAlert(`No se pudo crear la cita: ${data.message || 'Error desconocido'}`, 'error')
         console.error('Error backend:', data);
       }
     } catch (err) {
       console.error('Error creando cita:', err);
-      alert('⚠️ Error de conexión con el servidor.');
+      showAlert('Error de conexión con el servidor', 'error')
     } finally {
       setAccionEnProceso(false);
     }
@@ -302,6 +322,19 @@ export default function Citas() {
       <header className="citas-header">
         <h2>Agenda</h2>
       </header>
+
+      {/* Sistema de Alertas específico para Citas */}
+      {citasAlert.show && (
+        <div className={`citas-alert alert-${citasAlert.type}`}>
+          <span className="citas-alert-message">{citasAlert.message}</span>
+          <button 
+            className="citas-alert-close" 
+            onClick={() => setCitasAlert({ show: false, message: '', type: '' })}
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       <div className="calendar-wrapper">
         <Calendar
@@ -345,12 +378,14 @@ export default function Citas() {
                     <button
                       className="btn-confirmar"
                       onClick={() => cambiarEstadoCita(cita.id, 2)}
+                      disabled={accionEnProceso}
                     >
                       Confirmar
                     </button>
                     <button
                       className="btn-cancelar"
                       onClick={() => cambiarEstadoCita(cita.id, 98)}
+                      disabled={accionEnProceso}
                     >
                       Cancelar
                     </button>
@@ -408,7 +443,7 @@ export default function Citas() {
             <select value={hora} onChange={e => setHora(e.target.value)}>
               <option value="">Selecciona un horario</option>
               {horariosDisponibles.length > 0 ? (
-                horariosDisponibles.map((h, i) => <option key={i}>{h}</option>)
+                horariosDisponibles.map((h, i) => <option key={i} value={h}>{h}</option>)
               ) : (
                 <option disabled>No hay horarios</option>
               )}
@@ -416,7 +451,9 @@ export default function Citas() {
 
             <div className="modal-actions">
               <button onClick={() => setShowForm(false)} className="btn-cancelar">Cancelar</button>
-              <button onClick={crearCita} className="btn-confirmar">Guardar</button>
+              <button onClick={crearCita} className="btn-confirmar" disabled={accionEnProceso}>
+                {accionEnProceso ? 'Creando...' : 'Guardar'}
+              </button>
             </div>
           </div>
         </div>
