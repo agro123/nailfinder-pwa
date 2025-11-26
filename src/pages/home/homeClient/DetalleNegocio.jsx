@@ -29,22 +29,7 @@ export default function DetalleNegocio() {
 
     const [horarios, setHorarios] = useState([]);
     const [loadingHorarios, setLoadingHorarios] = useState(true);
-
-
-    const calcularPromedioCalificaciones = () => {
-        if (!negocio?.calificaciones || negocio.calificaciones.length === 0) {
-            return null;
-        }
-        
-        const suma = negocio.calificaciones.reduce((acc, review) => {
-            return acc + (parseFloat(review.calificacion) || 0);
-        }, 0);
-        
-        const promedio = suma / negocio.calificaciones.length;
-        return promedio.toFixed(1); // Redondear a 1 decimal
-    };
-
-    const promedioCalificaciones = calcularPromedioCalificaciones();    
+ 
 
     // Normalizar para evitar problemas con tildes
     const normalize = (str) => {
@@ -328,6 +313,18 @@ export default function DetalleNegocio() {
         };
     });
 
+    const formatoPrecio = (precio) => {
+        if (precio === null || precio === undefined || precio === "") return "No especificado";
+
+        const numero = typeof precio === 'string' ? parseFloat(precio) : precio;
+        if (Number.isNaN(numero)) return "No especificado";
+
+        return `$${numero.toLocaleString('es-CO', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        })}`;
+    };
+
 
     return (
         <div className="detalle-container">
@@ -375,9 +372,9 @@ export default function DetalleNegocio() {
             <h2>{negocio.company_name}</h2>
             <div className="detalle-rating">
                 <span className="estrella">⭐</span>
-                {promedioCalificaciones ? (
+                {negocio.promedio_calificacion ? (
                 <>
-                    <span className="rating-valor">{promedioCalificaciones}</span>
+                    <span className="rating-valor">{negocio.promedio_calificacion}</span>
                     <span className="rating-total">
                     ({negocio.calificaciones?.length || 0} Reseñas)
                     </span>
@@ -465,7 +462,7 @@ export default function DetalleNegocio() {
                             <h4>{serv.title}</h4>
                             <p>{serv.description || "Sin descripción."}</p>
                             <p>
-                                <strong>Precio:</strong> {serv.price ? `$${serv.price}` : "No especificado"}
+                                <strong>Precio:</strong> {formatoPrecio(serv.price)}
                             </p>
                             <p>
                                 <strong>⏱ Duración:</strong> {serv.duration ? `${serv.duration} min` : "N/A"}
