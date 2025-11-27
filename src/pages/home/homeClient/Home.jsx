@@ -22,6 +22,88 @@ export default function Home() {
   const [ubicacionUsuario, setUbicacionUsuario] = useState(null);
   const [obteniendoUbicacion, setObteniendoUbicacion] = useState(false);
 
+  // 🆕 Estado para horarios de empresas
+  const [horariosEmpresas, setHorariosEmpresas] = useState({});
+  const [loadingHorarios, setLoadingHorarios] = useState(false);
+
+  // 🆕 Función para normalizar días (igual que en DetalleNegocio)
+  const normalize = (str) => {
+    return str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  };
+
+  // 🆕 Función para obtener el día actual normalizado
+  const obtenerDiaActual = () => {
+    const dias = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
+    const hoy = new Date().getDay();
+    return dias[hoy];
+  };
+
+  // 🆕 Función para verificar si el negocio está abierto ahora
+  const estaAbierto = (companyId) => {
+    const horarios = horariosEmpresas[companyId];
+    
+    // Si no hay horarios registrados, está cerrado
+    if (!horarios || horarios.length === 0) {
+      return false;
+    }
+
+    const diaActual = obtenerDiaActual();
+    const horaActual = new Date();
+    const horaActualString = `${horaActual.getHours().toString().padStart(2, '0')}:${horaActual.getMinutes().toString().padStart(2, '0')}:00`;
+
+    // Buscar horarios del día actual
+    const horariosHoy = horarios.filter(h => normalize(h.weekday) === diaActual);
+
+    if (horariosHoy.length === 0) {
+      return false; // No hay horarios para hoy
+    }
+
+    // Verificar si la hora actual está dentro de alguno de los rangos
+    return horariosHoy.some(horario => {
+      const inicio = horario.starthour;
+      const fin = horario.endhour;
+      
+      return horaActualString >= inicio && horaActualString <= fin;
+    });
+  };
+
+  // 🆕 Función para cargar horarios de todas las empresas
+  const fetchHorariosEmpresas = async (empresas) => {
+    setLoadingHorarios(true);
+    const horariosMap = {};
+    
+    const promesas = empresas.map(async (empresa) => {
+      try {
+        const resp = await fetch(
+          `http://localhost:3000/api/public/getCompanyHorarios?id_company=${encodeURIComponent(empresa.company_id)}`
+        );
+        
+        if (!resp.ok) {
+          console.warn(`No se pudieron cargar horarios para ${empresa.company_name}`);
+          return;
+        }
+
+        const data = await resp.json();
+        
+        if (data.success && data.data.horarios?.length > 0) {
+          horariosMap[empresa.company_id] = data.data.horarios;
+        } else {
+          horariosMap[empresa.company_id] = []; // Sin horarios
+        }
+      } catch (error) {
+        console.error(`Error cargando horarios para ${empresa.company_name}:`, error);
+        horariosMap[empresa.company_id] = []; // Sin horarios en caso de error
+      }
+    });
+    
+    await Promise.all(promesas);
+    setHorariosEmpresas(horariosMap);
+    setLoadingHorarios(false);
+  };
+
   // Obtener ubicación del usuario
   const obtenerUbicacionUsuario = () => {
     setObteniendoUbicacion(true);
@@ -61,17 +143,15 @@ export default function Home() {
     return R * c; // Distancia en km
   };
 
- // Verificar si una valoración está en el rango seleccionado
+  // Verificar si una valoración está en el rango seleccionado
   const cumpleFiltroValoracion = (valoracion) => {
     if (filtroValoracion.length === 0) return true;
     
     return filtroValoracion.some((estrella) => {
       const num = parseInt(estrella);
       if (num === 5) {
-        // Solo 5.0 exacto
         return valoracion === 5;
       } else {
-        // Para 1, 2, 3, 4: incluye desde ese número hasta antes del siguiente
         return valoracion >= num && valoracion < num + 1;
       }
     });
@@ -95,16 +175,13 @@ export default function Home() {
   // Aplicar todos los filtros
   const aplicarFiltros = (listaEmpresas) => {
     return listaEmpresas.filter((empresa) => {
-      // Filtro de búsqueda por nombre
       const cumpleBusqueda = empresa.company_name
         ?.toLowerCase()
         .includes(search.toLowerCase());
 
-      // Filtro de valoración
       const valoracion = parseFloat(empresa.promedio_calificacion) || 0;
       const cumpleValoracion = cumpleFiltroValoracion(valoracion);
 
-      // Filtro de distancia
       const cumpleDistancia = cumpleFiltroDistancia(empresa);
 
       return cumpleBusqueda && cumpleValoracion && cumpleDistancia;
@@ -127,7 +204,7 @@ export default function Home() {
     setFiltroValoracion([]);
     setFiltroDistancia(null);
     setUbicacionUsuario(null);
-    setCategoriaSeleccionada(0); // <- Agregar esta línea
+    setCategoriaSeleccionada(0);
     fetchEmpresas(0);
   };
 
@@ -175,6 +252,11 @@ export default function Home() {
         const negocios = res.data.data.negocios || [];
         setTodasEmpresas(negocios);
         setEmpresas(negocios);
+        
+        // 🆕 Cargar horarios cuando se obtienen las empresas
+        if (negocios.length > 0) {
+          fetchHorariosEmpresas(negocios);
+        }
       } else {
         setError("No se pudieron cargar los negocios.");
       }
@@ -211,6 +293,16 @@ export default function Home() {
     fetchCategorias();
   }, []);
 
+  // 🆕 Actualizar el estado de abierto/cerrado cada minuto
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Forzar re-render para actualizar estados
+      setHorariosEmpresas(prev => ({ ...prev }));
+    }, 60000); // Cada 60 segundos
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Aplicar filtros cuando cambien
   const empresasFiltradas = aplicarFiltros(empresas);
 
@@ -233,16 +325,13 @@ export default function Home() {
       const markers = document.querySelectorAll('.custom-marker');
       
       markers.forEach((marker, index) => {
-        // Primer marcador es la ubicación del usuario (verde)
         const shouldBeGreen = ubicacionUsuario && index === 0;
         const color = shouldBeGreen ? '#6c200a' : '#fc4b08';
         
-        // Forzar el color sobrescribiendo el estilo inline
         marker.style.setProperty('background-color', color, 'important');
       });
     };
 
-    // Ejecutar varias veces para asegurar que se aplique
     const timers = [
       setTimeout(forceMarkerColors, 300),
       setTimeout(forceMarkerColors, 600),
@@ -250,12 +339,10 @@ export default function Home() {
       setTimeout(forceMarkerColors, 1500)
     ];
 
-    // Observar cambios en el DOM para reaplicar colores cuando cambie algo
     const observer = new MutationObserver(() => {
       forceMarkerColors();
     });
 
-    // Observar el contenedor del mapa
     const mapContainer = document.querySelector('.leaflet-container');
     if (mapContainer) {
       observer.observe(mapContainer, {
@@ -298,7 +385,6 @@ export default function Home() {
             parseFloat(empresa.longitude)
           );
 
-          // Solo mostrar negocios dentro del radio
           if (distancia <= filtroDistancia) {
             coords.push({
               lat: parseFloat(empresa.latitude),
@@ -314,9 +400,11 @@ export default function Home() {
     return coords;
   };
 
-  // Render de tarjeta con valoración
+  // 🆕 Render de tarjeta CON estado dinámico basado en horarios
   const renderCard = (item) => {
     const valoracion = parseFloat(item.promedio_calificacion) || 0;
+    const abierto = estaAbierto(item.company_id);
+    
     let distancia = null;
     
     if (ubicacionUsuario && item.latitude && item.longitude) {
@@ -363,20 +451,20 @@ export default function Home() {
           </div>
         )}
 
+        {/* 🆕 Estado dinámico basado en horarios */}
         <div className="status-container">
           <span
             className={`company-status-dot ${
-              item.status ? "active" : "inactive"
+              abierto ? "active" : "inactive"
             }`}
           ></span>
-          <span>{item.status ? "Abierto" : "Cerrado"}</span>
+          <span>{abierto ? "Abierto" : "Cerrado"}</span>
         </div>
       </div>
     );
   };
 
   const coordenadasMapa = generarCoordenadasMapa();
-
 
   useEffect(() => {
     const slider = document.querySelector(".distance-slider");
@@ -390,7 +478,6 @@ export default function Home() {
     const value = Number(e.target.value);
     setSliderValue(value);
     
-    // Si value es 0, no filtrar. Si es mayor a 0, aplicar filtro
     if (value > 0) {
       setFiltroDistancia(value);
     } else {
@@ -402,7 +489,7 @@ export default function Home() {
       "--value-percent",
       `${percent}%`
     );
-};
+  };
 
   return (
     <div className="home-container">
@@ -487,22 +574,20 @@ export default function Home() {
                   <>
                     <p className="ubicacion-activa">✅ Ubicación activada</p>
                     <div className="slider-container">
-                    <input
-                      type="range"
-                      min="0"
-                      max="20"
-                      step="1"
-                      value={sliderValue}
-                      className="distance-slider"
-                      onChange={(e) => handleSliderChange(e)}
-                    />
+                      <input
+                        type="range"
+                        min="0"
+                        max="20"
+                        step="1"
+                        value={sliderValue}
+                        className="distance-slider"
+                        onChange={(e) => handleSliderChange(e)}
+                      />
 
-                    {/* Etiqueta dinámica debajo del circulito */}
-                    <div className="slider-value">
-                      {sliderValue === 0 ? "Arrastra y selecciona distancia" : `Hasta ${sliderValue} km`}
+                      <div className="slider-value">
+                        {sliderValue === 0 ? "Arrastra y selecciona distancia" : `Hasta ${sliderValue} km`}
+                      </div>
                     </div>
-                  </div>
-
                   </>
                 )}
               </div>
@@ -527,7 +612,6 @@ export default function Home() {
                     />
                   </div>
 
-                  {/* Leyenda del mapa */}
                   <div className="map-legend">
                     <div className="legend-item">
                       <span className="legend-dot-home user-location-dot-home"></span>
@@ -583,14 +667,13 @@ export default function Home() {
         </div>
       )}
 
-       {/* Chips de Filtros Activos */}
+      {/* Chips de Filtros Activos */}
       {(filtroValoracion.length > 0 || 
         filtroDistancia || 
         categoriaSeleccionada !== 0) && (
         <div className="filtros-aplicados">
           <h4 className="filtros-aplicados-titulo">Filtros aplicados</h4>
           <div className="filtros-chips-container">
-            {/* Chip de Categoría */}
             {categoriaSeleccionada !== 0 && (
               <div className="filtro-chip">
                 <span className="filtro-chip-texto">
@@ -605,7 +688,6 @@ export default function Home() {
               </div>
             )}
 
-            {/* Chips de Valoración */}
             {filtroValoracion.map((val) => (
               <div key={val} className="filtro-chip">
                 <span className="filtro-chip-texto">⭐ {val} estrellas</span>
@@ -618,7 +700,6 @@ export default function Home() {
               </div>
             ))}
 
-            {/* Chip de Distancia */}
             {filtroDistancia && (
               <div className="filtro-chip">
                 <span className="filtro-chip-texto">
@@ -636,6 +717,13 @@ export default function Home() {
         </div>
       )}
 
+      {/* 🆕 Indicador de carga de horarios */}
+      {loadingHorarios && (
+        <div className="loading-horarios">
+          <p>⏳ Verificando horarios de los negocios...</p>
+        </div>
+      )}
+
       {loading && <p className="loading-text">Cargando negocios...</p>}
       {error && <p className="error-text">{error}</p>}
 
@@ -643,7 +731,7 @@ export default function Home() {
         <>
           {empresasFiltradas.length === 0 ? (
             <div className="sin-resultados">
-              <p className="sin-resultados-emoji">📍</p>
+              <p className="sin-resultados-emoji">🔍</p>
               <p className="sin-resultados-texto">
                 No se encontraron negocios con los filtros seleccionados
               </p>
