@@ -13,6 +13,7 @@ export default function EditProfile() {
   const [companyData, setCompanyData] = useState(null)
   const [formData, setFormData] = useState({
     companyname: '',
+    description: '',
     companytype: '',
     phone: '',
     address: '',
@@ -212,6 +213,7 @@ export default function EditProfile() {
             setCompanyData(companyDataCompleta)
             setFormData({
               companyname: companyDataCompleta.company_name || '',
+              description: companyDataCompleta.company_description || '',
               companytype: companyDataCompleta.business_type || '',
               phone: companyDataCompleta.company_phone || '',
               address: companyDataCompleta.address || '',
@@ -242,6 +244,7 @@ export default function EditProfile() {
             setCompanyData(company)
             setFormData({
               companyname: company.company_name || '',
+              description: company.description || '',
               companytype: company.business_type || '',
               phone: company.company_phone || '',
               address: company.address || '',
@@ -314,6 +317,7 @@ export default function EditProfile() {
       const body = {
         id_company: companyData?.company_id || null,
         companyname: formData.companyname.trim(),
+        description: formData.description.trim(),
         companytype: formData.companytype.trim(),
         phone: formData.phone.trim(),
         address: formData.address.trim(),
@@ -529,6 +533,10 @@ export default function EditProfile() {
       <div className="form-group">
         <label>Nombre del negocio</label>
         <input type="text" name="companyname" value={formData.companyname} onChange={handleChange} />
+      </div>
+      <div className="form-group">
+        <label>Descripcion del negocio</label>
+        <textarea type="text" name="description" value={formData.description} onChange={handleChange} />
       </div>
       <div className="form-group">
         <label>Tipo de negocio</label>

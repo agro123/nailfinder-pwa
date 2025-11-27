@@ -137,8 +137,8 @@ export default function BusinessLocation({ onNext, onBack, setMessage, setType, 
               onChange={(e) => setRadius(Math.round(parseFloat(e.target.value) * 1000))}
             />
             <div style={{ minWidth: 72 }}>{(radius / 1000).toFixed(1)} km</div>
-            <small style={{ color: '#e25b7a' }}>Selecciona el radio de atención a domicilio</small>
           </div>
+          <small style={{ color: '#e25b7a' }}>Selecciona el radio de atención a domicilio</small>
         </div>
       )}
 
