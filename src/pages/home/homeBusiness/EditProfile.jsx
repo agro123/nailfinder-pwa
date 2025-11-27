@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { ChevronLeft } from "lucide-react";
 import MapComponent, { MapPicker, MapStatic } from '../../../components/Map'
 import './css/EditProfile.css'
 
@@ -12,6 +13,7 @@ export default function EditProfile() {
   const [companyData, setCompanyData] = useState(null)
   const [formData, setFormData] = useState({
     companyname: '',
+    description: '',
     companytype: '',
     phone: '',
     address: '',
@@ -211,6 +213,7 @@ export default function EditProfile() {
             setCompanyData(companyDataCompleta)
             setFormData({
               companyname: companyDataCompleta.company_name || '',
+              description: companyDataCompleta.company_description || '',
               companytype: companyDataCompleta.business_type || '',
               phone: companyDataCompleta.company_phone || '',
               address: companyDataCompleta.address || '',
@@ -241,6 +244,7 @@ export default function EditProfile() {
             setCompanyData(company)
             setFormData({
               companyname: company.company_name || '',
+              description: company.description || '',
               companytype: company.business_type || '',
               phone: company.company_phone || '',
               address: company.address || '',
@@ -313,6 +317,7 @@ export default function EditProfile() {
       const body = {
         id_company: companyData?.company_id || null,
         companyname: formData.companyname.trim(),
+        description: formData.description.trim(),
         companytype: formData.companytype.trim(),
         phone: formData.phone.trim(),
         address: formData.address.trim(),
@@ -484,10 +489,7 @@ export default function EditProfile() {
     <div className="edit-profile-container">
       {/* Flecha para volver */}
       <button className="back-button" onClick={() => navigate('/settings')}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
-        Volver
+        <ChevronLeft size={28} strokeWidth={2} />
       </button>
 
       {/* Sistema de Alertas - CORREGIDO */}
@@ -533,9 +535,22 @@ export default function EditProfile() {
         <input type="text" name="companyname" value={formData.companyname} onChange={handleChange} />
       </div>
       <div className="form-group">
-        <label>Tipo de negocio</label>
-        <input type="text" name="companytype" value={formData.companytype} onChange={handleChange} />
+        <label>Descripcion del negocio</label>
+        <textarea type="text" name="description" value={formData.description} onChange={handleChange} />
       </div>
+      <div className="form-group">
+        <label>Tipo de negocio</label>
+        <select
+          name="companytype"
+          value={formData.companytype}
+          onChange={handleChange}
+        >
+          <option value="">Selecciona una opción</option>
+          <option value="local">Local</option>
+          <option value="domicilio">Domicilio</option>
+        </select>
+      </div>
+
       <div className="form-group">
         <label>Teléfono</label>
         <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
@@ -615,9 +630,7 @@ export default function EditProfile() {
         </div>
       )}
 
-      <button className="save-button" onClick={handleGuardar}>
-        {companyData ? 'Guardar Cambios' : 'Crear Negocio'}
-      </button>
+      
 
       {/* Horarios */}
       <div className="horarios-section">
@@ -655,13 +668,20 @@ export default function EditProfile() {
           <div className="horario-form">
             <div className="form-group">
               <label>Día de la semana</label>
-              <input
-                type="text"
-                placeholder="Ej: Lunes, Martes..."
+              <select
+                name="companytype"
                 value={newHorario.day}
                 onChange={(e) => setNewHorario({ ...newHorario, day: e.target.value })}
-                className="horario-input"
-              />
+              >
+                <option value="">Selecciona una opción</option>
+                <option value="Lunes">Lunes</option>
+                <option value="Martes">Martes</option>
+                <option value="Miercoles">Miercoles</option>
+                <option value="Jueves">Jueves</option>
+                <option value="Viernes">Viernes</option>
+                <option value="Sabado">Sabado</option>
+                <option value="Domingo">Domingo</option>
+              </select>   
             </div>
             
             <div className="form-group">
@@ -696,6 +716,11 @@ export default function EditProfile() {
           </div>
         </div>
       </div>
+      
+      {/* Boton para guardar los cambios */}
+      <button className="save-button" onClick={handleGuardar}>
+        {companyData ? 'Guardar Cambios' : 'Crear Negocio'}
+      </button>
     </div>
   )
 }

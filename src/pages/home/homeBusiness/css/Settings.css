@@ -95,8 +95,8 @@
 .edit-btn {
   margin-left: auto;
   border: none;
-  background: #ffe6eb;
-  color: #e25b7a;
+  background: #d7eaff;
+  color: #4a78a8;
   border-radius: 20px;
   padding: 8px 14px;
   cursor: pointer;
@@ -106,7 +106,7 @@
 }
 
 .edit-btn:hover {
-  background: #ffc5d1;
+  background: #c3ddff;
   transform: translateY(2px);
 }
 
