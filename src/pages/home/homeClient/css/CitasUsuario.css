@@ -833,6 +833,17 @@
   gap: 4px;
 }
 
+.boton-alert-cita {
+  background-color: #e25b7a !important;
+  transition: all 0.3s ease;
+}
+
+.boton-alert-cita:hover {
+  background-color: #d1497a !important;  /* Verde más oscuro */
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
 /* ----- RESPONSIVE GENERAL ----- */
 @media (max-width: 768px) {
   .citasusuario-container {
