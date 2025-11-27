@@ -61,22 +61,18 @@ export default function Home() {
     return R * c; // Distancia en km
   };
 
-  // Verificar si una valoración está en el rango seleccionado
+ // Verificar si una valoración está en el rango seleccionado
   const cumpleFiltroValoracion = (valoracion) => {
     if (filtroValoracion.length === 0) return true;
     
-    return filtroValoracion.some((rango) => {
-      switch (rango) {
-        case "1-1.9":
-          return valoracion >= 1 && valoracion < 2;
-        case "2-2.9":
-          return valoracion >= 2 && valoracion < 3;
-        case "3-3.9":
-          return valoracion >= 3 && valoracion < 4;
-        case "4-5":
-          return valoracion >= 4 && valoracion <= 5;
-        default:
-          return false;
+    return filtroValoracion.some((estrella) => {
+      const num = parseInt(estrella);
+      if (num === 5) {
+        // Solo 5.0 exacto
+        return valoracion === 5;
+      } else {
+        // Para 1, 2, 3, 4: incluye desde ese número hasta antes del siguiente
+        return valoracion >= num && valoracion < num + 1;
       }
     });
   };
@@ -131,6 +127,39 @@ export default function Home() {
     setFiltroValoracion([]);
     setFiltroDistancia(null);
     setUbicacionUsuario(null);
+    setCategoriaSeleccionada(0); // <- Agregar esta línea
+    fetchEmpresas(0);
+  };
+
+  // Remover filtro individual
+  const removerFiltroIndividual = (tipoFiltro, valor) => {
+    switch (tipoFiltro) {
+      case 'valoracion':
+        setFiltroValoracion(prev => prev.filter(v => v !== valor));
+        break;
+      case 'distancia':
+        setFiltroDistancia(null);
+        setSliderValue(0);
+        setUbicacionUsuario(null);
+        break;
+      case 'categoria':
+        setCategoriaSeleccionada(0);
+        fetchEmpresas(0);
+        break;
+      case 'ubicacion':
+        setUbicacionUsuario(null);
+        setFiltroDistancia(null);
+        setSliderValue(0);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Obtener nombre de categoría por ID
+  const getNombreCategoria = (id) => {
+    const cat = servicios.find(s => s.id === id);
+    return cat ? (cat.nombre || cat.name || cat.categoria) : '';
   };
 
   const fetchEmpresas = async (nuevaCategoria) => {
@@ -334,25 +363,6 @@ export default function Home() {
           </div>
         )}
 
-        {/* Distancia */}
-        {distancia !== null && (
-          <p className="distancia-info">📍 {distancia.toFixed(1)} km</p>
-        )}
-
-        <p className="business-info">
-          {item.business_type?.toLowerCase() === "local" ? (
-            item.latitude && item.longitude ? (
-              <>📍 Local con ubicación</>
-            ) : (
-              <>📍 Local disponible</>
-            )
-          ) : item.business_type?.toLowerCase() === "domicilio" ? (
-            <>📞 {item.company_phone}</>
-          ) : (
-            <>🏢 {item.business_type || "Sin tipo"}</>
-          )}
-        </p>
-
         <div className="status-container">
           <span
             className={`company-status-dot ${
@@ -404,15 +414,19 @@ export default function Home() {
             onClick={() => setShowModalFiltros(true)}
           >
             ⚙️ Filtros
-            {(filtroValoracion.length > 0 || filtroDistancia) && (
+            {(filtroValoracion.length > 0 || 
+              filtroDistancia || 
+              categoriaSeleccionada !== 0) && (
               <span className="filtros-activos-badge">
-                {filtroValoracion.length + (filtroDistancia ? 1 : 0)}
+                {filtroValoracion.length + 
+                (filtroDistancia ? 1 : 0) + 
+                (categoriaSeleccionada !== 0 ? 1 : 0)}
               </span>
             )}
           </button>
           <input
             type="text"
-            placeholder="Buscar servicios o negocios"
+            placeholder="Buscar negocios"
             className="search-input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -440,16 +454,16 @@ export default function Home() {
               {/* Filtro de Valoración */}
               <div className="filtro-seccion">
                 <h4 className="filtro-titulo">⭐ Valoración</h4>
-                <div className="filtro-opciones">
-                  {["1-1.9", "2-2.9", "3-3.9", "4-5"].map((rango) => (
+                <div className="filtro-opciones-horizontal">
+                  {["1", "2", "3", "4", "5"].map((estrella) => (
                     <button
-                      key={rango}
+                      key={estrella}
                       className={`modal-filter-btn ${
-                        filtroValoracion.includes(rango) ? "active" : ""
+                        filtroValoracion.includes(estrella) ? "active" : ""
                       }`}
-                      onClick={() => toggleFiltroValoracion(rango)}
+                      onClick={() => toggleFiltroValoracion(estrella)}
                     >
-                      {rango === "4-5" ? "⭐ 4.0 - 5.0" : `⭐ ${rango}`}
+                      ⭐ {estrella}
                     </button>
                   ))}
                 </div>
@@ -530,68 +544,97 @@ export default function Home() {
                       </div>
                     )}
                   </div>
-
-                  {/* Estadísticas del mapa */}
-                  <div className="map-stats">
-                    <span className="stat-badge-home">
-                      📍 Tu ubicación
-                    </span>
-                    {filtroDistancia && (
-                      <span className="stat-badge-home other-companies-badge-home">
-                        🎯 {coordenadasMapa.filter(c => c.iconColor === "#fc4b08").length} negocio(s)
-                      </span>
-                    )}
-                  </div>
                 </div>
               )}
 
+              {/* Filtro de Categorías */}
+              <div className="filtro-seccion">
+                <h4 className="filtro-titulo">🏷️ Categorías</h4>
+                <div className="filtro-opciones">
+                  {servicios.length > 0 ? (
+                    servicios.map((cat, index) => (
+                      <button
+                        key={index}
+                        className={`modal-filter-btn ${
+                          categoriaSeleccionada === cat.id ? "active" : ""
+                        }`}
+                        onClick={() => fetchEmpresas(cat.id)}
+                      >
+                        {cat.nombre || cat.name || cat.categoria}
+                      </button>
+                    ))
+                  ) : (
+                    <p className="loading-text">Cargando categorías...</p>
+                  )}
+                </div>
+              </div>
+              
               {/* Botón para limpiar filtros */}
               {(filtroValoracion.length > 0 ||
                 filtroDistancia ||
-                ubicacionUsuario) && (
+                ubicacionUsuario ||
+                categoriaSeleccionada !== 0) && (
                 <button className="limpiar-filtros-btn" onClick={limpiarFiltros}>
                   🗑️ Limpiar todos los filtros
                 </button>
-              )}
-
-              {/* Resumen de filtros activos */}
-              {(filtroValoracion.length > 0 || filtroDistancia) && (
-                <div className="filtros-resumen">
-                  <p className="resumen-titulo">Filtros activos:</p>
-                  {filtroValoracion.length > 0 && (
-                    <p className="resumen-item">
-                      ⭐ Valoración: {filtroValoracion.join(", ")}
-                    </p>
-                  )}
-                  {filtroDistancia && (
-                    <p className="resumen-item">
-                      📍 Distancia: hasta {filtroDistancia} km
-                    </p>
-                  )}
-                </div>
               )}
             </div>
           </div>
         </div>
       )}
 
-      <div className="filters">
-        {servicios.length > 0 ? (
-          servicios.map((cat, index) => (
-            <button
-              key={index}
-              className={`filter-btn ${
-                categoriaSeleccionada === cat.id ? "active" : ""
-              }`}
-              onClick={() => fetchEmpresas(cat.id)}
-            >
-              {cat.nombre || cat.name || cat.categoria}
-            </button>
-          ))
-        ) : (
-          <p className="loading-text">Cargando categorías...</p>
-        )}
-      </div>
+       {/* Chips de Filtros Activos */}
+      {(filtroValoracion.length > 0 || 
+        filtroDistancia || 
+        categoriaSeleccionada !== 0) && (
+        <div className="filtros-aplicados">
+          <h4 className="filtros-aplicados-titulo">Filtros aplicados</h4>
+          <div className="filtros-chips-container">
+            {/* Chip de Categoría */}
+            {categoriaSeleccionada !== 0 && (
+              <div className="filtro-chip">
+                <span className="filtro-chip-texto">
+                  🏷️ {getNombreCategoria(categoriaSeleccionada)}
+                </span>
+                <button
+                  className="filtro-chip-close"
+                  onClick={() => removerFiltroIndividual('categoria', categoriaSeleccionada)}
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* Chips de Valoración */}
+            {filtroValoracion.map((val) => (
+              <div key={val} className="filtro-chip">
+                <span className="filtro-chip-texto">⭐ {val} estrellas</span>
+                <button
+                  className="filtro-chip-close"
+                  onClick={() => removerFiltroIndividual('valoracion', val)}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+
+            {/* Chip de Distancia */}
+            {filtroDistancia && (
+              <div className="filtro-chip">
+                <span className="filtro-chip-texto">
+                  📍 Hasta {filtroDistancia} km
+                </span>
+                <button
+                  className="filtro-chip-close"
+                  onClick={() => removerFiltroIndividual('distancia')}
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {loading && <p className="loading-text">Cargando negocios...</p>}
       {error && <p className="error-text">{error}</p>}
