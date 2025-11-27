@@ -238,6 +238,24 @@ body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
+/* Estilo específico para valoraciones en fila */
+.filtro-opciones-horizontal {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filtro-opciones-horizontal .modal-filter-btn {
+  flex: 1;
+  min-width: 70px;
+  text-align: center;
+}
+
+.filtro-opciones-horizontal .modal-filter-btn:hover {
+  transform: translateY(-2px);
+}
+
 /* Botón de ubicación */
 .ubicacion-btn {
   width: 100%;
@@ -348,6 +366,89 @@ body {
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
+/* Filtros Aplicados - Chips */
+.filtros-aplicados {
+  background-color: #f8f9fa;
+  padding: 16px;
+  margin: 0 16px 20px;
+  border-radius: 12px;
+  border-left: 4px solid #e25b7a;
+}
+
+.filtros-aplicados-titulo {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 12px 0;
+}
+
+.filtros-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filtro-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: white;
+  border: 1px solid #e25b7a;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #e25b7a;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  animation: slideInChip 0.3s ease;
+}
+
+@keyframes slideInChip {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filtro-chip:hover {
+  background-color: #fff3f5;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(226, 91, 122, 0.2);
+}
+
+.filtro-chip-texto {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filtro-chip-close {
+  background: none;
+  border: none;
+  color: #e25b7a;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.filtro-chip-close:hover {
+  background-color: #e25b7a;
+  color: white;
+  transform: rotate(90deg);
+}
+
 /* Secciones */
 .section {
   padding: 0 16px;
@@ -384,28 +485,16 @@ body {
   align-items: center;
 }
 
-.emoji-box.small {
-  font-size: 40px;
+.recommended-card .emoji-box.small {
   height: 100px;
-}
-
-.highlight-card {
-  border-radius: 16px;
-  overflow: hidden;
-  cursor: pointer;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.highlight-info {
-  padding: 10px;
-}
-
-.highlight-info h4 {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
+  padding: 0;
+  border-radius: 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Tarjetas recomendadas */
