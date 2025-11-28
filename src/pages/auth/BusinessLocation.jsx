@@ -75,7 +75,7 @@ export default function BusinessLocation({ onNext, onBack, setMessage, setType, 
         <div className={`notification ${type === "error" ? "error" : ""}`}>
             {message}
         </div>
-    )}
+      )}
 
       <p className="business-subtitle">
         Selecciona la manera en la que sueles trabajar
@@ -96,31 +96,43 @@ export default function BusinessLocation({ onNext, onBack, setMessage, setType, 
         </button>
       </div>
 
+      {/* Guía de uso del mapa */}
+      <div className="map-guide">
+        <div className="guide-header">
+          <span className="guide-icon">🗺️</span>
+          <span className="guide-title">Instrucciones del mapa:</span>
+        </div>
+        <div className="guide-content">
+          <p>1. <strong>Haz clic</strong> en el mapa para colocar tu ubicación</p>
+          <p>2. <strong>Arrastra</strong> el marcador para ajustar la posición</p>
+          <p>3. <strong>Usa el zoom</strong> para mayor precisión</p>
+          <p>4. <strong>Verifica</strong> que la dirección sea correcta</p>
+        </div>
+      </div>
+
       <div className="input-group">
         <label className="input-label">Dirección de tu negocio</label>
         <div className="input-with-icon">
           <input
             type="text"
-            placeholder="Tu negocio"
+            placeholder="Ingresa la dirección completa de tu negocio"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             className="address-input"
           />
           <span className="icon-location">📍</span>
         </div>
-        <div>
-          <div style={{ height: 300, marginTop: 8 }}>
-            <MapPicker
-              value={pickedLocation}
-              onChange={handlePickChange}
-              center={center}
-              zoom={14}
-              height="100%"
-              width="100%"
-              markerColor="#e25b7a"
-              radius={mode === 'domicilio' ? radius : null}
-            />
-          </div>
+        <div className="map-container">
+          <MapPicker
+            value={pickedLocation}
+            onChange={handlePickChange}
+            center={center}
+            zoom={14}
+            height="100%"
+            width="100%"
+            markerColor="#e25b7a"
+            radius={mode === 'domicilio' ? radius : null}
+          />
         </div>
       </div>
 
