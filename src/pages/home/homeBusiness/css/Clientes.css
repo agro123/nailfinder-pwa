@@ -136,12 +136,12 @@
 }
 
 .btn-eliminar {
-  background-color: #e25b7a;
-  color: white;
+  background: #ccc; 
+  color: #333;
 }
 
 .btn-eliminar:hover {
-  background-color: #d14868;
+  background: #b3b3b3;
   transform: scale(1.05);
 }
 
