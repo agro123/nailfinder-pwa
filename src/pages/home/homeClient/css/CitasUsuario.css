@@ -490,8 +490,8 @@
   justify-content: center;
 }
 
-.btn-confirmar-no,
-.btn-confirmar-si {
+.btn-confirmar-no-cliente-cita,
+.btn-confirmar-si-cliente-cita {
   padding: 10px 20px;
   border: none;
   border-radius: 10px;
@@ -502,28 +502,28 @@
   flex: 1;
 }
 
-.btn-confirmar-no {
+.btn-confirmar-no-cliente-cita {
   background-color: #e8e8e8;
   color: #555;
 }
 
-.btn-confirmar-no:hover:not(:disabled) {
+.btn-confirmar-no-cliente-cita:hover:not(:disabled) {
   background-color: #d0d0d0;
 }
 
-.btn-confirmar-si {
+.btn-confirmar-si-cliente-cita {
   background-color: #e25b7a;
   color: white;
 }
 
-.btn-confirmar-si:hover:not(:disabled) {
+.btn-confirmar-si-cliente-cita:hover:not(:disabled) {
   background-color: #d44a68;
   transform: translateY(-1px);
   box-shadow: 0 3px 10px rgba(226, 91, 122, 0.3);
 }
 
-.btn-confirmar-no:disabled,
-.btn-confirmar-si:disabled {
+.btn-confirmar-no-cliente-cita:disabled,
+.btn-confirmar-si-cliente-cita:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
