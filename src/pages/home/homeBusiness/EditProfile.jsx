@@ -465,26 +465,38 @@ export default function EditProfile() {
     }
   };
 
-  const handleToggleHorario = async (horarioId) => {
+  const handleToggleHorario = async (horarioId, currentStatus) => {
     try {
+      // 🔥 CORRECCIÓN: Cambiar "horario_id" por "id_horario" y enviar el nuevo status
+      const body = {
+        id_horario: horarioId,
+        status: !currentStatus, // Invertir el estado actual
+        id_company: companyData?.company_id // Agregar company_id que espera el backend
+      };
+
+      console.log("📤 Enviando datos para activar/desactivar:", body);
+
       const resp = await fetch('http://localhost:3000/api/public/activeInactiveHorario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ horario_id: horarioId }),
-      })
-      const data = await resp.json()
+        body: JSON.stringify(body),
+      });
+
+      const data = await resp.json();
+      console.log("📥 Respuesta del servidor:", data);
+
       if (data.success) {
-        showAlert("Horario actualizado correctamente", "success")
+        showAlert("Horario actualizado correctamente", "success");
         // Recargar horarios
         if (companyData?.company_id) {
-          fetchHorarios(companyData.company_id)
+          fetchHorarios(companyData.company_id);
         }
       } else {
-        showAlert("Error al actualizar el horario", "error")
+        showAlert(`Error al actualizar el horario: ${data.message || 'Error desconocido'}`, "error");
       }
     } catch (error) {
-      console.error('Error activando/desactivando horario:', error)
-      showAlert("Error al actualizar el horario", "error")
+      console.error('Error activando/desactivando horario:', error);
+      showAlert("Error de conexión al actualizar el horario", "error");
     }
   }
 
@@ -648,7 +660,7 @@ export default function EditProfile() {
                 </div>
                 <button 
                   className={`toggle-button ${h.isopen ? 'btn-inactive' : 'btn-active'}`}
-                  onClick={() => handleToggleHorario(h.id)}
+                  onClick={() => handleToggleHorario(h.id, h.isopen)}
                 >
                   {h.isopen ? "Desactivar" : "Activar"}
                 </button>

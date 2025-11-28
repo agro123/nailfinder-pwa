@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import "./css/AddService.css"; 
 
 export default function EditService() {
@@ -20,14 +21,27 @@ export default function EditService() {
   // ⚠️ Si no hay datos (por recarga directa), avisar y volver atrás
   useEffect(() => {
     if (!servicio) {
-      alert("No se pudo cargar la información del servicio.");
-      navigate("/servicios");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo cargar la información del servicio.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#e25b7a'
+      }).then(() => {
+        navigate("/servicios");
+      });
     }
   }, [servicio, navigate]);
 
   const handleGuardar = async () => {
     if (!nombre || !precio) {
-      alert("Por favor, completa todos los campos obligatorios.");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Por favor, completa todos los campos obligatorios.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#e25b7a'
+      });
       return;
     }
 
@@ -59,21 +73,56 @@ export default function EditService() {
 
       const data = await res.json();
       if (data.success) {
-        alert("✅ Servicio actualizado correctamente");
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: 'Servicio actualizado correctamente',
+          confirmButtonText: 'Continuar',
+          confirmButtonColor: '#4caf50',
+          timer: 2000,
+          showConfirmButton: true
+        });
         navigate("/servicios");
       } else {
         console.error("Respuesta del servidor:", data);
-        alert("❌ No se pudo actualizar el servicio");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo actualizar el servicio',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#e25b7a'
+        });
       }
     } catch (error) {
       console.error("Error al editar el servicio:", error);
-      alert("Error al conectar con el servidor");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de conexión',
+        text: 'Error al conectar con el servidor',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#e25b7a'
+      });
     } finally {
       setGuardando(false);
     }
   };
 
-  const handleCancelar = () => navigate("/servicios");
+  const handleCancelar = () => {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Los cambios no guardados se perderán',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e25b7a',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, cancelar',
+      cancelButtonText: 'Seguir editando'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate("/servicios");
+      }
+    });
+  };
 
   return (
     <div className="form-container">
