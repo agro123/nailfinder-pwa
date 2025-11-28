@@ -85,7 +85,7 @@ export default function Clientes() {
       if (cliente.foto.startsWith('http') || cliente.foto.startsWith('/')) return cliente.foto
       return `data:image/png;base64,${cliente.foto}`
     }
-    return '/img/default-user.jpg'
+    return '/img/photo_default.jpg'
   }
 
   // Abrir modal

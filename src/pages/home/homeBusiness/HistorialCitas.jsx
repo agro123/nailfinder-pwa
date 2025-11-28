@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./css/HistorialCitas.css";
 import { useAuth } from "../../../context/AuthContext";
+import { ChevronLeft } from "lucide-react";
 
 const HistorialCitas = () => {
   const { user } = useAuth();
@@ -214,8 +215,8 @@ const HistorialCitas = () => {
   return (
     <div className="history-container">
         
-      <button className="history-back-btn" onClick={() => window.history.back()}>
-        ← Volver
+      <button className="back-button" onClick={() => window.history.back()}>
+        <ChevronLeft size={30} />
       </button>
 
       <h2>Historial de Citas (Últimos 10 días)</h2>

@@ -381,7 +381,6 @@ export default function Profesionales() {
       {/* Volver */}
       <button className="back-button" onClick={() => navigate("/settings")}>
         <ChevronLeft size={20} />
-        Volver
       </button>
 
       {/* Alertas */}

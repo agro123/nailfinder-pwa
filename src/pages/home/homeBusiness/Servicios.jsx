@@ -212,11 +212,13 @@ export default function ServiciosBusiness() {
       )}
 
       <div className="floating-buttons">
-        <button className="floating-btn secondary" onClick={handleAddCategoria}>
+        <button className="floating-btn secondary tooltip" onClick={handleAddCategoria}>
           <Layers size={22} />
+          <span className="tooltip-text">Agregar categoría</span>
         </button>
-        <button className="floating-btn primary" onClick={handleAddServicio}>
+        <button className="floating-btn primary tooltip" onClick={handleAddServicio}>
           <Plus size={24} />
+          <span className="tooltip-text">Agregar servicio</span>
         </button>
       </div>
 

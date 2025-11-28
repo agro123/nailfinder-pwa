@@ -526,12 +526,12 @@
 
 .prof-container .bottom-sheet button.edit {
   border: 1px solid #fce2e8;
-  color: #e25b7a;
-  background: #fff7f9;
+  color: #4a78a8;
+  background: #d7eaff;
 }
 
 .prof-container .bottom-sheet button.edit:hover {
-  background: #ffe6eb;
+  background: #c3ddff;
 }
 
 .prof-container .bottom-sheet button.delete {
