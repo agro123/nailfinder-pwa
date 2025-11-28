@@ -79,43 +79,43 @@ export default function EditService() {
     <div className="form-container">
       <h2>Editar servicio</h2>
       
-      <div className="field tooltip">
+      <div className="field tooltip-servicio">
         <input
           type="text"
           placeholder="Nombre del servicio"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
         />
-        <span className="tooltip-text">Nombre del servicio</span>
+        <span className="tooltip-servicio-text">Nombre del servicio</span>
       </div>
 
-      <div className="field tooltip">
+      <div className="field tooltip-servicio">
         <textarea
           placeholder="Descripción"
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
         />
-        <span className="tooltip-text">Descripción del servicio</span>
+        <span className="tooltip-servicio-text">Descripción del servicio</span>
       </div>
 
-      <div className="field tooltip">
+      <div className="field tooltip-servicio">
         <input
           type="number"
           placeholder="Precio (COP)"
           value={precio}
           onChange={(e) => setPrecio(e.target.value)}
         />
-        <span className="tooltip-text">Costo del servicio en pesos colombianos</span>
+        <span className="tooltip-servicio-text">Costo del servicio en pesos colombianos</span>
       </div>
 
-      <div className="field tooltip">
+      <div className="field tooltip-servicio">
         <input
           type="text"
           placeholder="Duración (opcional)"
           value={duracion}
           onChange={(e) => setDuracion(e.target.value)}
         />
-        <span className="tooltip-text">Tiempo aproximado del servicio (minutos)</span>
+        <span className="tooltip-servicio-text">Tiempo aproximado del servicio (minutos)</span>
       </div>
 
       {/*<input
