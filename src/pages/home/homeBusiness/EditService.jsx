@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import "./css/AddService.css"; 
 
 export default function EditService() {
@@ -20,14 +21,27 @@ export default function EditService() {
   // ⚠️ Si no hay datos (por recarga directa), avisar y volver atrás
   useEffect(() => {
     if (!servicio) {
-      alert("No se pudo cargar la información del servicio.");
-      navigate("/servicios");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo cargar la información del servicio.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#e25b7a'
+      }).then(() => {
+        navigate("/servicios");
+      });
     }
   }, [servicio, navigate]);
 
   const handleGuardar = async () => {
     if (!nombre || !precio) {
-      alert("Por favor, completa todos los campos obligatorios.");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Por favor, completa todos los campos obligatorios.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#e25b7a'
+      });
       return;
     }
 
@@ -59,63 +73,98 @@ export default function EditService() {
 
       const data = await res.json();
       if (data.success) {
-        alert("✅ Servicio actualizado correctamente");
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Éxito!',
+          text: 'Servicio actualizado correctamente',
+          confirmButtonText: 'Continuar',
+          confirmButtonColor: '#4caf50',
+          timer: 2000,
+          showConfirmButton: true
+        });
         navigate("/servicios");
       } else {
         console.error("Respuesta del servidor:", data);
-        alert("❌ No se pudo actualizar el servicio");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo actualizar el servicio',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#e25b7a'
+        });
       }
     } catch (error) {
       console.error("Error al editar el servicio:", error);
-      alert("Error al conectar con el servidor");
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de conexión',
+        text: 'Error al conectar con el servidor',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#e25b7a'
+      });
     } finally {
       setGuardando(false);
     }
   };
 
-  const handleCancelar = () => navigate("/servicios");
+  const handleCancelar = () => {
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Los cambios no guardados se perderán',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e25b7a',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sí, cancelar',
+      cancelButtonText: 'Seguir editando'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate("/servicios");
+      }
+    });
+  };
 
   return (
     <div className="form-container">
       <h2>Editar servicio</h2>
       
-      <div className="field tooltip">
+      <div className="field tooltip-servicio">
         <input
           type="text"
           placeholder="Nombre del servicio"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
         />
-        <span className="tooltip-text">Nombre del servicio</span>
+        <span className="tooltip-servicio-text">Nombre del servicio</span>
       </div>
 
-      <div className="field tooltip">
+      <div className="field tooltip-servicio">
         <textarea
           placeholder="Descripción"
           value={descripcion}
           onChange={(e) => setDescripcion(e.target.value)}
         />
-        <span className="tooltip-text">Descripción del servicio</span>
+        <span className="tooltip-servicio-text">Descripción del servicio</span>
       </div>
 
-      <div className="field tooltip">
+      <div className="field tooltip-servicio">
         <input
           type="number"
           placeholder="Precio (COP)"
           value={precio}
           onChange={(e) => setPrecio(e.target.value)}
         />
-        <span className="tooltip-text">Costo del servicio en pesos colombianos</span>
+        <span className="tooltip-servicio-text">Costo del servicio en pesos colombianos</span>
       </div>
 
-      <div className="field tooltip">
+      <div className="field tooltip-servicio">
         <input
           type="text"
           placeholder="Duración (opcional)"
           value={duracion}
           onChange={(e) => setDuracion(e.target.value)}
         />
-        <span className="tooltip-text">Tiempo aproximado del servicio (minutos)</span>
+        <span className="tooltip-servicio-text">Tiempo aproximado del servicio (minutos)</span>
       </div>
 
       {/*<input

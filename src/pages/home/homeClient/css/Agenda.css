@@ -285,38 +285,15 @@ body {
   background-color: #d04a6d;
 }
 
-/* --- Modal de éxito ✅ --- */
-.exito-cita {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 30px;
-  text-align: center;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-  width: 300px;
-  animation: fadeIn 0.3s ease-in-out;
+.boton-alert-agenda {
+  background-color: #e25b7a !important;
+  transition: all 0.3s ease;
 }
 
-.check-icon {
-  font-size: 60px;
-  color: #2ecc71;
-  margin-bottom: 15px;
-  animation: pop 0.4s ease;
-}
-
-.exito-cita h3 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #2c3e50;
-}
-
-.exito-cita p {
-  margin-top: 10px;
-  font-size: 1rem;
-  color: #555;
+.boton-alert-agenda:hover {
+  background-color: #d1497a !important;  /* Verde más oscuro */
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 /* --- Overlay general --- */
