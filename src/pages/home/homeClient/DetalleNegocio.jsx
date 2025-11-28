@@ -456,7 +456,7 @@ export default function DetalleNegocio() {
                                     onError={(e) => (e.target.style.display = "none")}
                                 />
                             ) : (
-                                <div className="emoji-box">💅</div>
+                                <div className="emoji-box servicio-img">💅</div>
                             )}
                         </div>
                         <div className="servicio-body">
