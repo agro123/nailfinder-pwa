@@ -148,35 +148,31 @@
   font-style: sans-serif;
 }
 
-
-
-
-/* 🌸 Estado del negocio */
-.estado {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  color: #444;
+/* ðŸ†• Estado dinámico en detalle */
+.status-container-detalle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 500;
 }
 
-/* 🔵 Círculo de estado (abierto/cerrado) */
-.estado::before {
-  content: "";
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+.company-status-dot-detalle {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
 }
 
-/* Verde si está abierto */
-.estado.abierto::before {
-  background-color: #4caf50;
+.company-status-dot-detalle.active {
+    background-color: #4caf50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
 }
 
-/* Rojo si está cerrado */
-.estado.cerrado::before {
-  background-color: #f44336;
+.company-status-dot-detalle.inactive {
+    background-color: #f7b6b6;
+    box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
 }
 
 /* 🌸 Lista de categorías */

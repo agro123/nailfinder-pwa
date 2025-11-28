@@ -29,6 +29,8 @@ export default function DetalleNegocio() {
 
     const [horarios, setHorarios] = useState([]);
     const [loadingHorarios, setLoadingHorarios] = useState(true);
+
+    const [horaActual, setHoraActual] = useState(new Date());
  
 
     // Normalizar para evitar problemas con tildes
@@ -37,6 +39,34 @@ export default function DetalleNegocio() {
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
             .toLowerCase();
+    };
+
+    const obtenerDiaActual = () => {
+        const dias = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
+        const hoy = new Date().getDay();
+        return dias[hoy];
+    };
+
+    // ðŸ†• AGREGAR ESTA FUNCIÓN:
+    const estaAbierto = () => {
+        if (!horarios || horarios.length === 0) {
+            return false;
+        }
+
+        const diaActual = obtenerDiaActual();
+        const horaActualString = `${horaActual.getHours().toString().padStart(2, '0')}:${horaActual.getMinutes().toString().padStart(2, '0')}:00`;
+
+        const horariosHoy = horarios.filter(h => normalize(h.weekday) === diaActual);
+
+        if (horariosHoy.length === 0) {
+            return false;
+        }
+
+        return horariosHoy.some(horario => {
+            const inicio = horario.starthour;
+            const fin = horario.endhour;
+            return horaActualString >= inicio && horaActualString <= fin;
+        });
     };
 
     const order = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
@@ -172,6 +202,21 @@ export default function DetalleNegocio() {
         document.body.style.overflow = "";
         };
     }, [imagenAmpliada]);
+
+    useEffect(() => {
+        if (!negocio?.company_id) return;
+
+        setLoadingHorarios(true);
+        fetchHorarios(negocio.company_id).finally(() => setLoadingHorarios(false));
+    }, [negocio]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setHoraActual(new Date());
+        }, 60000); // Cada 60 segundos
+
+        return () => clearInterval(interval);
+    }, []);
 
     if (!negocio) {
         return (
@@ -387,9 +432,10 @@ export default function DetalleNegocio() {
             <p>📞 <strong>Teléfono:</strong> {negocio.company_phone || "No disponible"}</p>
             <p>📧 <strong>Email:</strong> {negocio.user_email || "No registrado"}</p>
             <p>🏠 <strong>Tipo de negocio:</strong> {negocio.business_type}</p>
-            <p className={`estado ${negocio.status ? "abierto" : "cerrado"}`}>
-                {negocio.status ? "Abierto" : "Cerrado"}
-            </p>
+            <div className="status-container-detalle">
+                <span className={`company-status-dot-detalle ${estaAbierto() ? "active" : "inactive"}`}></span>
+                <span>{estaAbierto() ? "Abierto ahora" : "Cerrado"}</span>
+            </div>
             </div>
         </div>
 
