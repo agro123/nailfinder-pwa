@@ -564,14 +564,14 @@ export default function CitasUsuario() {
 
             <div className="modal-actions">
               <button 
-                className="btn-confirmar-no" 
+                className="btn-confirmar-no-cliente-cita" 
                 onClick={cerrarModalConfirmacion}
                 disabled={cancelando}
               >
                 No, mantener
               </button>
               <button 
-                className="btn-confirmar-si" 
+                className="btn-confirmar-si-cliente-cita" 
                 onClick={cancelarCita}
                 disabled={cancelando}
               >
@@ -641,14 +641,14 @@ export default function CitasUsuario() {
 
             <div className="modal-actions">
               <button 
-                className="btn-confirmar-no" 
+                className="btn-confirmar-no-cliente-cita" 
                 onClick={cerrarModalCalificacion}
                 disabled={enviandoResena}
               >
                 Cancelar
               </button>
               <button 
-                className="btn-confirmar-si" 
+                className="btn-confirmar-si-cliente-cita" 
                 onClick={enviarCalificacion}
                 disabled={enviandoResena}
               >
