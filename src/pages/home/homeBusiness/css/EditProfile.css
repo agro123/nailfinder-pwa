@@ -854,13 +854,81 @@ input[type="time"].horario-input {
   padding: 20px;
   border: 1px solid #e0e0e0;
   border-radius: 12px;
-  background: #f9f9f9;
+  background: #fff7f9;
 }
 
-.radius-slider {
-  width: 100%;
-  margin: 10px 0;
+.work-radius-section h3 {
+  margin-bottom: 12px;
+  color: #e25b7a;
+  font-size: 1.2rem;
 }
+
+.work-radius-section h4 {
+  margin-bottom: 10px;
+  color: #e25b7a;
+  font-size: 1rem;
+}
+
+
+.radius-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 5px;
+  background: transparent;
+  outline: none;
+  position: relative;
+}
+
+/* Webkit (Chrome, Edge, Safari) */
+.radius-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 5px;
+  background: linear-gradient(
+    to right,
+    #e25b7a var(--value-percent),
+    #ddd var(--value-percent)
+  );
+}
+
+.radius-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background: #e25b7a;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 3px solid white;
+  cursor: pointer;
+  margin-top: -7px; /* Centrar thumb */
+}
+
+/* Firefox */
+.radius-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 5px;
+  background: linear-gradient(
+    to right,
+    #e25b7a var(--value-percent),
+    #ddd var(--value-percent)
+  );
+}
+
+.radius-slider::-moz-range-progress {
+  background-color: #e25b7a;
+  height: 6px;
+}
+
+.radius-slider::-moz-range-thumb {
+  background: #e25b7a;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 3px solid white;
+  cursor: pointer;
+}
+
+
 
 .radius-value {
   text-align: center;
