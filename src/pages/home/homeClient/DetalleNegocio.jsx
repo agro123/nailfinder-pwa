@@ -325,6 +325,7 @@ export default function DetalleNegocio() {
         })}`;
     };
 
+    const round1 = n => Math.round(n * 10) / 10;
 
     return (
         <div className="detalle-container">
@@ -358,14 +359,14 @@ export default function DetalleNegocio() {
                 e.target.onerror = null;
                 e.target.replaceWith(
                     Object.assign(document.createElement("div"), {
-                    className: "emoji-box big",
+                    className: "default-image-container  detalle-logo",
                     textContent: "🌸",
                     })
                 );
                 }}
             />
             ) : (
-            <div className="emoji-box big">🌸</div>
+                <div className="default-image-container  detalle-logo">🌸</div>
             )}
 
             <div className="detalle-info">
@@ -374,7 +375,7 @@ export default function DetalleNegocio() {
                 <span className="estrella">⭐</span>
                 {negocio.promedio_calificacion ? (
                 <>
-                    <span className="rating-valor">{negocio.promedio_calificacion}</span>
+                    <span className="rating-valor">{round1(negocio.promedio_calificacion)}</span>
                     <span className="rating-total">
                     ({negocio.calificaciones?.length || 0} Reseñas)
                     </span>

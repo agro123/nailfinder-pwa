@@ -536,6 +536,15 @@
 }
 
 
+.default-image-container {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff4f8;
+  border: 2px solid #f8b7cd;
+  border-radius: 16px;
+}
 
 /* 🌸 Emoji Box */
 .emoji-box.big {
