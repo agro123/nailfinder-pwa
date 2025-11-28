@@ -12,6 +12,25 @@ export default function RegisterBusiness() {
   const [message, setMessage] = useState("");
   const [type, setType] = useState(""); 
   const [step, setStep] = useState(1);
+  
+  // Estados para modales
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [modalTitulo, setModalTitulo] = useState("");
+  const [modalMensaje, setModalMensaje] = useState("");
+  const [modalTipo, setModalTipo] = useState(""); // success, error, warning
+  const [modalRedireccion, setModalRedireccion] = useState(false);
+
+  // Estados para errores de validación en tiempo real
+  const [errores, setErrores] = useState({
+    name: "",
+    email: "",
+    companyname: "",
+    nit: "",
+    password: "",
+    phone: "",
+    profilePhoto: ""
+  });
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -28,10 +47,103 @@ export default function RegisterBusiness() {
   const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);
 
-  // --- MANEJO DE FOTO ---
+  // --- FUNCIONES PARA MANEJAR MODALES ---
+  const mostrarModal = (titulo, mensaje, tipo = "info", redireccion = false) => {
+    setModalTitulo(titulo);
+    setModalMensaje(mensaje);
+    setModalTipo(tipo);
+    setModalRedireccion(redireccion);
+    setModalAbierto(true);
+  };
+
+  const cerrarModal = () => {
+    setModalAbierto(false);
+    if (modalRedireccion) {
+      navigate("/login");
+    }
+  };
+
+  // --- VALIDACIONES EN TIEMPO REAL ---
+  const validarNombre = (nombre) => {
+    if (!nombre.trim()) return "El nombre completo es obligatorio";
+    if (nombre.length < 2) return "El nombre debe tener al menos 2 caracteres";
+    if (nombre.length > 50) return "El nombre es demasiado largo";
+    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(nombre)) return "Solo se permiten letras y espacios";
+    return "";
+  };
+
+  const validarEmail = (email) => {
+    if (!email.trim()) return "El correo electrónico es obligatorio";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return "Ingresa un correo electrónico válido";
+    return "";
+  };
+
+  const validarNombreNegocio = (nombre) => {
+    if (!nombre.trim()) return "El nombre del negocio es obligatorio";
+    if (nombre.length < 2) return "El nombre del negocio debe tener al menos 2 caracteres";
+    if (nombre.length > 100) return "El nombre del negocio es demasiado largo";
+    return "";
+  };
+
+  const validarNIT = (nit) => {
+    if (nit && !/^\d{5,15}$/.test(nit.replace(/\s/g, ''))) {
+      return "El NIT debe contener solo números (5-15 dígitos)";
+    }
+    return "";
+  };
+
+  const validarPassword = (password) => {
+    if (!password) return "La contraseña es obligatoria";
+    if (password.length < 8) return "La contraseña debe tener al menos 6 caracteres";
+    if (password.length > 50) return "La contraseña es demasiado larga";
+    if (!/(?=.*[a-z])(?=.*[A-Z])/.test(password)) {
+      return "La contraseña debe contener mayúsculas y minúsculas";
+    }
+    if (!/(?=.*\d)/.test(password)) {
+      return "La contraseña debe contener al menos un número";
+    }
+    if (!/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(password)) {
+      return "La contraseña debe contener al menos un símbolo (!@#$%^&* etc.)";
+    }
+    return "";
+  };
+
+  const validarTelefono = (telefono) => {
+    if (!telefono.trim()) return "El teléfono es obligatorio";
+    const telefonoRegex = /^[\d\s+\-()]{10,15}$/;
+    if (!telefonoRegex.test(telefono)) return "Ingresa un número de teléfono válido";
+    if (telefono.replace(/\D/g, '').length < 10) return "El teléfono debe tener al menos 10 dígitos";
+    return "";
+  };
+
+  const validarLogo = (logo) => {
+    if (!logo) return "El logo del negocio es obligatorio";
+    return "";
+  };
+
+  // --- MANEJADORES DE CAMBIOS CON VALIDACIÓN ---
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      setErrores(prev => ({
+        ...prev,
+        profilePhoto: "Solo se permiten archivos de imagen"
+      }));
+      return;
+    }
+
+    // Validar tamaño (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrores(prev => ({
+        ...prev,
+        profilePhoto: "La imagen no debe superar los 5MB"
+      }));
+      return;
+    }
 
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -45,24 +157,85 @@ export default function RegisterBusiness() {
         },
         profilePreview: reader.result,
       });
+      
+      // Limpiar error de logo
+      setErrores(prev => ({
+        ...prev,
+        profilePhoto: ""
+      }));
     };
     reader.readAsDataURL(file);
   };
 
-  const validateStep1 = () => {
-    if (
-      !formData.name.trim() ||
-      !formData.email.trim() ||
-      !formData.password.trim() ||
-      !formData.phone.trim()
-    ) {
-      setType("error");
-      setMessage("⚠️ Completa todos los campos obligatorios.");
-      setTimeout(() => setMessage(""), 2500);
+  const handleChange = (campo, valor) => {
+    // Actualizar el formulario
+    setFormData(prev => ({
+      ...prev,
+      [campo]: valor
+    }));
+
+    // Validar en tiempo real
+    let error = "";
+    switch (campo) {
+      case 'name':
+        error = validarNombre(valor);
+        break;
+      case 'email':
+        error = validarEmail(valor);
+        break;
+      case 'companyname':
+        error = validarNombreNegocio(valor);
+        break;
+      case 'nit':
+        error = validarNIT(valor);
+        break;
+      case 'password':
+        error = validarPassword(valor);
+        break;
+      case 'phone':
+        error = validarTelefono(valor);
+        break;
+      default:
+        break;
+    }
+
+    setErrores(prev => ({
+      ...prev,
+      [campo]: error
+    }));
+  };
+
+  // --- VALIDACIÓN GENERAL DEL FORMULARIO ---
+  const validarFormularioCompleto = () => {
+    const nuevosErrores = {
+      name: validarNombre(formData.name),
+      email: validarEmail(formData.email),
+      companyname: validarNombreNegocio(formData.companyname),
+      nit: validarNIT(formData.nit),
+      password: validarPassword(formData.password),
+      phone: validarTelefono(formData.phone),
+      profilePhoto: validarLogo(formData.profilePhoto)
+    };
+
+    setErrores(nuevosErrores);
+
+    // Verificar si hay algún error
+    const hayErrores = Object.values(nuevosErrores).some(error => error !== "");
+    
+    if (hayErrores) {
+      mostrarModal(
+        "Errores en el formulario", 
+        "Por favor corrige los errores marcados en rojo antes de continuar.", 
+        "error"
+      );
       return false;
     }
 
     return true;
+  };
+
+  const validateStep1 = () => {
+    return validarFormularioCompleto();
   };
 
   const handleRegister = async (dataToSend = formData) => {
@@ -105,20 +278,44 @@ export default function RegisterBusiness() {
         throw new Error(result.message || "Error en el registro de la empresa");
       }
 
-      setType("success");
-      setMessage("✅ Registro completado con éxito.");
-      setTimeout(() => navigate("/login"), 2000);
+      mostrarModal(
+        "¡Registro exitoso! 🎉", 
+        "✅ Tu negocio ha sido registrado correctamente.", 
+        "success", 
+        true
+      );
     } catch (error) {
       console.error("❌ Error de conexión o validación:", error);
-      setType("error");
-      setMessage("❌ No se pudo registrar el negocio.");
-      setTimeout(() => setMessage(""), 2500);
+      mostrarModal(
+        "Error en el registro", 
+        "❌ No se pudo registrar el negocio. Por favor, intenta nuevamente.", 
+        "error"
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const cancelar = () => navigate("/login");
+  const cancelar = () => {
+    mostrarModal(
+      "¿Cancelar registro?",
+      "Si cancelas, perderás toda la información ingresada. ¿Estás seguro de que deseas volver al login?",
+      "warning"
+    );
+  };
+
+  const confirmarCancelacion = () => {
+    setModalAbierto(false);
+    navigate("/login");
+  };
+
+  // Función para determinar la clase CSS del input basado en el error
+  const getInputClassName = (campo) => {
+    const baseClass = "business-input";
+    if (errores[campo]) return `${baseClass} input-error`;
+    if (formData[campo] && !errores[campo]) return `${baseClass} input-success`;
+    return baseClass;
+  };
 
   return (
     <div className="business-register-container">
@@ -132,12 +329,6 @@ export default function RegisterBusiness() {
           />
 
           <h2 className="business-title">Registro de Manicurista</h2>
-
-          {message && (
-            <div className={`notification ${type === "error" ? "error" : ""}`}>
-              {message}
-            </div>
-          )}
 
           {/* Logo */}
           <div className="logo-section">
@@ -164,66 +355,78 @@ export default function RegisterBusiness() {
               onChange={handleImageChange}
               style={{ display: "none" }}
             />
+            
+            {/* Mensaje de error para el logo */}
+            {errores.profilePhoto && (
+              <div className="error-mensaje">{errores.profilePhoto}</div>
+            )}
           </div>
 
-          <input
-            type="text"
-            placeholder="Nombre completo"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="business-input"
-          />
+          <div className="input-group">
+            <input
+              type="text"
+              placeholder="Nombre completo *"
+              value={formData.name}
+              onChange={(e) => handleChange('name', e.target.value)}
+              className={getInputClassName('name')}
+            />
+            {errores.name && <div className="error-mensaje">{errores.name}</div>}
+          </div>
 
-          <input
-            type="email"
-            placeholder="Correo electrónico"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                email: e.target.value.toLowerCase(),
-              })
-            }
-            className="business-input"
-          />
+          <div className="input-group">
+            <input
+              type="email"
+              placeholder="Correo electrónico *"
+              value={formData.email}
+              onChange={(e) => handleChange('email', e.target.value.toLowerCase())}
+              className={getInputClassName('email')}
+            />
+            {errores.email && <div className="error-mensaje">{errores.email}</div>}
+          </div>
 
-          <input
-            type="text"
-            placeholder="Nombre del negocio"
-            value={formData.companyname}
-            onChange={(e) =>
-              setFormData({ ...formData, companyname: e.target.value })
-            }
-            className="business-input"
-          />
+          <div className="input-group">
+            <input
+              type="text"
+              placeholder="Nombre del negocio *"
+              value={formData.companyname}
+              onChange={(e) => handleChange('companyname', e.target.value)}
+              className={getInputClassName('companyname')}
+            />
+            {errores.companyname && <div className="error-mensaje">{errores.companyname}</div>}
+          </div>
 
-          <input
-            type="text"
-            placeholder="NIT"
-            value={formData.nit}
-            onChange={(e) => setFormData({ ...formData, nit: e.target.value })}
-            className="business-input"
-          />
+          <div className="input-group">
+            <input
+              type="text"
+              placeholder="NIT (Opcional)"
+              value={formData.nit}
+              onChange={(e) => handleChange('nit', e.target.value)}
+              className={getInputClassName('nit')}
+            />
+            {errores.nit && <div className="error-mensaje">{errores.nit}</div>}
+          </div>
 
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={formData.password}
-            onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
-            }
-            className="business-input"
-          />
+          <div className="input-group">
+            <input
+              type="password"
+              placeholder="Contraseña *"
+              value={formData.password}
+              onChange={(e) => handleChange('password', e.target.value)}
+              className={getInputClassName('password')}
+            />
+            {errores.password && <div className="error-mensaje">{errores.password}</div>}
+          </div>
 
-          <input
-            type="tel"
-            placeholder="Teléfono de contacto"
-            value={formData.phone}
-            onChange={(e) =>
-              setFormData({ ...formData, phone: e.target.value })
-            }
-            className="business-input"
-          />
+          <div className="input-group">
+            <input
+              type="tel"
+              placeholder="Teléfono de contacto *"
+              value={formData.phone}
+              onChange={(e) => handleChange('phone', e.target.value)}
+              className={getInputClassName('phone')}
+            />
+            {errores.phone && <div className="error-mensaje">{errores.phone}</div>}
+          </div>
 
           <div className="business-buttons">
             <button
@@ -233,11 +436,16 @@ export default function RegisterBusiness() {
                   nextStep();
                 }
               }}
+              disabled={loading}
             >
-              Continuar
+              {loading ? "Procesando..." : "Continuar"}
             </button>
 
-            <button className="business-btn cancel-btn" onClick={cancelar}>
+            <button 
+              className="business-btn cancel-btn" 
+              onClick={cancelar}
+              disabled={loading}
+            >
               Volver
             </button>
           </div>
@@ -265,6 +473,50 @@ export default function RegisterBusiness() {
             message={message}
             type={type}
           />
+        </div>
+      )}
+
+      {/* Modal para notificaciones */}
+      {modalAbierto && (
+        <div className="modal-overlay" onClick={cerrarModal}>
+          <div className="modal-notificacion" onClick={(e) => e.stopPropagation()}>
+            <div className={`modal-icono ${modalTipo}`}>
+              {modalTipo === "success" && "✅"}
+              {modalTipo === "error" && "❌"}
+              {modalTipo === "warning" && "⚠️"}
+              {modalTipo === "info" && "ℹ️"}
+            </div>
+            
+            <h3 className="modal-titulo">{modalTitulo}</h3>
+            
+            <p className="modal-mensaje">{modalMensaje}</p>
+
+            <div className="modal-actions">
+              {modalTipo === "warning" ? (
+                <>
+                  <button 
+                    className="btn-confirmar-no" 
+                    onClick={cerrarModal}
+                  >
+                    Continuar registro
+                  </button>
+                  <button 
+                    className="btn-confirmar-si" 
+                    onClick={confirmarCancelacion}
+                  >
+                    Sí, cancelar
+                  </button>
+                </>
+              ) : (
+                <button 
+                  className={`btn-confirmar-si ${modalTipo}`}
+                  onClick={cerrarModal}
+                >
+                  {modalRedireccion ? "Ir al login" : "Aceptar"}
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
