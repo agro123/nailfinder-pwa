@@ -532,6 +532,15 @@
 }
 
 
+.default-image-container {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff4f8;
+  border: 2px solid #f8b7cd;
+  border-radius: 16px;
+}
 
 /* 🌸 Emoji Box */
 .emoji-box.big {
@@ -718,6 +727,12 @@
 .emoji-box {
   font-size: 2rem;
   text-align: center;
-  padding: 1.5rem 0;
+  min-width: 60px;
 }
 
+.servicio-img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px 12px 0 0;
+}
