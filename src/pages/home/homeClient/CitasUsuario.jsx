@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import "./css/CitasUsuario.css";
+import Swal from 'sweetalert2';
 
 export default function CitasUsuario() {
   const { user } = useAuth();
@@ -15,10 +16,6 @@ export default function CitasUsuario() {
   const [modalConfirmacion, setModalConfirmacion] = useState(false);
   const [citaACancelar, setCitaACancelar] = useState(null);
   
-  const [modalErrorCancelacion, setModalErrorCancelacion] = useState(false);
-  const [mensajeErrorCancelacion, setMensajeErrorCancelacion] = useState("");
-  const [nombreNegocioError, setNombreNegocioError] = useState("");
-
   // Estados para modal de calificación
   const [modalCalificacion, setModalCalificacion] = useState(false);
   const [citaACalificar, setCitaACalificar] = useState(null);
@@ -27,8 +24,6 @@ export default function CitasUsuario() {
   const [descripcionResena, setDescripcionResena] = useState("");
   const [enviandoResena, setEnviandoResena] = useState(false);
   
-  // Estado para modal de éxito
-  const [modalExitoCalificacion, setModalExitoCalificacion] = useState(false);
 
   const obtenerCompanies = async () => {
     try {
@@ -111,14 +106,14 @@ export default function CitasUsuario() {
                 duracionTotal,
                 totalCost: cita.totalcost || 0,
                 datosCompletos: cita,
-                yaCalificada: cita.rated || false, // 🆕 Verificar si ya fue calificada
+                yaCalificada: cita.rated === true || cita.rated === 1,
               });
             });
           }
         });
 
         setTodasLasCitas(citasArray);
-        aplicarFiltro("proximas", citasArray);
+        aplicarFiltro(filtroActivo, citasArray);
       } else {
         setError(response.message || "Error al cargar las citas.");
       }
@@ -161,7 +156,12 @@ export default function CitasUsuario() {
       });
       setCitasFiltradas(proximasCitas);
     } else if (tipoFiltro === "historial") {
-      const historialOrdenado = [...citas].sort((a, b) => {
+
+      const historialFiltrado = citas.filter(cita => 
+        cita.citaPasada || cita.estado === "Cancelada" || cita.estado === "Negada"
+      );
+      
+      const historialOrdenado = [...historialFiltrado].sort((a, b) => {
         const fechaA = new Date(a.fechaOriginal);
         const fechaB = new Date(b.fechaOriginal);
         return fechaB - fechaA;
@@ -196,18 +196,6 @@ export default function CitasUsuario() {
     setCitaACancelar(null);
   };
 
-  const abrirModalError = (mensaje, nombreNegocio) => {
-    setMensajeErrorCancelacion(mensaje);
-    setNombreNegocioError(nombreNegocio);
-    setModalErrorCancelacion(true);
-  };
-
-  const cerrarModalError = () => {
-    setModalErrorCancelacion(false);
-    setMensajeErrorCancelacion("");
-    setNombreNegocioError("");
-  };
-
   const cancelarCita = async () => {
     if (!citaACancelar) return;
 
@@ -227,13 +215,20 @@ export default function CitasUsuario() {
 
       const response = await res.json();
 
-      console.log('🔍 Respuesta del servidor:', response);
+      console.log('📝 Respuesta del servidor:', response);
 
       if (response.success) {
         const mapaCompanies = await obtenerCompanies();
         await obtenerCitas(mapaCompanies);
         cerrarModalConfirmacion();
-        alert('Cita cancelada exitosamente');
+        Swal.fire({
+          title: "Cita cancelada!",
+          icon: "success",
+          draggable: true,
+          customClass: {
+            confirmButton: 'boton-alert-cita'
+          }
+        });
       } else {
         const errorCode = response.code || response.error?.code || response.data?.code;
         const errorMessage = response.message || '';
@@ -245,13 +240,31 @@ export default function CitasUsuario() {
         
         if (esCancelacionTardia) {
           cerrarModalConfirmacion();
-          abrirModalError(
-            response.message || 'La cita está muy próxima a comenzar',
-            citaACancelar.negocio
-          );
+          Swal.fire({
+            title: "No se puede cancelar",
+            html: `
+              <p>${response.message || 'La cita está muy próxima a comenzar'}</p>
+              <p style="margin-top: 15px;">Por favor, comunícate directamente con:</p>
+              <p style="font-weight: bold; color: #333; margin-top: 10px;">${citaACancelar.negocio}</p>
+            `,
+            icon: "warning",
+            draggable: true,
+            customClass: {
+              confirmButton: 'boton-alert-cita'
+            },
+            confirmButtonText: 'OK'
+          });
         } else {
           cerrarModalConfirmacion();
-          alert(response.message || 'Error al cancelar la cita');
+          Swal.fire({
+            title: "No se pudo cancelar",
+            text: response.message || 'Error al cancelar la cita',
+            icon: "error",
+            draggable: true,
+            customClass: {
+              confirmButton: 'boton-alert-cita'
+            }
+          });
         }
       }
     } catch (err) {
@@ -264,10 +277,9 @@ export default function CitasUsuario() {
   };
 
   const calificarCita = (cita) => {
-    // 🆕 Verificar si ya fue calificada
+    // Verificar si ya fue calificada
     if (cita.yaCalificada) {
-      alert("Ya has calificado esta cita anteriormente");
-      return;
+      return; // No abre el modal
     }
     
     setCitaACalificar(cita);
@@ -289,11 +301,25 @@ export default function CitasUsuario() {
     if (!citaACalificar) return;
     
     if (!tituloResena.trim()) {
-      alert("Por favor ingresa un título para tu reseña");
+      Swal.fire({
+        title: "Campo requerido",
+        text: "Por favor ingresa un título para tu reseña",
+        icon: "warning",
+        customClass: {
+          confirmButton: 'boton-alert-cita'
+        }
+      });
       return;
     }
     if (!descripcionResena.trim()) {
-      alert("Por favor ingresa un comentario");
+      Swal.fire({
+        title: "Campo requerido",
+        text: "Por favor ingresa un comentario",
+        icon: "warning",
+        customClass: {
+          confirmButton: 'boton-alert-cita'
+        }
+      });
       return;
     }
 
@@ -322,16 +348,92 @@ export default function CitasUsuario() {
       const response = await res.json();
       console.log('✅ Respuesta del servidor:', response);
 
-      if (response.success) {
-        // NO HAY ALERT AQUÍ - Solo cerramos y mostramos modal
+      // ⚠️ IMPORTANTE: El servidor puede devolver success:false si ya está calificada
+      if (response.success === false && 
+          response.message && 
+          response.message.toLowerCase().includes('ya hizo una calificación')) {
+        
+        // Marcar como calificada en el estado local
+        setTodasLasCitas(prevCitas => 
+          prevCitas.map(cita => 
+            cita.id === citaACalificar.id 
+              ? { ...cita, yaCalificada: true } 
+              : cita
+          )
+        );
+        
+        setCitasFiltradas(prevCitas => 
+          prevCitas.map(cita => 
+            cita.id === citaACalificar.id 
+              ? { ...cita, yaCalificada: true } 
+              : cita
+          )
+        );
+
         cerrarModalCalificacion();
-        setModalExitoCalificacion(true);
+        
+        Swal.fire({
+          title: "No puedes calificar nuevamente",
+          text: "Esta cita ya fue calificada anteriormente",
+          icon: "info",
+          customClass: {
+            confirmButton: 'boton-alert-cita'
+          }
+        });
+        
+        return;
+      }
+
+      if (response.success) {
+        // Actualizar estado local
+        setTodasLasCitas(prevCitas => 
+          prevCitas.map(cita => 
+            cita.id === citaACalificar.id 
+              ? { ...cita, yaCalificada: true } 
+              : cita
+          )
+        );
+        
+        setCitasFiltradas(prevCitas => 
+          prevCitas.map(cita => 
+            cita.id === citaACalificar.id 
+              ? { ...cita, yaCalificada: true } 
+              : cita
+          )
+        );
+
+        cerrarModalCalificacion();
+        
+        Swal.fire({
+          title: "¡Gracias por tu calificación! 🎉",
+          text: "Tu opinión nos ayuda a mejorar",
+          icon: "success",
+          draggable: true,
+          customClass: {
+            confirmButton: 'boton-alert-cita'
+          },
+          confirmButtonText: 'Aceptar'
+        });
       } else {
-        alert(response.message || 'Error al enviar la calificación');
+        Swal.fire({
+          title: "Error",
+          text: response.message || 'Error al enviar la calificación',
+          icon: "error",
+          customClass: {
+            confirmButton: 'boton-alert-cita'
+          }
+        });
       }
     } catch (err) {
       console.error('❌ Error al enviar calificación:', err);
-      alert('Error de conexión al servidor');
+      Swal.fire({
+        title: "Error de conexión",
+        text: "No se pudo conectar con el servidor",
+        icon: "error",
+        customClass: {
+          confirmButton: 'boton-alert-cita'
+        }
+      });
     } finally {
       setEnviandoResena(false);
     }
@@ -427,7 +529,7 @@ export default function CitasUsuario() {
 
                   {/* Mostrar si ya fue calificada */}
                   {cita.citaPasada && cita.yaCalificada && (
-                    <span className="texto-calificada">✓ Calificada</span>
+                    <span className="texto-calificada">Calificada</span>
                   )}
 
                   {/* Botón de cancelar para citas activas */}
@@ -542,43 +644,20 @@ export default function CitasUsuario() {
 
             <div className="modal-actions">
               <button 
-                className="btn-confirmar-no" 
+                className="btn-confirmar-no-cliente-cita" 
                 onClick={cerrarModalConfirmacion}
                 disabled={cancelando}
               >
                 No, mantener
               </button>
               <button 
-                className="btn-confirmar-si" 
+                className="btn-confirmar-si-cliente-cita" 
                 onClick={cancelarCita}
                 disabled={cancelando}
               >
                 {cancelando ? 'Cancelando...' : 'Sí, cancelar'}
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de error de cancelación */}
-      {modalErrorCancelacion && (
-        <div className="modal-overlay" onClick={cerrarModalError}>
-          <div className="modal-error-cancelacion" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-error-icon">⚠️</div>
-            <h3>No se puede cancelar</h3>
-            <p className="modal-error-mensaje">
-              La cita está muy próxima a comenzar y no puede ser cancelada en este momento.
-            </p>
-            <div className="modal-error-contacto">
-              <p>Por favor, comunícate directamente con:</p>
-              <p className="nombre-negocio">{nombreNegocioError}</p>
-            </div>
-            <button 
-              className="btn-entendido" 
-              onClick={cerrarModalError}
-            >
-              Entendido
-            </button>
           </div>
         </div>
       )}
@@ -642,37 +721,20 @@ export default function CitasUsuario() {
 
             <div className="modal-actions">
               <button 
-                className="btn-confirmar-no" 
+                className="btn-confirmar-no-cliente-cita" 
                 onClick={cerrarModalCalificacion}
                 disabled={enviandoResena}
               >
                 Cancelar
               </button>
               <button 
-                className="btn-confirmar-si" 
+                className="btn-confirmar-si-cliente-cita" 
                 onClick={enviarCalificacion}
                 disabled={enviandoResena}
               >
                 {enviandoResena ? 'Enviando...' : 'Enviar calificación'}
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* 🆕 Modal de éxito al calificar */}
-      {modalExitoCalificacion && (
-        <div className="modal-overlay" onClick={() => setModalExitoCalificacion(false)}>
-          <div className="modal-exito-calificacion" onClick={(e) => e.stopPropagation()}>
-            <div className="exito-icon">🎉</div>
-            <h3>¡Gracias por tu calificación!</h3>
-            <p>Tu opinión nos ayuda a mejorar</p>
-            <button 
-              className="btn-entendido" 
-              onClick={() => setModalExitoCalificacion(false)}
-            >
-              Aceptar
-            </button>
           </div>
         </div>
       )}

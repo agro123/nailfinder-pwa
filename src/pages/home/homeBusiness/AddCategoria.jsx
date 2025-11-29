@@ -82,10 +82,14 @@ export default function AddCategoria() {
         onChange={(e) => setDescripcion(e.target.value)}
       />
       <div className="button-group">
-        <button onClick={handleGuardar} disabled={guardando}>
+        <button
+          className="btn-primary" 
+          onClick={handleGuardar} 
+          disabled={guardando}>
           {guardando ? 'Guardando...' : 'Guardar categoría'}
         </button>
-        <button onClick={() => navigate('/servicios')}>Cancelar</button>
+
+        <button className="btn-secondary" onClick={() => navigate('/servicios')}>Cancelar</button>
       </div>
     </div>
   )

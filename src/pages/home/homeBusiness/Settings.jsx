@@ -127,11 +127,6 @@ export default function Settings() {
           <span>Galería</span>
         </div>
 
-        <div className="grid-item">
-          <Home size={22} />
-          <span>Sedes</span>
-        </div>
-
         <div 
           className="grid-item"
           onClick={() => navigate('/profesionales')}
