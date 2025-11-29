@@ -2,6 +2,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./css/AddressMap.css";
+import { alertPrompt } from "../../utils/uiStore";
 
 export default function AddressMap({ address, onConfirm }) {
   const navigate = useNavigate();
@@ -14,7 +15,11 @@ export default function AddressMap({ address, onConfirm }) {
     if (onConfirm) {
       onConfirm(address); // pasa la dirección confirmada
     } else {
-      alert("Dirección confirmada ✅");
+      alertPrompt({
+        title: "Dirección confirmada",
+        message: `📍 ${address}`,
+        type: "success",
+      });
     }
   };
 
