@@ -239,9 +239,12 @@ export default function Clientes() {
       )}
 
       {/* Botón flotante */}
-      <button className="floating-add-btn" onClick={() => abrirModal()}>
-        <Plus size={24} />
-      </button>
+      <div className="floating-buttons">
+        <button className="floating-add-btn tooltip" onClick={() => abrirModal()}>
+          <Plus size={24} />
+          <span className="tooltip-text">Crear cliente</span>
+        </button>
+      </div>
 
       {/* Modal */}
       {showModal && (

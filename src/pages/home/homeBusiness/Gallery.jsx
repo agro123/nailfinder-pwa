@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ChevronLeft, Upload, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./css/Gallery.css";
+import Swal from "sweetalert2";
 
 export default function Gallery() {
   const navigate = useNavigate();
@@ -127,6 +128,20 @@ export default function Gallery() {
     showAlert(`${files.length} imagen(es) seleccionada(s)`, "success");
   };
 
+  const handleRemoveImage = (index) => {
+    // Eliminamos la URL temporal para evitar fugas de memoria
+    URL.revokeObjectURL(selectedFiles[index].preview);
+
+    // Crear una copia del array
+    const updatedFiles = [...selectedFiles];
+
+    // Remover la imagen por índice
+    updatedFiles.splice(index, 1);
+
+    // Actualizar el estado
+    setSelectedFiles(updatedFiles);
+  };
+  
   // 🔹 Subir nuevas imágenes
   const handleUpload = async () => {
     if (!company) {
@@ -177,7 +192,18 @@ export default function Gallery() {
     const imageToDelete = gallery[index];
     if (!imageToDelete) return;
 
-    if (!window.confirm("¿Eliminar esta imagen?")) return;
+    const result = await Swal.fire({
+      title: "¿Eliminar esta imagen?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#E25B7A",
+      cancelButtonColor: "#9dadbbff",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!result.isConfirmed) return;
 
     // Si la imagen no tiene idBanner (aún no guardada en DB)
     if (!imageToDelete.idBanner) {
@@ -347,22 +373,29 @@ export default function Gallery() {
       {/* Subir nuevas imágenes */}
       <div className="upload-section">
         <h3>Agregar nuevas imágenes</h3>
+
         <label className="upload-label">
-          <Upload size={20} /> Seleccionar imágenes
+          <Upload size={20} />
+          <span>Seleccionar imágenes</span>
           <input type="file" multiple accept="image/*" onChange={handleFileChange} />
         </label>
 
         {selectedFiles.length > 0 && (
           <div className="preview-grid">
             {selectedFiles.map((f, i) => (
-              <img key={i} src={f.preview} alt="preview" className="preview-img" />
+              <div key={i} className="preview-container">
+                <button className="remove-btn-service" onClick={() => handleRemoveImage(i)}>×</button>
+                <img src={f.preview} alt="preview" className="preview-img" />
+              </div>
             ))}
           </div>
         )}
 
-        <button className="upload-btn" onClick={handleUpload} disabled={isUploading}>
-          {isUploading ? "⏳ Subiendo imágenes..." : "Subir a galería"}
-        </button>
+        <div className="upload-actions">
+          <button className="upload-btn" onClick={handleUpload} disabled={isUploading}>
+            {isUploading ? "⏳ Subiendo imágenes..." : "Subir a galería"}
+          </button>
+        </div>
       </div>
     </div>
   );

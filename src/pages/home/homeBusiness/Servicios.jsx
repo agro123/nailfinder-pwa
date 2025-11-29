@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Layers, Search, Edit, Trash2 } from 'lucide-react'
+import { Plus, Layers, Search, Edit, Trash2, Images } from 'lucide-react'
 import './css/Servicios.css'
 
 export default function ServiciosBusiness() {
@@ -108,7 +108,7 @@ export default function ServiciosBusiness() {
         if (data.success && data.data?.servicios) {
           const lista = data.data.servicios
           setServicios(lista)
-
+          
           const cats = [...new Set(lista.map((s) => s.category_name || 'Sin categoría'))]
           setCategorias(['Todas', ...cats])
 
@@ -194,11 +194,19 @@ export default function ServiciosBusiness() {
                   </div>
 
                   <div className="servicio-actions">
-                    <button className="btn-edit" onClick={() => navigate('/edit_service', { state: { servicio, companyId } })}>
+                    <button title="Editar" className="btn-edit" onClick={() => navigate('/edit_service', { state: { servicio, companyId } })}>
                       <Edit size={18} />
                     </button>
 
-                    <button className="btn-delete" onClick={() => openConfirm(servicio)}>
+                    <button
+                      title="Ver galería"
+                      className="btn-delete"
+                      onClick={() => navigate('/galleryService', { state: { servicio, companyId } })}
+                    >
+                      <Images size={18} />
+                    </button>
+
+                    <button title="Eliminar" className="btn-delete" onClick={() => openConfirm(servicio)}>
                       <Trash2 size={18} />
                     </button>
                   </div>
