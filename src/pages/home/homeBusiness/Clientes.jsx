@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import './css/Clientes.css'
 import { Plus, Search, Edit2, Trash2, Camera, X } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
+import Swal from "sweetalert2";
 
 export default function Clientes() {
   const { user } = useAuth()
@@ -169,7 +170,18 @@ export default function Clientes() {
   }
 
   const eliminarCliente = async (id) => {
-    if (!window.confirm('¿Seguro que deseas eliminar este cliente?')) return
+    const result = await Swal.fire({
+      title: "¿Eliminar esta cliente?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#E25B7A",
+      cancelButtonColor: "#9dadbbff",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const res = await fetch(`http://localhost:3000/api/private/company/customer/${id}`, { method: 'DELETE' })
