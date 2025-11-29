@@ -44,7 +44,7 @@ export default function Home() {
   // 🆕 Función para verificar si el negocio está abierto ahora
   const estaAbierto = (companyId) => {
     const horarios = horariosEmpresas[companyId];
-    
+
     // Si no hay horarios registrados, está cerrado
     if (!horarios || horarios.length === 0) {
       return false;
@@ -65,7 +65,7 @@ export default function Home() {
     return horariosHoy.some(horario => {
       const inicio = horario.starthour;
       const fin = horario.endhour;
-      
+
       return horaActualString >= inicio && horaActualString <= fin;
     });
   };
@@ -74,20 +74,20 @@ export default function Home() {
   const fetchHorariosEmpresas = async (empresas) => {
     setLoadingHorarios(true);
     const horariosMap = {};
-    
+
     const promesas = empresas.map(async (empresa) => {
       try {
         const resp = await fetch(
           `http://localhost:3000/api/public/getCompanyHorarios?id_company=${encodeURIComponent(empresa.company_id)}`
         );
-        
+
         if (!resp.ok) {
           console.warn(`No se pudieron cargar horarios para ${empresa.company_name}`);
           return;
         }
 
         const data = await resp.json();
-        
+
         if (data.success && data.data.horarios?.length > 0) {
           horariosMap[empresa.company_id] = data.data.horarios;
         } else {
@@ -98,7 +98,7 @@ export default function Home() {
         horariosMap[empresa.company_id] = []; // Sin horarios en caso de error
       }
     });
-    
+
     await Promise.all(promesas);
     setHorariosEmpresas(horariosMap);
     setLoadingHorarios(false);
@@ -118,12 +118,20 @@ export default function Home() {
         },
         (error) => {
           console.error("Error al obtener ubicación:", error);
-          alert("No se pudo obtener tu ubicación. Por favor, permite el acceso.");
+          alertPrompt({
+            title: "Error",
+            message: `No se pudo obtener tu ubicación. Por favor, permite el acceso.`,
+            type: "error",
+          });
           setObteniendoUbicacion(false);
         }
       );
     } else {
-      alert("Tu navegador no soporta geolocalización");
+      alertPrompt({
+        title: "Error",
+        message: `Tu navegador no soporta geolocalización`,
+        type: "error",
+      });
       setObteniendoUbicacion(false);
     }
   };
@@ -136,9 +144,9 @@ export default function Home() {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c; // Distancia en km
   };
@@ -146,7 +154,7 @@ export default function Home() {
   // Verificar si una valoración está en el rango seleccionado
   const cumpleFiltroValoracion = (valoracion) => {
     if (filtroValoracion.length === 0) return true;
-    
+
     return filtroValoracion.some((estrella) => {
       const num = parseInt(estrella);
       if (num === 5) {
@@ -252,7 +260,7 @@ export default function Home() {
         const negocios = res.data.data.negocios || [];
         setTodasEmpresas(negocios);
         setEmpresas(negocios);
-        
+
         // 🆕 Cargar horarios cuando se obtienen las empresas
         if (negocios.length > 0) {
           fetchHorariosEmpresas(negocios);
@@ -308,8 +316,8 @@ export default function Home() {
 
   // Filtro por tipo de negocio
   const recomendados = empresasFiltradas.filter(
-    (e) => parseFloat(e.promedio_calificacion) >= 4 && 
-          parseFloat(e.promedio_calificacion) <= 5
+    (e) => parseFloat(e.promedio_calificacion) >= 4 &&
+      parseFloat(e.promedio_calificacion) <= 5
   );
 
   const locales = empresasFiltradas.filter(
@@ -323,11 +331,11 @@ export default function Home() {
   useEffect(() => {
     const forceMarkerColors = () => {
       const markers = document.querySelectorAll('.custom-marker');
-      
+
       markers.forEach((marker, index) => {
         const shouldBeGreen = ubicacionUsuario && index === 0;
         const color = shouldBeGreen ? '#6c200a' : '#fc4b08';
-        
+
         marker.style.setProperty('background-color', color, 'important');
       });
     };
@@ -404,9 +412,9 @@ export default function Home() {
   const renderCard = (item) => {
     const valoracion = parseFloat(item.promedio_calificacion) || 0;
     const abierto = estaAbierto(item.company_id);
-    
+
     let distancia = null;
-    
+
     if (ubicacionUsuario && item.latitude && item.longitude) {
       distancia = calcularDistancia(
         ubicacionUsuario.lat,
@@ -454,9 +462,8 @@ export default function Home() {
         {/* 🆕 Estado dinámico basado en horarios */}
         <div className="status-container">
           <span
-            className={`company-status-dot ${
-              abierto ? "active" : "inactive"
-            }`}
+            className={`company-status-dot ${abierto ? "active" : "inactive"
+              }`}
           ></span>
           <span>{abierto ? "Abierto" : "Cerrado"}</span>
         </div>
@@ -477,7 +484,7 @@ export default function Home() {
   const handleSliderChange = (e) => {
     const value = Number(e.target.value);
     setSliderValue(value);
-    
+
     if (value > 0) {
       setFiltroDistancia(value);
     } else {
@@ -501,15 +508,15 @@ export default function Home() {
             onClick={() => setShowModalFiltros(true)}
           >
             ⚙️ Filtros
-            {(filtroValoracion.length > 0 || 
-              filtroDistancia || 
+            {(filtroValoracion.length > 0 ||
+              filtroDistancia ||
               categoriaSeleccionada !== 0) && (
-              <span className="filtros-activos-badge">
-                {filtroValoracion.length + 
-                (filtroDistancia ? 1 : 0) + 
-                (categoriaSeleccionada !== 0 ? 1 : 0)}
-              </span>
-            )}
+                <span className="filtros-activos-badge">
+                  {filtroValoracion.length +
+                    (filtroDistancia ? 1 : 0) +
+                    (categoriaSeleccionada !== 0 ? 1 : 0)}
+                </span>
+              )}
           </button>
           <input
             type="text"
@@ -545,9 +552,8 @@ export default function Home() {
                   {["1", "2", "3", "4", "5"].map((estrella) => (
                     <button
                       key={estrella}
-                      className={`modal-filter-btn ${
-                        filtroValoracion.includes(estrella) ? "active" : ""
-                      }`}
+                      className={`modal-filter-btn ${filtroValoracion.includes(estrella) ? "active" : ""
+                        }`}
                       onClick={() => toggleFiltroValoracion(estrella)}
                     >
                       ⭐ {estrella}
@@ -559,7 +565,7 @@ export default function Home() {
               {/* Filtro de Distancia */}
               <div className="filtro-seccion">
                 <h4 className="filtro-titulo">📍 Distancia</h4>
-                
+
                 {!ubicacionUsuario ? (
                   <button
                     className="ubicacion-btn"
@@ -639,9 +645,8 @@ export default function Home() {
                     servicios.map((cat, index) => (
                       <button
                         key={index}
-                        className={`modal-filter-btn ${
-                          categoriaSeleccionada === cat.id ? "active" : ""
-                        }`}
+                        className={`modal-filter-btn ${categoriaSeleccionada === cat.id ? "active" : ""
+                          }`}
                         onClick={() => fetchEmpresas(cat.id)}
                       >
                         {cat.nombre || cat.name || cat.categoria}
@@ -652,70 +657,70 @@ export default function Home() {
                   )}
                 </div>
               </div>
-              
+
               {/* Botón para limpiar filtros */}
               {(filtroValoracion.length > 0 ||
                 filtroDistancia ||
                 ubicacionUsuario ||
                 categoriaSeleccionada !== 0) && (
-                <button className="limpiar-filtros-btn" onClick={limpiarFiltros}>
-                  🗑️ Limpiar todos los filtros
-                </button>
-              )}
+                  <button className="limpiar-filtros-btn" onClick={limpiarFiltros}>
+                    🗑️ Limpiar todos los filtros
+                  </button>
+                )}
             </div>
           </div>
         </div>
       )}
 
       {/* Chips de Filtros Activos */}
-      {(filtroValoracion.length > 0 || 
-        filtroDistancia || 
+      {(filtroValoracion.length > 0 ||
+        filtroDistancia ||
         categoriaSeleccionada !== 0) && (
-        <div className="filtros-aplicados">
-          <h4 className="filtros-aplicados-titulo">Filtros aplicados</h4>
-          <div className="filtros-chips-container">
-            {categoriaSeleccionada !== 0 && (
-              <div className="filtro-chip">
-                <span className="filtro-chip-texto">
-                  🏷️ {getNombreCategoria(categoriaSeleccionada)}
-                </span>
-                <button
-                  className="filtro-chip-close"
-                  onClick={() => removerFiltroIndividual('categoria', categoriaSeleccionada)}
-                >
-                  ✕
-                </button>
-              </div>
-            )}
+          <div className="filtros-aplicados">
+            <h4 className="filtros-aplicados-titulo">Filtros aplicados</h4>
+            <div className="filtros-chips-container">
+              {categoriaSeleccionada !== 0 && (
+                <div className="filtro-chip">
+                  <span className="filtro-chip-texto">
+                    🏷️ {getNombreCategoria(categoriaSeleccionada)}
+                  </span>
+                  <button
+                    className="filtro-chip-close"
+                    onClick={() => removerFiltroIndividual('categoria', categoriaSeleccionada)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
 
-            {filtroValoracion.map((val) => (
-              <div key={val} className="filtro-chip">
-                <span className="filtro-chip-texto">⭐ {val} estrellas</span>
-                <button
-                  className="filtro-chip-close"
-                  onClick={() => removerFiltroIndividual('valoracion', val)}
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
+              {filtroValoracion.map((val) => (
+                <div key={val} className="filtro-chip">
+                  <span className="filtro-chip-texto">⭐ {val} estrellas</span>
+                  <button
+                    className="filtro-chip-close"
+                    onClick={() => removerFiltroIndividual('valoracion', val)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
 
-            {filtroDistancia && (
-              <div className="filtro-chip">
-                <span className="filtro-chip-texto">
-                  📍 Hasta {filtroDistancia} km
-                </span>
-                <button
-                  className="filtro-chip-close"
-                  onClick={() => removerFiltroIndividual('distancia')}
-                >
-                  ✕
-                </button>
-              </div>
-            )}
+              {filtroDistancia && (
+                <div className="filtro-chip">
+                  <span className="filtro-chip-texto">
+                    📍 Hasta {filtroDistancia} km
+                  </span>
+                  <button
+                    className="filtro-chip-close"
+                    onClick={() => removerFiltroIndividual('distancia')}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* 🆕 Indicador de carga de horarios */}
       {loadingHorarios && (
