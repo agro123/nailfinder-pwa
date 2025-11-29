@@ -215,15 +215,18 @@ const HistorialCitas = () => {
   return (
     <div className="history-container">
         
+      {/* 👇 NUEVO: Envolver botón y título en un contenedor */}
+    <div className="history-header">
       <button className="back-button" onClick={() => window.history.back()}>
         <ChevronLeft size={30} />
       </button>
-
+      
       <h2>Historial de Citas (Últimos 10 días)</h2>
+    </div>
 
-      {alert.show && (
-        <div className={`alert alert-${alert.type}`}>{alert.message}</div>
-      )}
+    {alert.show && (
+      <div className={`alert alert-${alert.type}`}>{alert.message}</div>
+    )}
 
       {/* BUSCADOR */}
       <div className="history-search-bar">

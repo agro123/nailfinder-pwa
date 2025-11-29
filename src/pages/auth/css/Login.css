@@ -1,14 +1,11 @@
 /* --- Contenedor principal --- */
 .login-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;  
-  height: 100vh; 
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
   background-color: #FFF1F3;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -165,8 +162,8 @@
 
 /* --- Enlace de registro de negocio (parte inferior) --- */
 .business-register {
-  position: absolute;
-  bottom: 20px;
+  margin-top: auto;
+  margin-bottom: 10px;
   text-align: center;
   width: 100%;
   font-size: 0.9rem;
@@ -306,13 +303,22 @@
 /* --- Celulares (menos de 768px) --- */
 @media screen and (max-width: 767px) {
   .login-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* ← ESTE ES EL CAMBIO CLAVE */
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px 0;
+  position: relative;
   }
+
+    .footer-text {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+    }
 
   .login-form {
     width: 88%;                /* 🔧 ligeramente más estrecho */

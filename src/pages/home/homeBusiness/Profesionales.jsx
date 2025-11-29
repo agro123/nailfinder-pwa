@@ -144,7 +144,7 @@ export default function Profesionales() {
       email: "",
       phone: "",
       services: [],
-      sede_id: 5,
+      sede_id: authUser.mainBranch?.id,
       imgProfile: null,
     });
 
@@ -378,16 +378,21 @@ export default function Profesionales() {
 
   return (
     <div className="prof-container">
-      {/* Volver */}
-      <button className="back-button" onClick={() => navigate("/settings")}>
-        <ChevronLeft size={20} />
-      </button>
+      {/* === HEADER UNIFICADO === */}
+      {view === "list" && (
+        <div className="prof-header">
+          <button className="back-button" onClick={() => navigate("/settings")}>
+            <ChevronLeft size={24} />
+          </button>
+          <h2>Equipo</h2>
+        </div>
+      )}
 
       {/* Alertas */}
       {alert.show && (
         <div className={`alert alert-${alert.type}`}>
           <span>{alert.message}</span>
-          <button onClick={() => setAlert({ show: false })}>×</button>
+          <button onClick={() => setAlert({ show: false, message: "", type: "" })}>×</button>
         </div>
       )}
 
@@ -396,10 +401,10 @@ export default function Profesionales() {
       =================== */}
       {view === "list" && (
         <>
-          <h2>Equipo</h2>
-
           {professionals.length === 0 ? (
-            <div className="no-professionals">No hay profesionales</div>
+            <div className="no-professionals">
+              <p>No hay profesionales registrados</p>
+            </div>
           ) : (
             <div className="prof-list">
               {professionals.map((p) => (
@@ -411,7 +416,7 @@ export default function Profesionales() {
                     setShowSheet(true);
                   }}
                 >
-                  <img src={p.photo} className="prof-card-img" />
+                  <img src={p.photo} className="prof-card-img" alt={p.name} />
                   <div>
                     <h4>{p.name}</h4>
                     <p>{p.specialty}</p>
@@ -435,18 +440,21 @@ export default function Profesionales() {
       =================== */}
       {view === "form" && (
         <div className="prof-form">
-          <button className="back-button" onClick={() => setView("list")}>
-            <ChevronLeft size={20} />
-            Volver
-          </button>
+          <button className="back-button" onClick={() => { 
+          resetForm();
+          setView("list");
+        }}>
+          <ChevronLeft size={20} />
+        </button>
 
-          <h2>{editing ? "Editar profesional" : "Añadir colaborador"}</h2>
+        <h2>{editing ? "Editar profesional" : "Añadir colaborador"}</h2>
 
+        
           {/* Foto */}
           <div className="photo-upload-section">
             <div className="photo-preview-container">
               {getPhotoUrl() ? (
-                <img src={getPhotoUrl()} className="photo-preview" />
+                <img src={getPhotoUrl()} className="photo-preview" alt="Preview" />
               ) : (
                 <div className="photo-placeholder">
                   <Camera size={32} />
@@ -536,24 +544,28 @@ export default function Profesionales() {
 
               {showServicesDropdown && (
                 <div className="services-dropdown">
-                  {servicios.map((service) => (
-                    <label key={service.service_id} className="service-option">
-                      <input
-                        type="checkbox"
-                        checked={newProfessional.services.includes(
-                          service.service_id
-                        )}
-                        onChange={() => toggleService(service.service_id)}
-                      />
-                      <span>{service.displayName}</span>
+                  {servicios.length === 0 ? (
+                    <div className="no-services">No hay servicios disponibles</div>
+                  ) : (
+                    servicios.map((service) => (
+                      <label key={service.service_id} className="service-option">
+                        <input
+                          type="checkbox"
+                          checked={newProfessional.services.includes(
+                            service.service_id
+                          )}
+                          onChange={() => toggleService(service.service_id)}
+                        />
+                        <span>{service.displayName}</span>
 
-                      {service.category_name && (
-                        <span className="service-category">
-                          {service.category_name}
-                        </span>
-                      )}
-                    </label>
-                  ))}
+                        {service.category_name && (
+                          <span className="service-category">
+                            {service.category_name}
+                          </span>
+                        )}
+                      </label>
+                    ))
+                  )}
                 </div>
               )}
             </div>
@@ -592,6 +604,7 @@ export default function Profesionales() {
                   services: editing.services.map(
                     (s) => s.id || s.service_id || s
                   ),
+                  imgProfile: null,
                 });
                 setShowSheet(false);
                 setView("form");
