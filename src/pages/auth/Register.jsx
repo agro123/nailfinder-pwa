@@ -1,6 +1,7 @@
 // src/pages/auth/Register.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { alertPrompt } from "../../utils/uiStore";
 import AddressList from "./AddressList";
 import AddressMap from "./AddressMap";
 import "./css/Register.css";
@@ -22,43 +23,43 @@ export default function Register() {
   const prevStep = () => setStep((prev) => prev - 1);
 
   const [passwordRequirements, setPasswordRequirements] = useState({
-  length: false,
-  number: false,
-  uppercase: false,
-  symbol: false,
+    length: false,
+    number: false,
+    uppercase: false,
+    symbol: false,
   });
 
-    const handlePasswordChange = (value) => {
-  setFormData({ ...formData, password: value });
+  const handlePasswordChange = (value) => {
+    setFormData({ ...formData, password: value });
 
-  if (!value) {
-    // Si el campo está vacío
-    setPasswordRequirements({
-      length: false,
-      number: false,
-      uppercase: false,
-      symbol: false,
-    });
-    setErrors((prev) => ({ ...prev, password: "Por favor ingresa una contraseña" }));
-    return;
-  }
+    if (!value) {
+      // Si el campo está vacío
+      setPasswordRequirements({
+        length: false,
+        number: false,
+        uppercase: false,
+        symbol: false,
+      });
+      setErrors((prev) => ({ ...prev, password: "Por favor ingresa una contraseña" }));
+      return;
+    }
 
-  const newRequirements = {
-    length: value.length < 6,
-    number: !/\d/.test(value),
-    uppercase: !/[A-Z]/.test(value),
-    symbol: !/[!@#$%^&*(),.?":{}|<>]/.test(value),
+    const newRequirements = {
+      length: value.length < 6,
+      number: !/\d/.test(value),
+      uppercase: !/[A-Z]/.test(value),
+      symbol: !/[!@#$%^&*(),.?":{}|<>]/.test(value),
+    };
+
+    setPasswordRequirements(newRequirements);
+
+    setErrors((prev) => ({
+      ...prev,
+      password: Object.values(newRequirements).some(Boolean)
+        ? "La contraseña no cumple los requisitos"
+        : null,
+    }));
   };
-
-  setPasswordRequirements(newRequirements);
-
-  setErrors((prev) => ({
-    ...prev,
-    password: Object.values(newRequirements).some(Boolean)
-      ? "La contraseña no cumple los requisitos"
-      : null,
-  }));
-};
 
 
 
@@ -100,19 +101,31 @@ export default function Register() {
       const result = await response.json();
 
       if (!response.ok) {
-        alert("❌ Error: " + (result.message || "Error desconocido"));
+        alertPrompt({
+          title: "Error",
+          message: result.message || "Error desconocido",
+          type: "error",
+        });
         return;
       }
 
-      alert("✅ Registro exitoso");
+      alertPrompt({
+        title: "Registro exitoso",
+        message: "",
+        type: "success",
+      });
       navigate("/login");
     } catch (error) {
       console.error("Error de conexión:", error);
-      alert("No se pudo conectar con el servidor.");
+      alertPrompt({
+        title: "Error",
+        message: "No se pudo conectar con el servidor.",
+        type: "error",
+      });
     }
   };
 
-  
+
 
   const cancelar = () => {
     navigate("/login");
@@ -123,7 +136,7 @@ export default function Register() {
       {step === 1 && (
         <div className="step1">
           <img
-            src="/logo.png"   
+            src="/logo.png"
             alt="Logo NailFinder"
             className="register-logo"
           />
@@ -144,7 +157,7 @@ export default function Register() {
             className="form-input"
           />
           {errors.email && <span className="error">{errors.email}</span>}
-          
+
           <input
             type="password"
             placeholder="Contraseña"

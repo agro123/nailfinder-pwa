@@ -270,7 +270,11 @@ export default function CitasUsuario() {
     } catch (err) {
       console.error('Error al cancelar la cita:', err);
       cerrarModalConfirmacion();
-      alert('Error de conexión al servidor');
+      alertPrompt({
+        title: "Error",
+        message: `No se logro establecer conexion con el servidor`,
+        type: "error",
+      });
     } finally {
       setCancelando(false);
     }
