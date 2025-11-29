@@ -34,7 +34,7 @@
   font-weight: 600;
   border: none;
   background-color: #6c757d;
-  color: #666;
+  color: white;
   cursor: pointer;
   border-radius: 25px;
   padding: 0.7rem 0;
@@ -204,6 +204,7 @@
 .back-button-location:hover {
   background-color: #565e64;
 }
+
 
 /* RESPONSIVE */
 @media screen and (max-width: 768px) {
