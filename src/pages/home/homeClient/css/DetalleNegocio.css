@@ -148,35 +148,31 @@
   font-style: sans-serif;
 }
 
-
-
-
-/* 🌸 Estado del negocio */
-.estado {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
-  color: #444;
+/* ðŸ†• Estado dinámico en detalle */
+.status-container-detalle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 500;
 }
 
-/* 🔵 Círculo de estado (abierto/cerrado) */
-.estado::before {
-  content: "";
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+.company-status-dot-detalle {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
 }
 
-/* Verde si está abierto */
-.estado.abierto::before {
-  background-color: #4caf50;
+.company-status-dot-detalle.active {
+    background-color: #4caf50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
 }
 
-/* Rojo si está cerrado */
-.estado.cerrado::before {
-  background-color: #f44336;
+.company-status-dot-detalle.inactive {
+    background-color: #f7b6b6;
+    box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
 }
 
 /* 🌸 Lista de categorías */
@@ -536,6 +532,15 @@
 }
 
 
+.default-image-container {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff4f8;
+  border: 2px solid #f8b7cd;
+  border-radius: 16px;
+}
 
 /* 🌸 Emoji Box */
 .emoji-box.big {
@@ -722,6 +727,12 @@
 .emoji-box {
   font-size: 2rem;
   text-align: center;
-  padding: 1.5rem 0;
+  min-width: 60px;
 }
 
+.servicio-img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 12px 12px 0 0;
+}

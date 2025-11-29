@@ -4,6 +4,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import "./css/Agenda.css";
 import { ChevronLeft } from "lucide-react";
+import Swal from 'sweetalert2';
 
 export default function Agenda() {
     const { idProfesional } = useParams();
@@ -18,7 +19,6 @@ export default function Agenda() {
     const [disponibilidad, setDisponibilidad] = useState(null);
     const [horaSeleccionada, setHoraSeleccionada] = useState(null);
     const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
-    const [mostrarExito, setMostrarExito] = useState(false);
     const [mensajeEstado, setMensajeEstado] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -121,7 +121,15 @@ export default function Agenda() {
 
     const handleConfirmarCita = async () => {
         if (!fechaSeleccionada || !horaSeleccionada) {
-            alert("Selecciona una fecha y hora antes de confirmar.");
+            Swal.fire({
+                title: "Error",
+                text: "Selecciona una fecha y hora antes de confirmar.",
+                icon: "warning",
+                draggable: true,
+                customClass: {
+                    confirmButton: 'boton-alert-agenda'
+                }
+            });
             return;
         }
 
@@ -150,21 +158,46 @@ export default function Agenda() {
 
             if (result.success) {
                 setMostrarConfirmacion(false);
-                setMostrarExito(true);
-
-                // 🔹 Espera 2 segundos mostrando el modal de éxito y luego vuelve al detalle del negocio
-                setTimeout(() => {
+                
+                Swal.fire({
+                    title: "¡Cita confirmada!",
+                    text: "Tu cita ha sido registrada exitosamente",
+                    icon: "success",
+                    draggable: true,
+                    timer: 2000,
+                    showConfirmButton: false,
+                    customClass: {
+                        confirmButton: 'boton-alert-agenda'
+                    }
+                }).then(() => {
+                    // Navegar después de cerrar el alert
                     navigate(`/detalle/${negocio.company_id}`, {
                         state: { negocio, desdeConfirmacion: true },
                         replace: true,
                     });
-                }, 2000);
+                });
             } else {
-                alert(`❌ Error: ${result.message || "No se pudo crear la cita."}`);
+                Swal.fire({
+                    title: "Error",
+                    text: result.message || "No se pudo crear la cita.",
+                    icon: "error",
+                    draggable: true,
+                    customClass: {
+                        confirmButton: 'boton-alert-agenda'
+                    }
+                });
             }
         } catch (err) {
             console.error("Error al crear la cita:", err);
-            alert("Ocurrió un error al intentar registrar la cita.");
+            Swal.fire({
+                title: "Error",
+                text: "Ocurrió un error al intentar registrar la cita.",
+                icon: "error",
+                draggable: true,
+                customClass: {
+                    confirmButton: 'boton-alert-agenda'
+                }
+            });
         }
     };
 
@@ -331,17 +364,6 @@ export default function Agenda() {
                             <button className="cancelar-btn" onClick={() => setMostrarConfirmacion(false)}>Cancelar</button>
                             <button className="confirmar-btn" onClick={handleConfirmarCita}>Confirmar Cita</button>
                         </div>
-                    </div>
-                </div>
-            )}
-
-            {/* --- MODAL ÉXITO --- */}
-            {mostrarExito && (
-                <div className="modal-overlay">
-                    <div className="modal-content exito-cita">
-                        <div className="check-icon">✅</div>
-                        <h3>¡Cita confirmada!</h3>
-                        <p>Tu cita ha sido registrada exitosamente</p>
                     </div>
                 </div>
             )}
