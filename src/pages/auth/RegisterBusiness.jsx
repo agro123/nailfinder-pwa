@@ -1,6 +1,7 @@
 // src/pages/auth/RegisterBusiness.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2';
 import AddressMap from "./AddressMap";
 import "./css/RegisterBusiness.css";
 import AddressList from "./AddressList";
@@ -12,13 +13,6 @@ export default function RegisterBusiness() {
   const [message, setMessage] = useState("");
   const [type, setType] = useState(""); 
   const [step, setStep] = useState(1);
-  
-  // Estados para modales
-  const [modalAbierto, setModalAbierto] = useState(false);
-  const [modalTitulo, setModalTitulo] = useState("");
-  const [modalMensaje, setModalMensaje] = useState("");
-  const [modalTipo, setModalTipo] = useState(""); // success, error, warning
-  const [modalRedireccion, setModalRedireccion] = useState(false);
 
   // Estados para errores de validación en tiempo real
   const [errores, setErrores] = useState({
@@ -40,28 +34,15 @@ export default function RegisterBusiness() {
     phone: "",
     address: "",
     companytype: "",
+    latitude: null,
+    longitude: null,
+    radio: null,
     profilePhoto: null,
     profilePreview: null,
   });
 
   const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);
-
-  // --- FUNCIONES PARA MANEJAR MODALES ---
-  const mostrarModal = (titulo, mensaje, tipo = "info", redireccion = false) => {
-    setModalTitulo(titulo);
-    setModalMensaje(mensaje);
-    setModalTipo(tipo);
-    setModalRedireccion(redireccion);
-    setModalAbierto(true);
-  };
-
-  const cerrarModal = () => {
-    setModalAbierto(false);
-    if (modalRedireccion) {
-      navigate("/login");
-    }
-  };
 
   // --- VALIDACIONES EN TIEMPO REAL ---
   const validarNombre = (nombre) => {
@@ -223,11 +204,15 @@ export default function RegisterBusiness() {
     const hayErrores = Object.values(nuevosErrores).some(error => error !== "");
     
     if (hayErrores) {
-      mostrarModal(
-        "Errores en el formulario", 
-        "Por favor corrige los errores marcados en rojo antes de continuar.", 
-        "error"
-      );
+      Swal.fire({
+        title: "Errores en el formulario",
+        text: "Por favor corrige los errores marcados en rojo antes de continuar.",
+        icon: "error",
+        draggable: true,
+        customClass: {
+          confirmButton: 'boton-alert-agenda'
+        }
+      });
       return false;
     }
 
@@ -241,7 +226,8 @@ export default function RegisterBusiness() {
   const handleRegister = async (dataToSend = formData) => {
     setLoading(true);
     try {
-      console.log("📦 Datos enviados al backend:", {
+      // Construir el payload base
+      const payload = {
         name: dataToSend.name,
         email: dataToSend.email.toLowerCase(),
         password: dataToSend.password,
@@ -251,24 +237,23 @@ export default function RegisterBusiness() {
         companytype: dataToSend.companytype,
         address: dataToSend.address,
         logo: dataToSend.profilePhoto || null,
-      });
+        latitude: dataToSend.latitude,
+        longitude: dataToSend.longitude,
+      };
+
+      // Solo agregar radio si el tipo es domicilio
+      if (dataToSend.companytype === 'domicilio' && dataToSend.radio) {
+        payload.radio = dataToSend.radio;
+      }
+
+      console.log("📦 Datos enviados al backend:", payload);
 
       const response = await fetch(
         "http://localhost:3000/api/public/signupCompany",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: dataToSend.name,
-            email: dataToSend.email.toLowerCase(),
-            password: dataToSend.password,
-            phone: dataToSend.phone,
-            companyname: dataToSend.companyname,
-            nit: dataToSend.nit || null,
-            companytype: dataToSend.companytype,
-            address: dataToSend.address,
-            logo: dataToSend.profilePhoto || null,
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -278,35 +263,51 @@ export default function RegisterBusiness() {
         throw new Error(result.message || "Error en el registro de la empresa");
       }
 
-      mostrarModal(
-        "¡Registro exitoso! 🎉", 
-        "✅ Tu negocio ha sido registrado correctamente.", 
-        "success", 
-        true
-      );
+      Swal.fire({
+        title: "¡Registro exitoso! 🎉",
+        text: "✅ Tu negocio ha sido registrado correctamente.",
+        icon: "success",
+        draggable: true,
+        customClass: {
+          confirmButton: 'boton-alert-agenda'
+        }
+      }).then(() => {
+        navigate("/login");
+      });
     } catch (error) {
       console.error("❌ Error de conexión o validación:", error);
-      mostrarModal(
-        "Error en el registro", 
-        "❌ No se pudo registrar el negocio. Por favor, intenta nuevamente.", 
-        "error"
-      );
+      Swal.fire({
+        title: "Error en el registro",
+        text: "❌ No se pudo registrar el negocio. Por favor, intenta nuevamente.",
+        icon: "error",
+        draggable: true,
+        customClass: {
+          confirmButton: 'boton-alert-agenda'
+        }
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const cancelar = () => {
-    mostrarModal(
-      "¿Cancelar registro?",
-      "Si cancelas, perderás toda la información ingresada. ¿Estás seguro de que deseas volver al login?",
-      "warning"
-    );
-  };
-
-  const confirmarCancelacion = () => {
-    setModalAbierto(false);
-    navigate("/login");
+    Swal.fire({
+      title: "¿Cancelar registro?",
+      text: "Si cancelas, perderás toda la información ingresada. ¿Estás seguro de que deseas volver al login?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, cancelar",
+      cancelButtonText: "Continuar registro",
+      draggable: true,
+      customClass: {
+        confirmButton: 'boton-alert-agenda',
+        cancelButton: 'boton-alert-cancel'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate("/login");
+      }
+    });
   };
 
   // Función para determinar la clase CSS del input basado en el error
@@ -460,10 +461,16 @@ export default function RegisterBusiness() {
                 ...formData,
                 companytype: data.companytype,
                 address: data.address,
-                latitude: data.location ? data.location.lat : null,
-                longitude: data.location ? data.location.lng : null,
+                latitude: data.latitude,
+                longitude: data.longitude,
               };
 
+              // Solo agregar radius si es domicilio
+              if (data.companytype === 'domicilio' && data.radio) {
+                updatedData.radio = data.radio;
+              }
+
+              console.log("📍 Datos completos antes de enviar:", updatedData);
               setFormData(updatedData);
               handleRegister(updatedData);
             }}
@@ -473,50 +480,6 @@ export default function RegisterBusiness() {
             message={message}
             type={type}
           />
-        </div>
-      )}
-
-      {/* Modal para notificaciones */}
-      {modalAbierto && (
-        <div className="modal-overlay" onClick={cerrarModal}>
-          <div className="modal-notificacion" onClick={(e) => e.stopPropagation()}>
-            <div className={`modal-icono ${modalTipo}`}>
-              {modalTipo === "success" && "✅"}
-              {modalTipo === "error" && "❌"}
-              {modalTipo === "warning" && "⚠️"}
-              {modalTipo === "info" && "ℹ️"}
-            </div>
-            
-            <h3 className="modal-titulo">{modalTitulo}</h3>
-            
-            <p className="modal-mensaje">{modalMensaje}</p>
-
-            <div className="modal-actions">
-              {modalTipo === "warning" ? (
-                <>
-                  <button 
-                    className="btn-confirmar-no" 
-                    onClick={cerrarModal}
-                  >
-                    Continuar registro
-                  </button>
-                  <button 
-                    className="btn-confirmar-si" 
-                    onClick={confirmarCancelacion}
-                  >
-                    Sí, cancelar
-                  </button>
-                </>
-              ) : (
-                <button 
-                  className={`btn-confirmar-si ${modalTipo}`}
-                  onClick={cerrarModal}
-                >
-                  {modalRedireccion ? "Ir al login" : "Aceptar"}
-                </button>
-              )}
-            </div>
-          </div>
         </div>
       )}
     </div>
