@@ -65,6 +65,7 @@
   justify-content: center; /* centra los botones */
   gap: 80px; /* ajusta la separación entre íconos */
   padding: 10px 0;
+  z-index: 1000;
 }
 
 .footercliente-btn {
