@@ -106,14 +106,14 @@ export default function CitasUsuario() {
                 duracionTotal,
                 totalCost: cita.totalcost || 0,
                 datosCompletos: cita,
-                yaCalificada: cita.rated || false, // 🆕 Verificar si ya fue calificada
+                yaCalificada: cita.rated === true || cita.rated === 1,
               });
             });
           }
         });
 
         setTodasLasCitas(citasArray);
-        aplicarFiltro("proximas", citasArray);
+        aplicarFiltro(filtroActivo, citasArray);
       } else {
         setError(response.message || "Error al cargar las citas.");
       }
@@ -215,7 +215,7 @@ export default function CitasUsuario() {
 
       const response = await res.json();
 
-      console.log('🔍 Respuesta del servidor:', response);
+      console.log('📝 Respuesta del servidor:', response);
 
       if (response.success) {
         const mapaCompanies = await obtenerCompanies();
@@ -277,10 +277,9 @@ export default function CitasUsuario() {
   };
 
   const calificarCita = (cita) => {
-    // 🆕 Verificar si ya fue calificada
+    // Verificar si ya fue calificada
     if (cita.yaCalificada) {
-      alert("Ya has calificado esta cita anteriormente");
-      return;
+      return; // No abre el modal
     }
     
     setCitaACalificar(cita);
@@ -302,11 +301,25 @@ export default function CitasUsuario() {
     if (!citaACalificar) return;
     
     if (!tituloResena.trim()) {
-      alert("Por favor ingresa un título para tu reseña");
+      Swal.fire({
+        title: "Campo requerido",
+        text: "Por favor ingresa un título para tu reseña",
+        icon: "warning",
+        customClass: {
+          confirmButton: 'boton-alert-cita'
+        }
+      });
       return;
     }
     if (!descripcionResena.trim()) {
-      alert("Por favor ingresa un comentario");
+      Swal.fire({
+        title: "Campo requerido",
+        text: "Por favor ingresa un comentario",
+        icon: "warning",
+        customClass: {
+          confirmButton: 'boton-alert-cita'
+        }
+      });
       return;
     }
 
@@ -335,9 +348,62 @@ export default function CitasUsuario() {
       const response = await res.json();
       console.log('✅ Respuesta del servidor:', response);
 
-      if (response.success) {
-        // NO HAY ALERT AQUÍ - Solo cerramos y mostramos modal
+      // ⚠️ IMPORTANTE: El servidor puede devolver success:false si ya está calificada
+      if (response.success === false && 
+          response.message && 
+          response.message.toLowerCase().includes('ya hizo una calificación')) {
+        
+        // Marcar como calificada en el estado local
+        setTodasLasCitas(prevCitas => 
+          prevCitas.map(cita => 
+            cita.id === citaACalificar.id 
+              ? { ...cita, yaCalificada: true } 
+              : cita
+          )
+        );
+        
+        setCitasFiltradas(prevCitas => 
+          prevCitas.map(cita => 
+            cita.id === citaACalificar.id 
+              ? { ...cita, yaCalificada: true } 
+              : cita
+          )
+        );
+
         cerrarModalCalificacion();
+        
+        Swal.fire({
+          title: "No puedes calificar nuevamente",
+          text: "Esta cita ya fue calificada anteriormente",
+          icon: "info",
+          customClass: {
+            confirmButton: 'boton-alert-cita'
+          }
+        });
+        
+        return;
+      }
+
+      if (response.success) {
+        // Actualizar estado local
+        setTodasLasCitas(prevCitas => 
+          prevCitas.map(cita => 
+            cita.id === citaACalificar.id 
+              ? { ...cita, yaCalificada: true } 
+              : cita
+          )
+        );
+        
+        setCitasFiltradas(prevCitas => 
+          prevCitas.map(cita => 
+            cita.id === citaACalificar.id 
+              ? { ...cita, yaCalificada: true } 
+              : cita
+          )
+        );
+
+        cerrarModalCalificacion();
+        
         Swal.fire({
           title: "¡Gracias por tu calificación! 🎉",
           text: "Tu opinión nos ayuda a mejorar",
@@ -349,11 +415,25 @@ export default function CitasUsuario() {
           confirmButtonText: 'Aceptar'
         });
       } else {
-        alert(response.message || 'Error al enviar la calificación');
+        Swal.fire({
+          title: "Error",
+          text: response.message || 'Error al enviar la calificación',
+          icon: "error",
+          customClass: {
+            confirmButton: 'boton-alert-cita'
+          }
+        });
       }
     } catch (err) {
       console.error('❌ Error al enviar calificación:', err);
-      alert('Error de conexión al servidor');
+      Swal.fire({
+        title: "Error de conexión",
+        text: "No se pudo conectar con el servidor",
+        icon: "error",
+        customClass: {
+          confirmButton: 'boton-alert-cita'
+        }
+      });
     } finally {
       setEnviandoResena(false);
     }
@@ -449,7 +529,7 @@ export default function CitasUsuario() {
 
                   {/* Mostrar si ya fue calificada */}
                   {cita.citaPasada && cita.yaCalificada && (
-                    <span className="texto-calificada">✓ Calificada</span>
+                    <span className="texto-calificada">Calificada</span>
                   )}
 
                   {/* Botón de cancelar para citas activas */}
