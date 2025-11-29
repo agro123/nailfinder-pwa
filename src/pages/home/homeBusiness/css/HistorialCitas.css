@@ -5,21 +5,52 @@
   align-items: stretch;
   background-color: #fff;
   min-height: 100vh;
-  padding: 80px 20px 100px;
+  padding: 30px 20px 100px;  /* 👈 CAMBIADO: de 80px a 20px arriba */
   font-family: 'Inter', sans-serif;
   box-sizing: border-box;
   position: relative;
 }
 
+/* === HEADER CON BOTÓN Y TÍTULO EN LA MISMA LÍNEA === */
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-top: 20px;    
+  margin-bottom: 32px;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  background: transparent;
+  border: none;
+  color: #e25b7a;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background: #ffe6eb;
+  transform: scale(1.1);
+}
+
 .history-container h2 {
-  font-size: 1.8rem;
+  font-size: 1.9rem;           /* 👈 Unificado con el resto */
   font-weight: 700;
   color: #e25b7a;
   text-align: center;
-  margin-bottom: 24px;
+  letter-spacing: 0.5px;       /* 👈 AGREGADO */
+  margin: 0;                   /* 👈 Quitar margin */
 }
 
-/* === BOTÓN VOLVER === */
+/* === BOTÓN VOLVER (viejo estilo - YA NO SE USA) === */
 .history-back-btn {
   position: absolute;
   top: 20px;
@@ -41,9 +72,10 @@
 
 /* === ALERTAS === */
 .alert {
-  margin: 0 -1.2rem 1rem -1.2rem;
+  margin: 0 0 1rem 0;         /* 👈 Ajustado margin */
   padding: 14px 1.2rem;
   border-top: 4px solid;
+  border-radius: 8px;          /* 👈 AGREGADO */
   font-weight: 500;
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -74,6 +106,11 @@
   flex: 1;
   font-size: 1rem;
   background: transparent;
+  color: #333;
+}
+
+.history-search-bar input::placeholder {
+  color: #999;
 }
 
 /* === LISTA === */
@@ -119,6 +156,7 @@
   color: #e25b7a;
   margin-top: 6px;
   font-weight: 600;
+  text-transform: capitalize;
 }
 
 /* ACCIONES */
@@ -146,6 +184,7 @@
 
 .history-btn:hover {
   background: #357ab8;
+  transform: scale(1.05);
 }
 
 .history-btn-delete {
@@ -155,6 +194,7 @@
 
 .history-btn-delete:hover {
   background: #d14868;
+  transform: scale(1.05);
 }
 
 /* SIN RESULTADOS */
@@ -162,6 +202,7 @@
   text-align: center;
   color: #777;
   margin-top: 25px;
+  font-size: 1rem;
 }
 
 /* === MODALES === */
@@ -191,34 +232,55 @@
   text-align: center;
   margin-bottom: 16px;
   color: #e25b7a;
+  font-size: 1.3rem;
 }
 
-.history-modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 12px;
+.history-modal p {
+  margin: 8px 0;
+  color: #555;
+  font-size: 0.95rem;
 }
 
-.history-btn-cancelar {
-  background: #ccc;
-  padding: 8px 14px;
-  border-radius: 10px;
+.history-modal button {
+  margin-top: 16px;
+  padding: 10px 18px;
   border: none;
+  border-radius: 10px;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
-.history-btn-confirmar {
+.history-modal button:first-of-type {
+  background: #f0f0f0;
+  color: #333;
+  margin-right: 10px;
+}
+
+.history-modal button:first-of-type:hover {
+  background: #d9d9d9;
+}
+
+.history-modal button:last-of-type {
   background: #e25b7a;
-  padding: 8px 14px;
-  border-radius: 10px;
-  border: none;
   color: white;
-  cursor: pointer;
+}
+
+.history-modal button:last-of-type:hover {
+  background: #d14868;
+  transform: scale(1.05);
 }
 
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
+  .history-container h2 {
+    font-size: 1.6rem;
+  }
+
+  .back-button {
+    padding: 6px;
+  }
+
   .history-item {
     flex-direction: column;
     align-items: flex-start;
@@ -230,15 +292,15 @@
     justify-content: flex-end;
     width: 100%;
   }
-
-  .history-container h2 {
-    font-size: 1.6rem;
-  }
 }
 
 @media (max-width: 480px) {
   .history-container {
-    padding: 70px 16px 100px;
+    padding: 20px 16px 100px;
+  }
+
+  .history-container h2 {
+    font-size: 1.4rem;
   }
 
   .history-item {
@@ -258,5 +320,9 @@
     width: 70px;
     padding: 6px 8px;
     font-size: 0.9rem;
+  }
+
+  .history-modal {
+    padding: 20px;
   }
 }

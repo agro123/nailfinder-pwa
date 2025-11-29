@@ -15,7 +15,7 @@
 
 /* --- Logo --- */
 .register-logo {
-  width: 15%; /* ajusta el tamaño según tu preferencia */
+  width: 15%;
   margin: 0 auto auto auto;
   display: block;
 }
@@ -38,10 +38,17 @@
   margin-bottom: 10px;
 }
 
-/* --- Inputs y selects --- */
+/* --- GRUPOS DE INPUT CON VALIDACIÓN --- */
+.input-group {
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+/* --- Inputs base --- */
 .step1 input,
-.step1 select {
-width: 100%;
+.step1 select,
+.register-input {
+  width: 100%;
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -49,65 +56,61 @@ width: 100%;
   outline: none;
   transition: border-color 0.3s, box-shadow 0.3s;
   box-sizing: border-box;
-  background-color: #ffffff; /* 🔧 Fondo blanco consistente */
+  background-color: #ffffff;
   color: #333;
 }
 
-
+/* Estado focus */
 .step1 input:focus,
-.step1 select:focus {
+.step1 select:focus,
+.register-input:focus {
   border-color: #d21f4d;       
-  box-shadow: 0 0 5px rgba(210, 31, 77, 0.5); /* Efecto glow similar a hover */
+  box-shadow: 0 0 5px rgba(210, 31, 77, 0.5);
 }
 
-
-
-/* --- Botones --- */
-.step1 button {
-  width: 100%;          /* Ocupa todo el ancho */
-  padding: 12px;        /* Igual que los inputs */
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 1rem;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s, box-shadow 0.3s;
+/* Estados de validación */
+.input-error {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 5px rgba(220, 53, 69, 0.3) !important;
 }
 
-.step1 button:first-of-type { 
-  margin-top: 22px; 
-  background-color: #e25b7a;
- }
-.step1 button:first-of-type:hover { background-color: #d21f4d; }
-.step1 button:last-of-type { 
-   margin-top: -7px;
-   background-color: #6c757d; }
-.step1 button:last-of-type:hover { background-color: #565e64; }
-/* --- Paso 2 y 3 (Mapas o Listas) --- */
-.register .step2 button,
-.register .step3 button {
-  width: 100%;
+.input-success {
+  border-color: #28a745 !important;
+  box-shadow: 0 0 5px rgba(40, 167, 69, 0.3) !important;
 }
 
-
-
-
-
-/*Manejo de Errores*/
-.error {
-  color: #d21f4d;
-  font-size: 0.85rem;
-  margin-top: 4px;
+/* --- MENSAJES DE ERROR --- */
+.error-mensaje {
+  color: #dc3545;
+  font-size: 0.75rem;
+  margin-top: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  background: rgba(220, 53, 69, 0.05);
+  border-radius: 4px;
+  border-left: 3px solid #dc3545;
+  animation: slideDown 0.3s ease-out;
   text-align: left;
 }
 
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- REQUISITOS DE CONTRASEÑA --- */
 .password-requirements {
-  margin-top: 4px; /* Ajusta según convenga */
-  font-size: 0.85rem;
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
   color: #e53935;
-  min-height: 0; /* <-- evita espacio extra */
+  min-height: 0;
   text-align: left;
+  padding-left: 0.5rem;
 }
 
 .password-requirements span {
@@ -115,9 +118,77 @@ width: 100%;
   margin-top: 2px;
 }
 
-/* Ocultar el contenedor si no hay spans visibles */
 .password-requirements:empty {
   display: none;
+}
+
+/* --- Botones --- */
+.step1 button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s, opacity 0.3s;
+}
+
+.step1 button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.step1 button:first-of-type { 
+  margin-top: 22px; 
+  background-color: #e25b7a;
+}
+
+.step1 button:first-of-type:hover:not(:disabled) { 
+  background-color: #d21f4d; 
+}
+
+.step1 button:last-of-type { 
+  margin-top: -7px;
+  background-color: #6c757d; 
+}
+
+.step1 button:last-of-type:hover:not(:disabled) { 
+  background-color: #565e64; 
+}
+
+/* --- Paso 2 y 3 (Mapas o Listas) --- */
+.register .step2 button,
+.register .step3 button {
+  width: 100%;
+}
+
+/* --- ESTILOS PARA SWEETALERT2 --- */
+.boton-alert-agenda {
+  background-color: #e25b7a !important;
+  border: none !important;
+  padding: 10px 24px !important;
+  font-size: 14px !important;
+  border-radius: 6px !important;
+  transition: background-color 0.3s !important;
+}
+
+.boton-alert-agenda:hover {
+  background-color: #d21f4d !important;
+}
+
+.boton-alert-cancel {
+  background-color: #6c757d !important;
+  border: none !important;
+  padding: 10px 24px !important;
+  font-size: 14px !important;
+  border-radius: 6px !important;
+  transition: background-color 0.3s !important;
+}
+
+.boton-alert-cancel:hover {
+  background-color: #565e64 !important;
 }
 
 /* =========================================================
@@ -237,6 +308,15 @@ width: 100%;
     padding: 9px;
     margin-top: 10px;
   }
+
+  .error-mensaje {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .password-requirements {
+    font-size: 0.7rem;
+  }
 }
 
 /* --- Dispositivos muy anchos y bajos (landscape, plegables, horizontales) --- */
@@ -277,6 +357,15 @@ width: 100%;
     padding: 6px 10px;
     margin-top: 5px;
   }
+
+  .input-group {
+    margin-bottom: 4px;
+  }
+
+  .error-mensaje,
+  .password-requirements {
+    font-size: 0.65rem;
+  }
 }
 
 /* --- Dispositivos extremadamente bajos (menos de 400px de alto) --- */
@@ -310,5 +399,11 @@ width: 100%;
   .register .step3 button {
     font-size: 0.75rem;
     padding: 4px 8px;
+  }
+
+  .error-mensaje,
+  .password-requirements {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.3rem;
   }
 }

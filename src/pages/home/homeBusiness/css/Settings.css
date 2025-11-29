@@ -6,8 +6,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 1rem;
-  padding-bottom: 80px;
+  padding: 20px 20px 100px;
   color: #333;
 }
 
@@ -18,12 +17,12 @@
 }
 
 .settings-header h2 {
-  font-size: 1.3rem;
-  font-weight: 600;
+  font-size: 1.9rem;
+  font-weight: 700;
   color: #e25b7a;
-  border-left: 4px solid #e25b7a;
-  padding-left: 8px;
-  display: inline-block;
+  text-align: center;      
+  letter-spacing: 0.5px;    
+  margin-bottom: 24px;
 }
 
 /* --- Perfil --- */

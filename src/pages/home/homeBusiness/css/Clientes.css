@@ -5,7 +5,7 @@
   align-items: stretch;
   background-color: #fff;
   min-height: 100vh;
-  padding: 90px 20px 100px;
+  padding: 20px 20px 100px;
   font-family: 'Inter', sans-serif;
   position: relative;
   box-sizing: border-box;
@@ -17,7 +17,6 @@
   font-weight: 700;
   color: #e25b7a;
   text-align: center;
-  margin-bottom: 24px;
   letter-spacing: 0.5px;
 }
 
