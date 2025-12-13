@@ -75,10 +75,59 @@ export default function App() {
     <div className="app">
       <main>
         {deferredPrompt && !installed && (
-          <button onClick={onInstallClick}>Instalar aplicación</button>
+          <div style={{
+            padding: '1rem',
+            backgroundColor: '#fff',
+            textAlign: 'center',
+            position: 'sticky',
+            top: 0,
+            zIndex: 100,
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+          }}>
+            <button 
+              onClick={onInstallClick}
+              style={{
+                padding: '12px 24px',
+                backgroundColor: '#e25b7a',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '1rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 12px rgba(226, 91, 122, 0.3)',
+                ':hover': {
+                  backgroundColor: '#d64b6a',
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 16px rgba(226, 91, 122, 0.4)'
+                }
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#d64b6a'
+                e.target.style.transform = 'translateY(-2px)'
+                e.target.style.boxShadow = '0 6px 16px rgba(226, 91, 122, 0.4)'
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#e25b7a'
+                e.target.style.transform = 'translateY(0)'
+                e.target.style.boxShadow = '0 4px 12px rgba(226, 91, 122, 0.3)'
+              }}
+            >
+              Instala la aplicación
+            </button>
+          </div>
         )}
 
-        {installed && <div className="installed">Aplicación instalada ✅</div>}
+        {installed && <div style={{
+          padding: '1rem',
+          backgroundColor: '#d4edda',
+          color: '#155724',
+          textAlign: 'center',
+          borderRadius: '8px',
+          fontWeight: '600',
+          marginBottom: '1rem'
+        }}>✅ Aplicación instalada correctamente</div>}
 
         <Routes>
           {/* <Route path="/" element={<Navigate to="/login" replace />} /> */}
