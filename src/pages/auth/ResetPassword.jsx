@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./css/RecoverPassword.css";
+import { API_URL } from "../../constants";
 
 export default function ResetPassword() {
   const { token } = useParams();
@@ -28,7 +29,7 @@ export default function ResetPassword() {
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/api/public/reset-password/${token}`, {
+      const response = await fetch(`${API_URL}/api/public/reset-password/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),

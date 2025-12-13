@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../../context/AuthContext'
+import { useOffline } from '../../../context/OfflineContext'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
 import './css/Citas.css'
+import { API_URL } from '../../../constants'
 
 export default function Citas() {
   const { user } = useAuth()
+  const { isOfflineMode, toggleOfflineMode } = useOffline()
   const [date, setDate] = useState(new Date())
   const [showForm, setShowForm] = useState(false)
   const [editando, setEditando] = useState(null)
@@ -32,8 +35,21 @@ export default function Citas() {
   // Mostrar alerta específica para Citas
   const showAlert = (message, type = 'info') => {
     setCitasAlert({ show: true, message, type })
-    setTimeout(() => setCitasAlert({ show: false, message: '', type: '' }), 5000)
+    //setTimeout(() => setCitasAlert({ show: false, message: '', type: '' }), 5000)
   }
+
+  // Notificación cuando cambia el modo offline
+  useEffect(() => {
+    if (isOfflineMode) {
+      showAlert('Modo sin conexión activado. Tus acciones serán limitadas', 'warning')
+    } else {
+      // Solo mostrar si ya se había mostrado antes (para no mostrar al cargar la página)
+      const hadOfflineMode = localStorage.getItem('offlineMode')
+      if (hadOfflineMode === 'false') {
+        showAlert('Modo en línea activado. Todas las funciones disponibles', 'success')
+      }
+    }
+  }, [isOfflineMode])
 
   // === Obtener citas ===
   useEffect(() => {
@@ -115,7 +131,7 @@ export default function Citas() {
   useEffect(() => {
     const cargarServicios = async () => {
       try {
-        const negociosResp = await fetch("http://localhost:3000/api/public/getCompanys")
+        const negociosResp = await fetch(API_URL + "/api/public/getCompanys")
         const negociosData = await negociosResp.json()
         const company = negociosData?.data?.negocios?.find((c) => c.user_id === userId)
         const companyIdFound = company?.company_id || company?.id
@@ -319,6 +335,23 @@ export default function Citas() {
 
   return (
     <div className="citas-page">
+      {/* Botón invisible para activar modo offline - Presionar 3 veces */}
+      <div 
+        onClick={toggleOfflineMode}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          width: '30px',
+          height: '30px',
+          cursor: 'pointer',
+          opacity: 0.9,
+          //backgroundColor: isOfflineMode ? 'green' : 'red',
+          zIndex: 1000
+        }}
+        title="Modo offline"
+      />
+      
       <header className="citas-header">
         <h2>Agenda</h2>
       </header>

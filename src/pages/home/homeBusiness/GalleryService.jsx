@@ -3,13 +3,14 @@ import { ChevronLeft, Upload, Trash2 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./css/GalleryService.css";
 import Swal from "sweetalert2";
+import { API_URL } from "../../../constants";
 
 export default function GalleryService() {
   const location = useLocation();
   const navigate = useNavigate();
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
-  const API_BASE = "http://localhost:3000/api/public";
+  const API_BASE = API_URL + "/api/public";
 
   // Servicio recibido por parámetro
   const servicioInicial = location.state?.servicio;

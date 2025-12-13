@@ -3,6 +3,7 @@ import { ChevronLeft, Upload, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./css/Gallery.css";
 import Swal from "sweetalert2";
+import { API_URL } from "../../../constants";
 
 export default function Gallery() {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ export default function Gallery() {
   // Estado para alertas específico de Gallery
   const [galleryAlert, setGalleryAlert] = useState({ show: false, message: '', type: '' });
 
-  const API_BASE = "http://localhost:3000/api/public";
+  const API_BASE = API_URL + "/api/public";
 
   // Mostrar alerta específica para Gallery
   const showAlert = (message, type = 'info') => {

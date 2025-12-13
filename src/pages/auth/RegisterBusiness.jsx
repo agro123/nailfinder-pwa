@@ -6,6 +6,7 @@ import AddressMap from "./AddressMap";
 import "./css/RegisterBusiness.css";
 import AddressList from "./AddressList";
 import BusinessLocation from "./BusinessLocation";
+import { API_URL } from "../../constants";
 
 export default function RegisterBusiness() {
   const navigate = useNavigate();
@@ -249,7 +250,7 @@ export default function RegisterBusiness() {
       console.log("📦 Datos enviados al backend:", payload);
 
       const response = await fetch(
-        "http://localhost:3000/api/public/signupCompany",
+        API_URL + "/api/public/signupCompany",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

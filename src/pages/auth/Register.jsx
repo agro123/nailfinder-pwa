@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import AddressList from "./AddressList";
 import AddressMap from "./AddressMap";
 import "./css/Register.css";
+import { API_URL } from "../../constants";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -178,7 +179,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/public/signup", {
+      const response = await fetch(API_URL + "/api/public/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -3,6 +3,7 @@ import axios from "axios";
 import "./css/Home.css";
 import { useNavigate } from "react-router-dom";
 import MapComponent from "../../../components/Map/Map";
+import { API_URL } from "../../../constants";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -251,7 +252,7 @@ export default function Home() {
     try {
       setCategoriaSeleccionada(nuevaCategoria);
       const res = await axios.get(
-        `http://localhost:3000/api/public/getCompanys?id_category=${encodeURIComponent(
+        `${API_URL}/api/public/getCompanys?id_category=${encodeURIComponent(
           nuevaCategoria
         )}`
       );
@@ -280,7 +281,7 @@ export default function Home() {
     const fetchCategorias = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:3000/api/public/showCategorias"
+          API_URL + "/api/public/showCategorias"
         );
         if (res.data.success) {
           const categorias = res.data.data.categorias || [];

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import "./css/CitasUsuario.css";
 import Swal from 'sweetalert2';
+import { API_URL } from "../../../constants";
 
 export default function CitasUsuario() {
   const { user } = useAuth();
@@ -27,7 +28,7 @@ export default function CitasUsuario() {
 
   const obtenerCompanies = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/public/getCompanys");
+      const res = await fetch(API_URL + "/api/public/getCompanys");
       const response = await res.json();
 
       if (response.success && Array.isArray(response.data?.negocios)) {

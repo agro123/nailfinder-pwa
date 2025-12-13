@@ -25,6 +25,32 @@
   display: inline-block;
 }
 
+.citas-page .citas-header h2:contains("Offline") {
+  color: #ff6b6b;
+}
+
+.citas-page::before {
+  content: '';
+  display: none;
+}
+
+.citas-page[data-offline="true"]::before {
+  content: '🔴 Modo Offline Activado';
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #ff6b6b;
+  color: white;
+  padding: 8px;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  z-index: 9999;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
 /* --- CALENDARIO --- */
 .calendar-wrapper {
   background: #fff;
