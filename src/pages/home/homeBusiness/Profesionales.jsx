@@ -3,7 +3,6 @@ import { API_URL } from "../../../constants";
 import { Plus, Edit2, Trash2, ChevronLeft, X, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./css/Profesionales.css";
-import { API_URL } from "../../../constants";
 
 export default function Profesionales() {
   const navigate = useNavigate();
