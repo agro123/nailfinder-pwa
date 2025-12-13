@@ -67,9 +67,9 @@ export default function Citas() {
         // Elegir endpoint según tipo de usuario
         let url = ''
         if (companyId) {
-          url = `http://localhost:3000/api/private/companyAppointments?companyId=${companyId}&date=${fecha}`
+          url = `${API_URL}/api/private/companyAppointments?companyId=${companyId}&date=${fecha}`
         } else {
-          url = `http://localhost:3000/api/private/clientAppointments?clientId=${userId}&date=${fecha}`
+          url = `${API_URL}/api/private/clientAppointments?clientId=${userId}&date=${fecha}`
         }
 
         const res = await fetch(url)
@@ -138,7 +138,7 @@ export default function Citas() {
         if (!companyIdFound) return
 
         const serviciosResp = await fetch(
-          `http://localhost:3000/api/public/verServicios?idCompany=${companyIdFound}`
+          `${API_URL}/api/public/verServicios?idCompany=${companyIdFound}`
         )
         const serviciosData = await serviciosResp.json()
         if (serviciosData.success && serviciosData.data?.servicios) {
@@ -160,7 +160,7 @@ export default function Citas() {
 
         // Obtener profesionales que tengan este servicio
         const resProfs = await fetch(
-          `http://localhost:3000/api/public/listProfessionals?id_company=${companyId}`
+          `${API_URL}/api/public/listProfessionals?id_company=${companyId}`
         );
         const dataProfs = await resProfs.json();
         console.log("Profesionales: ", dataProfs);
@@ -185,7 +185,7 @@ export default function Citas() {
         const branchId = profConServicio.branch_id || profConServicio.branchid;
 
         // Construir URL de horarios
-        let url = `http://localhost:3000/api/public/getAvailableHours?date=${fechaISO}&serviceId=${servicio}&userId=${professionalId}&companyId=${companyId}`;
+        let url = `${API_URL}/api/public/getAvailableHours?date=${fechaISO}&serviceId=${servicio}&userId=${professionalId}&companyId=${companyId}`;
         if (branchId) url += `&branchId=${branchId}`;
 
         console.log("🗓️ Solicitando disponibilidad:", url);
@@ -231,7 +231,7 @@ export default function Citas() {
   const cambiarEstadoCita = async (id, nuevoEstado) => {
     setAccionEnProceso(true)
     try {
-      const res = await fetch('http://localhost:3000/api/private/changeAppointmentStatus', {
+      const res = await fetch(API_URL + '/api/private/changeAppointmentStatus', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ appointmentId: id, status: nuevoEstado }),
@@ -296,7 +296,7 @@ export default function Citas() {
         services: [parseInt(servicio)]      // Array con ID(s) de servicio(s)
       };
 
-      const res = await fetch('http://localhost:3000/api/public/createAppointment', {
+      const res = await fetch(API_URL + '/api/public/createAppointment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)

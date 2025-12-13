@@ -54,7 +54,7 @@ export default function CitasUsuario() {
     try {
       const fechaHoy = new Date().toISOString().split("T")[0];
       const res = await fetch(
-        `http://localhost:3000/api/private/clientAppointments?clientId=${user.id}&date=${fechaHoy}&limit=100&offset=0`
+        `${API_URL}/api/private/clientAppointments?clientId=${user.id}&date=${fechaHoy}&limit=100&offset=0`
       );
       const response = await res.json();
 
@@ -203,7 +203,7 @@ export default function CitasUsuario() {
     setCancelando(true);
     
     try {
-      const res = await fetch('http://localhost:3000/api/public/cancelAppointment', {
+      const res = await fetch(API_URL + '/api/public/cancelAppointment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -342,7 +342,7 @@ export default function CitasUsuario() {
     console.log('📝 Datos de reseña a enviar:', datosResena);
 
     try {
-      const res = await fetch('http://localhost:3000/api/private/rateService', {
+      const res = await fetch(API_URL + '/api/private/rateService', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

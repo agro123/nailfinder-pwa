@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Layers, Search, Edit, Trash2, Images } from 'lucide-react'
 import './css/Servicios.css'
+import { API_URL } from '../../../constants'
 
 export default function ServiciosBusiness() {
   const navigate = useNavigate()
@@ -41,7 +42,7 @@ export default function ServiciosBusiness() {
       const authUser = JSON.parse(localStorage.getItem('auth_user'))
       const userId = authUser?.id
 
-      const negocios = await fetch('http://localhost:3000/api/public/getCompanys', {
+      const negocios = await fetch(API_URL + '/api/public/getCompanys', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       })
@@ -51,7 +52,7 @@ export default function ServiciosBusiness() {
 
       showAlert('Eliminando servicio...', 'info')
 
-      const res = await fetch('http://localhost:3000/api/public/deleteServicio', {
+      const res = await fetch(API_URL + '/api/public/deleteServicio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -80,7 +81,7 @@ export default function ServiciosBusiness() {
         const authUser = JSON.parse(localStorage.getItem('auth_user'))
         const userId = authUser?.id
 
-        const negocios = await fetch('http://localhost:3000/api/public/getCompanys', {
+        const negocios = await fetch(API_URL + '/api/public/getCompanys', {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         })
@@ -97,7 +98,7 @@ export default function ServiciosBusiness() {
         }
 
         const resServicios = await fetch(
-          `http://localhost:3000/api/public/verServicios?idCompany=${companyIdFound}`,
+          `${API_URL}/api/public/verServicios?idCompany=${companyIdFound}`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },

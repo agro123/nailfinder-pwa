@@ -3,6 +3,7 @@ import { useAuth } from '../../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { BarChart2, Home, Users, Share2, Clock, Bell } from 'lucide-react'
 import './css/Settings.css'
+import { API_URL } from '../../../constants'
 
 export default function Settings() {
   const { logout, user } = useAuth()
@@ -34,7 +35,7 @@ export default function Settings() {
         }
 
         // 2️⃣ Obtener negocios desde el backend
-        const resp = await fetch('http://localhost:3000/api/public/getCompanys', {
+        const resp = await fetch(API_URL + '/api/public/getCompanys', {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         })

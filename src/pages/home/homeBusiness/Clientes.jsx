@@ -3,6 +3,7 @@ import './css/Clientes.css'
 import { Plus, Search, Edit2, Trash2, Camera, X } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
 import Swal from "sweetalert2";
+import { API_URL } from '../../../constants'
 
 export default function Clientes() {
   const { user } = useAuth()
@@ -40,7 +41,7 @@ export default function Clientes() {
       if (!companyId) return
       setLoading(true)
       try {
-        const res = await fetch(`http://localhost:3000/api/private/company/${companyId}/customers`)
+        const res = await fetch(`${API_URL}/api/private/company/${companyId}/customers`)
         const data = await res.json()
         if (data.success) setClientes(data.data)
         else showAlert('Error cargando clientes', 'error')
@@ -125,7 +126,7 @@ export default function Clientes() {
       let res, data
 
       if (editandoCliente) {
-        res = await fetch(`http://localhost:3000/api/private/company/customer/${editandoCliente.id}`, {
+        res = await fetch(`${API_URL}/api/private/company/customer/${editandoCliente.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -143,7 +144,7 @@ export default function Clientes() {
         } else showAlert('Error actualizando el cliente', 'error')
 
       } else {
-        res = await fetch(`http://localhost:3000/api/private/company/customer`, {
+        res = await fetch(`${API_URL}/api/private/company/customer`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -184,7 +185,7 @@ export default function Clientes() {
     if (!result.isConfirmed) return;
 
     try {
-      const res = await fetch(`http://localhost:3000/api/private/company/customer/${id}`, { method: 'DELETE' })
+      const res = await fetch(`${API_URL}/api/private/company/customer/${id}`, { method: 'DELETE' })
       const data = await res.json()
       if (data.success) {
         setClientes(prev => prev.filter(c => c.id !== id))

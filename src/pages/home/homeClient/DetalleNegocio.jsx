@@ -4,6 +4,7 @@ import "./css/DetalleNegocio.css";
 import ReactDOM from "react-dom";
 import { ChevronLeft } from "lucide-react";
 import MapComponent from "../../../components/Map/Map";
+import { API_URL } from '../../../constants';
 
 export default function DetalleNegocio() {
     const { id } = useParams();
@@ -150,7 +151,7 @@ export default function DetalleNegocio() {
             try {
             console.log("🚀 Solicitando servicios para empresa:", idCompany);
             const response = await fetch(
-                `http://localhost:3000/api/public/verServicios?idCompany=${idCompany}`
+                `${API_URL}/api/public/verServicios?idCompany=${idCompany}`
             );
             const text = await response.text();
             console.log("📄 Respuesta completa:", text);
@@ -309,7 +310,7 @@ export default function DetalleNegocio() {
         console.log("📡 Intentando cargar horarios para companyId:", id_company);
 
         // ✅ Ahora se usa GET con query param
-        const resp = await fetch(`http://localhost:3000/api/public/getCompanyHorarios?id_company=${encodeURIComponent(id_company)}`);
+        const resp = await fetch(`${API_URL}/api/public/getCompanyHorarios?id_company=${encodeURIComponent(id_company)}`);
 
         if (!resp.ok) throw new Error(`HTTP error ${resp.status}`);
 

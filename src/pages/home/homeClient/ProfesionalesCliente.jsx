@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import "./css/ProfesionalesCliente.css";
+import { API_URL } from '../../../constants';
 
 export default function ProfesionalesCliente() {
     const { idServicio } = useParams();
@@ -30,7 +31,7 @@ export default function ProfesionalesCliente() {
 
                 // 🔹 Aquí ajusta la URL base si tu backend está en otro puerto o ruta
                 const response = await fetch(
-                    `http://localhost:3000/api/public/getWorkersService?serviceId=${serviceId}&companyId=${companyId}`
+                    `${API_URL}/api/public/getWorkersService?serviceId=${serviceId}&companyId=${companyId}`
                 );
 
                 const result = await response.json();

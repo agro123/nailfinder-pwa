@@ -3,6 +3,7 @@ import { API_URL } from "../../../constants";
 import { Plus, Edit2, Trash2, ChevronLeft, X, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./css/Profesionales.css";
+import { API_URL } from "../../../constants";
 
 export default function Profesionales() {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ export default function Profesionales() {
 
         // cargar servicios
         const serviciosResp = await fetch(
-          `http://localhost:3000/api/public/verServicios?idCompany=${companyIdFound}`
+          `${API_URL}/api/public/verServicios?idCompany=${companyIdFound}`
         );
         const serviciosData = await serviciosResp.json();
 
@@ -109,7 +110,7 @@ export default function Profesionales() {
   const fetchProfessionals = async () => {
     try {
       const res = await fetch(
-        `http://localhost:3000/api/public/listProfessionals?id_company=${companyId}`
+        `${API_URL}/api/public/listProfessionals?id_company=${companyId}`
       );
       const data = await res.json();
 
