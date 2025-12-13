@@ -28,9 +28,6 @@ export default function Login() {
       return;
     }
 
-
-
-
     try {
       // Petición al backend
       const response = await fetch("http://localhost:3000/api/public/login", {
@@ -45,7 +42,10 @@ export default function Login() {
 
       if (!response.ok) {
         const backendMsg = result.message?.toLowerCase() || "";
-        if (backendMsg.includes("usuario no encontrado") || backendMsg.includes("no existe")) {
+        if (
+          backendMsg.includes("usuario no encontrado") ||
+          backendMsg.includes("no existe")
+        ) {
           setType("error");
           setMessage("El usuario ingresado no existe ❌");
         } else {
@@ -64,12 +64,11 @@ export default function Login() {
 
         setType("success");
         setMessage("Inicio de sesión exitoso 🎉");
-        if (isCompany){
+        if (isCompany) {
           navigate("/settings");
-        }else{
+        } else {
           navigate("/"); // Redirige al home
         }
-        
       } else {
         throw new Error("Respuesta del servidor inválida");
       }
@@ -77,17 +76,14 @@ export default function Login() {
       console.error("Error de conexión:", error);
       setType("error");
       setMessage("No se pudo conectar con el servidor ❌");
-      
     }
   };
 
   return (
     <div className="login-container">
-     
-
       <form className="login-form" onSubmit={handleLogin}>
         <img
-          src="/isologo.png"   
+          src="/isologo.png"
           alt=" Isologo NailFinder"
           className="login-logo"
         />
@@ -115,12 +111,12 @@ export default function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-          {type === "error" &&
-            (message.toLowerCase().includes("contraseña") ||
-              message.toLowerCase().includes("credenciales") ||
-              message.toLowerCase().includes("usuario no existe") ||
-              message.toLowerCase().includes("usuario ingresado")) && (
-              <span className="error">{message}</span>
+        {type === "error" &&
+          (message.toLowerCase().includes("contraseña") ||
+            message.toLowerCase().includes("credenciales") ||
+            message.toLowerCase().includes("usuario no existe") ||
+            message.toLowerCase().includes("usuario ingresado")) && (
+            <span className="error">{message}</span>
           )}
         <div className="forgot-password">
           <Link to="/recover">¿Olvidaste tu contraseña?</Link>
@@ -128,7 +124,7 @@ export default function Login() {
         <button type="submit">Entrar</button>
       </form>
 
-        <div className="login-links user-register">
+      <div className="login-links user-register">
         <p>
           ¿No tienes cuenta?{" "}
           <Link to="/register" className="business-link">
@@ -137,9 +133,9 @@ export default function Login() {
         </p>
       </div>
 
-            {/* 🔽 Registro de negocio (parte inferior de la pantalla) */}
+      {/* 🔽 Registro de negocio (parte inferior de la pantalla) */}
       <div className="business-register">
-        <p>
+        <p className="footer-text">
           ¿Tienes un negocio?{" "}
           <Link to="/registerB" className="business-link">
             Regístralo aquí

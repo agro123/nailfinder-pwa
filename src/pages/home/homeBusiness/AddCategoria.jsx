@@ -33,7 +33,11 @@ export default function AddCategoria() {
 
   const handleGuardar = async () => {
     if (!companyId) {
-      alert('❌ No se encontró el ID de la empresa. Recarga la página e intenta de nuevo.')
+      alertPrompt({
+        title: "Error",
+        message: `No se encontró el ID de la empresa. Recarga la página e intenta de nuevo`,
+        type: "error",
+      });
       return
     }
 
@@ -54,14 +58,26 @@ export default function AddCategoria() {
 
       const data = await res.json()
       if (data.success) {
-        alert('✅ Categoría creada correctamente')
+        alertPrompt({
+          title: "OK",
+          message: `Categoría creada correctamente`,
+          type: "success",
+        });
         navigate('/servicios')
       } else {
-        alert('❌ Error al crear categoría')
+        alertPrompt({
+          title: "Error",
+          message: `No se logro crear la categoria`,
+          type: "error",
+        });
       }
     } catch (err) {
       console.error(err)
-      alert('Error al conectar con el servidor')
+      alertPrompt({
+        title: "Error",
+        message: `No se logro establecer conexion con el servidor`,
+        type: "error",
+      });
     } finally {
       setGuardando(false)
     }
@@ -82,10 +98,14 @@ export default function AddCategoria() {
         onChange={(e) => setDescripcion(e.target.value)}
       />
       <div className="button-group">
-        <button onClick={handleGuardar} disabled={guardando}>
+        <button
+          className="btn-primary"
+          onClick={handleGuardar}
+          disabled={guardando}>
           {guardando ? 'Guardando...' : 'Guardar categoría'}
         </button>
-        <button onClick={() => navigate('/servicios')}>Cancelar</button>
+
+        <button className="btn-secondary" onClick={() => navigate('/servicios')}>Cancelar</button>
       </div>
     </div>
   )

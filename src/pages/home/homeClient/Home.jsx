@@ -22,6 +22,88 @@ export default function Home() {
   const [ubicacionUsuario, setUbicacionUsuario] = useState(null);
   const [obteniendoUbicacion, setObteniendoUbicacion] = useState(false);
 
+  // 🆕 Estado para horarios de empresas
+  const [horariosEmpresas, setHorariosEmpresas] = useState({});
+  const [loadingHorarios, setLoadingHorarios] = useState(false);
+
+  // 🆕 Función para normalizar días (igual que en DetalleNegocio)
+  const normalize = (str) => {
+    return str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  };
+
+  // 🆕 Función para obtener el día actual normalizado
+  const obtenerDiaActual = () => {
+    const dias = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
+    const hoy = new Date().getDay();
+    return dias[hoy];
+  };
+
+  // 🆕 Función para verificar si el negocio está abierto ahora
+  const estaAbierto = (companyId) => {
+    const horarios = horariosEmpresas[companyId];
+
+    // Si no hay horarios registrados, está cerrado
+    if (!horarios || horarios.length === 0) {
+      return false;
+    }
+
+    const diaActual = obtenerDiaActual();
+    const horaActual = new Date();
+    const horaActualString = `${horaActual.getHours().toString().padStart(2, '0')}:${horaActual.getMinutes().toString().padStart(2, '0')}:00`;
+
+    // Buscar horarios del día actual
+    const horariosHoy = horarios.filter(h => normalize(h.weekday) === diaActual);
+
+    if (horariosHoy.length === 0) {
+      return false; // No hay horarios para hoy
+    }
+
+    // Verificar si la hora actual está dentro de alguno de los rangos
+    return horariosHoy.some(horario => {
+      const inicio = horario.starthour;
+      const fin = horario.endhour;
+
+      return horaActualString >= inicio && horaActualString <= fin;
+    });
+  };
+
+  // 🆕 Función para cargar horarios de todas las empresas
+  const fetchHorariosEmpresas = async (empresas) => {
+    setLoadingHorarios(true);
+    const horariosMap = {};
+
+    const promesas = empresas.map(async (empresa) => {
+      try {
+        const resp = await fetch(
+          `http://localhost:3000/api/public/getCompanyHorarios?id_company=${encodeURIComponent(empresa.company_id)}`
+        );
+
+        if (!resp.ok) {
+          console.warn(`No se pudieron cargar horarios para ${empresa.company_name}`);
+          return;
+        }
+
+        const data = await resp.json();
+
+        if (data.success && data.data.horarios?.length > 0) {
+          horariosMap[empresa.company_id] = data.data.horarios;
+        } else {
+          horariosMap[empresa.company_id] = []; // Sin horarios
+        }
+      } catch (error) {
+        console.error(`Error cargando horarios para ${empresa.company_name}:`, error);
+        horariosMap[empresa.company_id] = []; // Sin horarios en caso de error
+      }
+    });
+
+    await Promise.all(promesas);
+    setHorariosEmpresas(horariosMap);
+    setLoadingHorarios(false);
+  };
+
   // Obtener ubicación del usuario
   const obtenerUbicacionUsuario = () => {
     setObteniendoUbicacion(true);
@@ -36,12 +118,20 @@ export default function Home() {
         },
         (error) => {
           console.error("Error al obtener ubicación:", error);
-          alert("No se pudo obtener tu ubicación. Por favor, permite el acceso.");
+          alertPrompt({
+            title: "Error",
+            message: `No se pudo obtener tu ubicación. Por favor, permite el acceso.`,
+            type: "error",
+          });
           setObteniendoUbicacion(false);
         }
       );
     } else {
-      alert("Tu navegador no soporta geolocalización");
+      alertPrompt({
+        title: "Error",
+        message: `Tu navegador no soporta geolocalización`,
+        type: "error",
+      });
       setObteniendoUbicacion(false);
     }
   };
@@ -54,9 +144,9 @@ export default function Home() {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c; // Distancia en km
   };
@@ -64,19 +154,13 @@ export default function Home() {
   // Verificar si una valoración está en el rango seleccionado
   const cumpleFiltroValoracion = (valoracion) => {
     if (filtroValoracion.length === 0) return true;
-    
-    return filtroValoracion.some((rango) => {
-      switch (rango) {
-        case "1-1.9":
-          return valoracion >= 1 && valoracion < 2;
-        case "2-2.9":
-          return valoracion >= 2 && valoracion < 3;
-        case "3-3.9":
-          return valoracion >= 3 && valoracion < 4;
-        case "4-5":
-          return valoracion >= 4 && valoracion <= 5;
-        default:
-          return false;
+
+    return filtroValoracion.some((estrella) => {
+      const num = parseInt(estrella);
+      if (num === 5) {
+        return valoracion === 5;
+      } else {
+        return valoracion >= num && valoracion < num + 1;
       }
     });
   };
@@ -99,16 +183,13 @@ export default function Home() {
   // Aplicar todos los filtros
   const aplicarFiltros = (listaEmpresas) => {
     return listaEmpresas.filter((empresa) => {
-      // Filtro de búsqueda por nombre
       const cumpleBusqueda = empresa.company_name
         ?.toLowerCase()
         .includes(search.toLowerCase());
 
-      // Filtro de valoración
       const valoracion = parseFloat(empresa.promedio_calificacion) || 0;
       const cumpleValoracion = cumpleFiltroValoracion(valoracion);
 
-      // Filtro de distancia
       const cumpleDistancia = cumpleFiltroDistancia(empresa);
 
       return cumpleBusqueda && cumpleValoracion && cumpleDistancia;
@@ -131,6 +212,39 @@ export default function Home() {
     setFiltroValoracion([]);
     setFiltroDistancia(null);
     setUbicacionUsuario(null);
+    setCategoriaSeleccionada(0);
+    fetchEmpresas(0);
+  };
+
+  // Remover filtro individual
+  const removerFiltroIndividual = (tipoFiltro, valor) => {
+    switch (tipoFiltro) {
+      case 'valoracion':
+        setFiltroValoracion(prev => prev.filter(v => v !== valor));
+        break;
+      case 'distancia':
+        setFiltroDistancia(null);
+        setSliderValue(0);
+        setUbicacionUsuario(null);
+        break;
+      case 'categoria':
+        setCategoriaSeleccionada(0);
+        fetchEmpresas(0);
+        break;
+      case 'ubicacion':
+        setUbicacionUsuario(null);
+        setFiltroDistancia(null);
+        setSliderValue(0);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Obtener nombre de categoría por ID
+  const getNombreCategoria = (id) => {
+    const cat = servicios.find(s => s.id === id);
+    return cat ? (cat.nombre || cat.name || cat.categoria) : '';
   };
 
   const fetchEmpresas = async (nuevaCategoria) => {
@@ -146,6 +260,11 @@ export default function Home() {
         const negocios = res.data.data.negocios || [];
         setTodasEmpresas(negocios);
         setEmpresas(negocios);
+
+        // 🆕 Cargar horarios cuando se obtienen las empresas
+        if (negocios.length > 0) {
+          fetchHorariosEmpresas(negocios);
+        }
       } else {
         setError("No se pudieron cargar los negocios.");
       }
@@ -182,13 +301,23 @@ export default function Home() {
     fetchCategorias();
   }, []);
 
+  // 🆕 Actualizar el estado de abierto/cerrado cada minuto
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Forzar re-render para actualizar estados
+      setHorariosEmpresas(prev => ({ ...prev }));
+    }, 60000); // Cada 60 segundos
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Aplicar filtros cuando cambien
   const empresasFiltradas = aplicarFiltros(empresas);
 
   // Filtro por tipo de negocio
   const recomendados = empresasFiltradas.filter(
-    (e) => parseFloat(e.promedio_calificacion) >= 4 && 
-          parseFloat(e.promedio_calificacion) <= 5
+    (e) => parseFloat(e.promedio_calificacion) >= 4 &&
+      parseFloat(e.promedio_calificacion) <= 5
   );
 
   const locales = empresasFiltradas.filter(
@@ -202,18 +331,15 @@ export default function Home() {
   useEffect(() => {
     const forceMarkerColors = () => {
       const markers = document.querySelectorAll('.custom-marker');
-      
+
       markers.forEach((marker, index) => {
-        // Primer marcador es la ubicación del usuario (verde)
         const shouldBeGreen = ubicacionUsuario && index === 0;
         const color = shouldBeGreen ? '#6c200a' : '#fc4b08';
-        
-        // Forzar el color sobrescribiendo el estilo inline
+
         marker.style.setProperty('background-color', color, 'important');
       });
     };
 
-    // Ejecutar varias veces para asegurar que se aplique
     const timers = [
       setTimeout(forceMarkerColors, 300),
       setTimeout(forceMarkerColors, 600),
@@ -221,12 +347,10 @@ export default function Home() {
       setTimeout(forceMarkerColors, 1500)
     ];
 
-    // Observar cambios en el DOM para reaplicar colores cuando cambie algo
     const observer = new MutationObserver(() => {
       forceMarkerColors();
     });
 
-    // Observar el contenedor del mapa
     const mapContainer = document.querySelector('.leaflet-container');
     if (mapContainer) {
       observer.observe(mapContainer, {
@@ -269,7 +393,6 @@ export default function Home() {
             parseFloat(empresa.longitude)
           );
 
-          // Solo mostrar negocios dentro del radio
           if (distancia <= filtroDistancia) {
             coords.push({
               lat: parseFloat(empresa.latitude),
@@ -285,11 +408,13 @@ export default function Home() {
     return coords;
   };
 
-  // Render de tarjeta con valoración
+  // 🆕 Render de tarjeta CON estado dinámico basado en horarios
   const renderCard = (item) => {
     const valoracion = parseFloat(item.promedio_calificacion) || 0;
+    const abierto = estaAbierto(item.company_id);
+
     let distancia = null;
-    
+
     if (ubicacionUsuario && item.latitude && item.longitude) {
       distancia = calcularDistancia(
         ubicacionUsuario.lat,
@@ -334,39 +459,19 @@ export default function Home() {
           </div>
         )}
 
-        {/* Distancia */}
-        {distancia !== null && (
-          <p className="distancia-info">📍 {distancia.toFixed(1)} km</p>
-        )}
-
-        <p className="business-info">
-          {item.business_type?.toLowerCase() === "local" ? (
-            item.latitude && item.longitude ? (
-              <>📍 Local con ubicación</>
-            ) : (
-              <>📍 Local disponible</>
-            )
-          ) : item.business_type?.toLowerCase() === "domicilio" ? (
-            <>📞 {item.company_phone}</>
-          ) : (
-            <>🏢 {item.business_type || "Sin tipo"}</>
-          )}
-        </p>
-
+        {/* 🆕 Estado dinámico basado en horarios */}
         <div className="status-container">
           <span
-            className={`company-status-dot ${
-              item.status ? "active" : "inactive"
-            }`}
+            className={`company-status-dot ${abierto ? "active" : "inactive"
+              }`}
           ></span>
-          <span>{item.status ? "Abierto" : "Cerrado"}</span>
+          <span>{abierto ? "Abierto" : "Cerrado"}</span>
         </div>
       </div>
     );
   };
 
   const coordenadasMapa = generarCoordenadasMapa();
-
 
   useEffect(() => {
     const slider = document.querySelector(".distance-slider");
@@ -379,8 +484,7 @@ export default function Home() {
   const handleSliderChange = (e) => {
     const value = Number(e.target.value);
     setSliderValue(value);
-    
-    // Si value es 0, no filtrar. Si es mayor a 0, aplicar filtro
+
     if (value > 0) {
       setFiltroDistancia(value);
     } else {
@@ -392,7 +496,7 @@ export default function Home() {
       "--value-percent",
       `${percent}%`
     );
-};
+  };
 
   return (
     <div className="home-container">
@@ -404,15 +508,19 @@ export default function Home() {
             onClick={() => setShowModalFiltros(true)}
           >
             ⚙️ Filtros
-            {(filtroValoracion.length > 0 || filtroDistancia) && (
-              <span className="filtros-activos-badge">
-                {filtroValoracion.length + (filtroDistancia ? 1 : 0)}
-              </span>
-            )}
+            {(filtroValoracion.length > 0 ||
+              filtroDistancia ||
+              categoriaSeleccionada !== 0) && (
+                <span className="filtros-activos-badge">
+                  {filtroValoracion.length +
+                    (filtroDistancia ? 1 : 0) +
+                    (categoriaSeleccionada !== 0 ? 1 : 0)}
+                </span>
+              )}
           </button>
           <input
             type="text"
-            placeholder="Buscar servicios o negocios"
+            placeholder="Buscar negocios"
             className="search-input"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -440,16 +548,15 @@ export default function Home() {
               {/* Filtro de Valoración */}
               <div className="filtro-seccion">
                 <h4 className="filtro-titulo">⭐ Valoración</h4>
-                <div className="filtro-opciones">
-                  {["1-1.9", "2-2.9", "3-3.9", "4-5"].map((rango) => (
+                <div className="filtro-opciones-horizontal">
+                  {["1", "2", "3", "4", "5"].map((estrella) => (
                     <button
-                      key={rango}
-                      className={`modal-filter-btn ${
-                        filtroValoracion.includes(rango) ? "active" : ""
-                      }`}
-                      onClick={() => toggleFiltroValoracion(rango)}
+                      key={estrella}
+                      className={`modal-filter-btn ${filtroValoracion.includes(estrella) ? "active" : ""
+                        }`}
+                      onClick={() => toggleFiltroValoracion(estrella)}
                     >
-                      {rango === "4-5" ? "⭐ 4.0 - 5.0" : `⭐ ${rango}`}
+                      ⭐ {estrella}
                     </button>
                   ))}
                 </div>
@@ -458,7 +565,7 @@ export default function Home() {
               {/* Filtro de Distancia */}
               <div className="filtro-seccion">
                 <h4 className="filtro-titulo">📍 Distancia</h4>
-                
+
                 {!ubicacionUsuario ? (
                   <button
                     className="ubicacion-btn"
@@ -473,22 +580,20 @@ export default function Home() {
                   <>
                     <p className="ubicacion-activa">✅ Ubicación activada</p>
                     <div className="slider-container">
-                    <input
-                      type="range"
-                      min="0"
-                      max="20"
-                      step="1"
-                      value={sliderValue}
-                      className="distance-slider"
-                      onChange={(e) => handleSliderChange(e)}
-                    />
+                      <input
+                        type="range"
+                        min="0"
+                        max="20"
+                        step="1"
+                        value={sliderValue}
+                        className="distance-slider"
+                        onChange={(e) => handleSliderChange(e)}
+                      />
 
-                    {/* Etiqueta dinámica debajo del circulito */}
-                    <div className="slider-value">
-                      {sliderValue === 0 ? "Arrastra y selecciona distancia" : `Hasta ${sliderValue} km`}
+                      <div className="slider-value">
+                        {sliderValue === 0 ? "Arrastra y selecciona distancia" : `Hasta ${sliderValue} km`}
+                      </div>
                     </div>
-                  </div>
-
                   </>
                 )}
               </div>
@@ -513,7 +618,6 @@ export default function Home() {
                     />
                   </div>
 
-                  {/* Leyenda del mapa */}
                   <div className="map-legend">
                     <div className="legend-item">
                       <span className="legend-dot-home user-location-dot-home"></span>
@@ -530,68 +634,100 @@ export default function Home() {
                       </div>
                     )}
                   </div>
-
-                  {/* Estadísticas del mapa */}
-                  <div className="map-stats">
-                    <span className="stat-badge-home">
-                      📍 Tu ubicación
-                    </span>
-                    {filtroDistancia && (
-                      <span className="stat-badge-home other-companies-badge-home">
-                        🎯 {coordenadasMapa.filter(c => c.iconColor === "#fc4b08").length} negocio(s)
-                      </span>
-                    )}
-                  </div>
                 </div>
               )}
+
+              {/* Filtro de Categorías */}
+              <div className="filtro-seccion">
+                <h4 className="filtro-titulo">🏷️ Categorías</h4>
+                <div className="filtro-opciones">
+                  {servicios.length > 0 ? (
+                    servicios.map((cat, index) => (
+                      <button
+                        key={index}
+                        className={`modal-filter-btn ${categoriaSeleccionada === cat.id ? "active" : ""
+                          }`}
+                        onClick={() => fetchEmpresas(cat.id)}
+                      >
+                        {cat.nombre || cat.name || cat.categoria}
+                      </button>
+                    ))
+                  ) : (
+                    <p className="loading-text">Cargando categorías...</p>
+                  )}
+                </div>
+              </div>
 
               {/* Botón para limpiar filtros */}
               {(filtroValoracion.length > 0 ||
                 filtroDistancia ||
-                ubicacionUsuario) && (
-                <button className="limpiar-filtros-btn" onClick={limpiarFiltros}>
-                  🗑️ Limpiar todos los filtros
-                </button>
-              )}
-
-              {/* Resumen de filtros activos */}
-              {(filtroValoracion.length > 0 || filtroDistancia) && (
-                <div className="filtros-resumen">
-                  <p className="resumen-titulo">Filtros activos:</p>
-                  {filtroValoracion.length > 0 && (
-                    <p className="resumen-item">
-                      ⭐ Valoración: {filtroValoracion.join(", ")}
-                    </p>
-                  )}
-                  {filtroDistancia && (
-                    <p className="resumen-item">
-                      📍 Distancia: hasta {filtroDistancia} km
-                    </p>
-                  )}
-                </div>
-              )}
+                ubicacionUsuario ||
+                categoriaSeleccionada !== 0) && (
+                  <button className="limpiar-filtros-btn" onClick={limpiarFiltros}>
+                    🗑️ Limpiar todos los filtros
+                  </button>
+                )}
             </div>
           </div>
         </div>
       )}
 
-      <div className="filters">
-        {servicios.length > 0 ? (
-          servicios.map((cat, index) => (
-            <button
-              key={index}
-              className={`filter-btn ${
-                categoriaSeleccionada === cat.id ? "active" : ""
-              }`}
-              onClick={() => fetchEmpresas(cat.id)}
-            >
-              {cat.nombre || cat.name || cat.categoria}
-            </button>
-          ))
-        ) : (
-          <p className="loading-text">Cargando categorías...</p>
+      {/* Chips de Filtros Activos */}
+      {(filtroValoracion.length > 0 ||
+        filtroDistancia ||
+        categoriaSeleccionada !== 0) && (
+          <div className="filtros-aplicados">
+            <h4 className="filtros-aplicados-titulo">Filtros aplicados</h4>
+            <div className="filtros-chips-container">
+              {categoriaSeleccionada !== 0 && (
+                <div className="filtro-chip">
+                  <span className="filtro-chip-texto">
+                    🏷️ {getNombreCategoria(categoriaSeleccionada)}
+                  </span>
+                  <button
+                    className="filtro-chip-close"
+                    onClick={() => removerFiltroIndividual('categoria', categoriaSeleccionada)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+
+              {filtroValoracion.map((val) => (
+                <div key={val} className="filtro-chip">
+                  <span className="filtro-chip-texto">⭐ {val} estrellas</span>
+                  <button
+                    className="filtro-chip-close"
+                    onClick={() => removerFiltroIndividual('valoracion', val)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+
+              {filtroDistancia && (
+                <div className="filtro-chip">
+                  <span className="filtro-chip-texto">
+                    📍 Hasta {filtroDistancia} km
+                  </span>
+                  <button
+                    className="filtro-chip-close"
+                    onClick={() => removerFiltroIndividual('distancia')}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         )}
-      </div>
+
+      {/* 🆕 Indicador de carga de horarios */}
+      {loadingHorarios && (
+        <div className="loading-horarios">
+          <p>⏳ Verificando horarios de los negocios...</p>
+        </div>
+      )}
 
       {loading && <p className="loading-text">Cargando negocios...</p>}
       {error && <p className="error-text">{error}</p>}
@@ -600,7 +736,7 @@ export default function Home() {
         <>
           {empresasFiltradas.length === 0 ? (
             <div className="sin-resultados">
-              <p className="sin-resultados-emoji">📍</p>
+              <p className="sin-resultados-emoji">🔍</p>
               <p className="sin-resultados-texto">
                 No se encontraron negocios con los filtros seleccionados
               </p>

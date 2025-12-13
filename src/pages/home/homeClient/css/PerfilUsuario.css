@@ -123,7 +123,7 @@
 
 /* Leyenda del mapa */
 .map-legend {
-  margin-top: 15px;
+  margin-bottom: 15px;
   padding: 15px;
   background-color: #f8f9fa;
   border-radius: 12px;
@@ -151,15 +151,15 @@
 }
 
 .legend-dot.user-location-dot {
-  background-color: #0bb397;
+  background-color: #6c200a;
 }
 
 .legend-dot.other-business-dot {
-  background-color: #ff6b6b;
+  background-color: #fc4b08;
 }
 
 .logout-btn-cliente {
-  background-color: #0bb397;
+  background-color: #e25b7a;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -171,7 +171,7 @@
 }
 
 .logout-btn-cliente:hover {
-  background-color: #099c85;
+  background-color: #d1497a;
 }
 
 /* Responsive */

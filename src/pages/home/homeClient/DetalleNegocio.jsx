@@ -29,6 +29,8 @@ export default function DetalleNegocio() {
 
     const [horarios, setHorarios] = useState([]);
     const [loadingHorarios, setLoadingHorarios] = useState(true);
+
+    const [horaActual, setHoraActual] = useState(new Date());
  
 
     // Normalizar para evitar problemas con tildes
@@ -37,6 +39,34 @@ export default function DetalleNegocio() {
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "")
             .toLowerCase();
+    };
+
+    const obtenerDiaActual = () => {
+        const dias = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
+        const hoy = new Date().getDay();
+        return dias[hoy];
+    };
+
+    // ðŸ†• AGREGAR ESTA FUNCIÓN:
+    const estaAbierto = () => {
+        if (!horarios || horarios.length === 0) {
+            return false;
+        }
+
+        const diaActual = obtenerDiaActual();
+        const horaActualString = `${horaActual.getHours().toString().padStart(2, '0')}:${horaActual.getMinutes().toString().padStart(2, '0')}:00`;
+
+        const horariosHoy = horarios.filter(h => normalize(h.weekday) === diaActual);
+
+        if (horariosHoy.length === 0) {
+            return false;
+        }
+
+        return horariosHoy.some(horario => {
+            const inicio = horario.starthour;
+            const fin = horario.endhour;
+            return horaActualString >= inicio && horaActualString <= fin;
+        });
     };
 
     const order = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
@@ -172,6 +202,21 @@ export default function DetalleNegocio() {
         document.body.style.overflow = "";
         };
     }, [imagenAmpliada]);
+
+    useEffect(() => {
+        if (!negocio?.company_id) return;
+
+        setLoadingHorarios(true);
+        fetchHorarios(negocio.company_id).finally(() => setLoadingHorarios(false));
+    }, [negocio]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setHoraActual(new Date());
+        }, 60000); // Cada 60 segundos
+
+        return () => clearInterval(interval);
+    }, []);
 
     if (!negocio) {
         return (
@@ -325,6 +370,7 @@ export default function DetalleNegocio() {
         })}`;
     };
 
+    const round1 = n => Math.round(n * 10) / 10;
 
     return (
         <div className="detalle-container">
@@ -358,14 +404,14 @@ export default function DetalleNegocio() {
                 e.target.onerror = null;
                 e.target.replaceWith(
                     Object.assign(document.createElement("div"), {
-                    className: "emoji-box big",
+                    className: "default-image-container  detalle-logo",
                     textContent: "🌸",
                     })
                 );
                 }}
             />
             ) : (
-            <div className="emoji-box big">🌸</div>
+                <div className="default-image-container  detalle-logo">🌸</div>
             )}
 
             <div className="detalle-info">
@@ -374,7 +420,7 @@ export default function DetalleNegocio() {
                 <span className="estrella">⭐</span>
                 {negocio.promedio_calificacion ? (
                 <>
-                    <span className="rating-valor">{negocio.promedio_calificacion}</span>
+                    <span className="rating-valor">{round1(negocio.promedio_calificacion)}</span>
                     <span className="rating-total">
                     ({negocio.calificaciones?.length || 0} Reseñas)
                     </span>
@@ -387,9 +433,10 @@ export default function DetalleNegocio() {
             <p>📞 <strong>Teléfono:</strong> {negocio.company_phone || "No disponible"}</p>
             <p>📧 <strong>Email:</strong> {negocio.user_email || "No registrado"}</p>
             <p>🏠 <strong>Tipo de negocio:</strong> {negocio.business_type}</p>
-            <p className={`estado ${negocio.status ? "abierto" : "cerrado"}`}>
-                {negocio.status ? "Abierto" : "Cerrado"}
-            </p>
+            <div className="status-container-detalle">
+                <span className={`company-status-dot-detalle ${estaAbierto() ? "active" : "inactive"}`}></span>
+                <span>{estaAbierto() ? "Abierto ahora" : "Cerrado"}</span>
+            </div>
             </div>
         </div>
 
@@ -446,7 +493,7 @@ export default function DetalleNegocio() {
                         }
                         style={{ cursor: "pointer" }}
                     >
-                        <div className="servicio-header">
+                        <div className="servicio-header" style={{width: '100%'}}>
                             {serv.images?.length > 0 ? (
                                 <img
                                     src={serv.images[0].uri}
@@ -455,7 +502,7 @@ export default function DetalleNegocio() {
                                     onError={(e) => (e.target.style.display = "none")}
                                 />
                             ) : (
-                                <div className="emoji-box">💅</div>
+                                <div className="emoji-box servicio-img">💅</div>
                             )}
                         </div>
                         <div className="servicio-body">

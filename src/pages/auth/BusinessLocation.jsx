@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Swal from 'sweetalert2';
 import "./css/BusinessLocation.css";
 import MapPicker from "../../components/Map/MapPicker";
 
@@ -8,54 +9,130 @@ export default function BusinessLocation({ onNext, onBack, setMessage, setType, 
   // Selected coordinates from the map picker (controlled mode)
   const [pickedLocation, setPickedLocation] = useState(null);
   // Map center (try to use geolocation if available). Default -> Cali, Colombia
-  const [center, setCenter] = useState({ lat: 3.4516, lng: -76.5320 });
-  // Radius (in meters) used when mode === 'domicilio'
-  const [radius, setRadius] = useState(5000); // default 5 km
+  const [center, setCenter] = useState({ lat: 3.420556, lng: -76.522222 });
+  // Radius (in kilometers) used when mode === 'domicilio'
+  const [radius, setRadius] = useState(5); // default 5 km
+  const [locationObtained, setLocationObtained] = useState(false);
+  const [loadingLocation, setLoadingLocation] = useState(true);
+  const [locationError, setLocationError] = useState(null);
 
   const handleNext = () => {
     if (!address.trim()) {
-      if (setType) setType("error");
-      if (setMessage) setMessage("⚠️ Ingresa la dirección del negocio.");
-      if (setMessage) setTimeout(() => setMessage(""), 2500); 
+      Swal.fire({
+        title: "Campo requerido",
+        text: "⚠️ Ingresa la dirección del negocio.",
+        icon: "warning",
+        draggable: true,
+        customClass: {
+          confirmButton: 'boton-alert-agenda'
+        }
+      });
       return;
     }
-    if (onNext) {
-      // Enviar los datos de este paso
-      onNext({
-        companytype: mode === "local" ? "Local" : "domicilio",
-        address,
-        // incluir la ubicación seleccionada (si existe)
-        location: pickedLocation || null,
-        // incluir el radio en metros si aplica
-        radius: mode === 'domicilio' ? radius : null,
+    
+    if (!pickedLocation) {
+      Swal.fire({
+        title: "Ubicación requerida",
+        text: "⚠️ Por favor, selecciona una ubicación en el mapa.",
+        icon: "warning",
+        draggable: true,
+        customClass: {
+          confirmButton: 'boton-alert-agenda'
+        }
       });
+      return;
+    }
+    
+    if (onNext) {
+      const dataToSend = {
+        companytype: mode === "local" ? "local" : "domicilio",
+        address,
+        latitude: pickedLocation.lat,
+        longitude: pickedLocation.lng,
+      };
+      
+      // Solo agregar radio si es domicilio
+      if (mode === 'domicilio') {
+        dataToSend.radio = radius; // Enviar en kilómetros
+      }
+      onNext(dataToSend);
     }
   };
 
   // Try to center map on user's location if available
   useEffect(() => {
-    if (navigator && navigator.geolocation) {
+    if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => {
-          // If user denies or an error occurs, center on Cali, Colombia
-          const cali = { lat: 3.4516, lng: -76.5320 };
+        (position) => {
+          const userLocation = { 
+            lat: position.coords.latitude, 
+            lng: position.coords.longitude 
+          };
+          setCenter(userLocation);
+          // Establecer la ubicación del usuario como punto inicial
+          setPickedLocation(userLocation);
+          setLocationObtained(true);
+          setLoadingLocation(false);
+          console.log("📍 Ubicación del usuario obtenida:", userLocation);
+        },
+        (error) => {
+          console.error("⚠️ Error al obtener ubicación:", error);
+          const cali = { lat: 3.420556, lng: -76.522222 };
           setCenter(cali);
-          if (setMessage) {
-            if (setType) setType("info");
-            setMessage("No se pudo obtener tu ubicación. Centrado en Cali, Colombia.");
-            setTimeout(() => setMessage(""), 3000);
+          setLocationObtained(false);
+          setLoadingLocation(false);
+          
+          let errorMessage = "No se pudo obtener tu ubicación.";
+          let errorDetail = "";
+          
+          if (error.code === error.PERMISSION_DENIED) {
+            errorMessage = "Permiso de ubicación denegado";
+            errorDetail = "Has denegado el permiso de ubicación. El mapa se centrará en Cali, Colombia. Puedes cambiar esto en la configuración de tu navegador.";
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            errorMessage = "Ubicación no disponible";
+            errorDetail = "La ubicación no está disponible en este momento. El mapa se centrará en Cali, Colombia.";
+          } else if (error.code === error.TIMEOUT) {
+            errorMessage = "Tiempo de espera agotado";
+            errorDetail = "Se agotó el tiempo de espera para obtener tu ubicación. El mapa se centrará en Cali, Colombia.";
           }
+          
+          setLocationError(errorDetail);
+          
+          Swal.fire({
+            title: errorMessage,
+            text: errorDetail,
+            icon: "info",
+            draggable: true,
+            customClass: {
+              confirmButton: 'boton-alert-agenda'
+            }
+          });
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
       );
     } else {
       // Geolocation not supported - ensure map is centered on Cali
-      setCenter({ lat: 3.4516, lng: -76.5320 });
-      if (setMessage) {
-        if (setType) setType("info");
-        setMessage("Geolocalización no disponible. Centrado en Cali, Colombia.");
-        setTimeout(() => setMessage(""), 3000);
-      }
+      const cali = { lat: 3.420556, lng: -76.522222 };
+      setCenter(cali);
+      setLocationObtained(false);
+      setLoadingLocation(false);
+      
+      const errorMsg = "Tu navegador no soporta geolocalización. El mapa se centrará en Cali, Colombia.";
+      setLocationError(errorMsg);
+      
+      Swal.fire({
+        title: "Geolocalización no soportada",
+        text: errorMsg,
+        icon: "info",
+        draggable: true,
+        customClass: {
+          confirmButton: 'boton-alert-agenda'
+        }
+      });
     }
   }, []);
 
@@ -64,18 +141,82 @@ export default function BusinessLocation({ onNext, onBack, setMessage, setType, 
     if (!context) return;
     const { lat, lng } = context;
     setPickedLocation({ lat, lng });
-    // Optionally update the address input to show coordinates (minimal UX)
-    // Keep it non-destructive if the user already typed an address
+  };
+
+  // Función para solicitar permisos nuevamente
+  const requestLocationPermission = () => {
+    setLoadingLocation(true);
+    setLocationError(null);
+    
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLocation = { 
+            lat: position.coords.latitude, 
+            lng: position.coords.longitude 
+          };
+          setCenter(userLocation);
+          setPickedLocation(userLocation);
+          setLocationObtained(true);
+          setLoadingLocation(false);
+          setTimeout(() => {
+            setCenter({...userLocation}); // Crear nuevo objeto para forzar actualización
+          }, 100);
+          
+          Swal.fire({
+            title: "¡Ubicación obtenida!",
+            text: "Tu ubicación se ha obtenido correctamente.",
+            icon: "success",
+            timer: 2000,
+            showConfirmButton: false,
+            draggable: true
+          });
+        },
+        (error) => {
+          console.error("Error al obtener ubicación:", error);
+          setLoadingLocation(false);
+          
+          let errorMessage = "No se pudo obtener tu ubicación. Verifica los permisos del navegador.";
+          
+          if (error.code === error.PERMISSION_DENIED) {
+            errorMessage = "Debes permitir el acceso a la ubicación en la configuración de tu navegador.";
+          }
+          
+          setLocationError(errorMessage);
+          
+          Swal.fire({
+            title: "Error",
+            text: errorMessage,
+            icon: "error",
+            draggable: true,
+            customClass: {
+              confirmButton: 'boton-alert-agenda'
+            }
+          });
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    } else {
+      setLoadingLocation(false);
+      Swal.fire({
+        title: "Error",
+        text: "Tu navegador no soporta geolocalización.",
+        icon: "error",
+        draggable: true,
+        customClass: {
+          confirmButton: 'boton-alert-agenda'
+        }
+      });
+    }
   };
 
   return (
     <div className="business-container">
       <h2 className="business-title">Ubicación del negocio</h2>
-      {message && (
-        <div className={`notification ${type === "error" ? "error" : ""}`}>
-            {message}
-        </div>
-    )}
 
       <p className="business-subtitle">
         Selecciona la manera en la que sueles trabajar
@@ -96,32 +237,111 @@ export default function BusinessLocation({ onNext, onBack, setMessage, setType, 
         </button>
       </div>
 
+      {/* Indicador de carga de ubicación */}
+      {loadingLocation && (
+        <div className="location-loading" style={{ 
+          padding: '12px', 
+          background: '#fff3cd', 
+          borderRadius: '8px', 
+          marginBottom: '16px',
+          textAlign: 'center',
+          color: '#856404'
+        }}>
+          📍 Obteniendo tu ubicación...
+        </div>
+      )}
+
+      {/* Mensaje de error y botón para reintentar */}
+      {locationError && !loadingLocation && (
+        <div style={{ 
+          padding: '12px', 
+          background: '#f8d7da', 
+          borderRadius: '8px', 
+          marginBottom: '16px',
+          color: '#721c24',
+          textAlign: 'center'
+        }}>
+          <p style={{ margin: '0 0 8px 0' }}>⚠️ {locationError}</p>
+          <button 
+            onClick={requestLocationPermission}
+            style={{
+              padding: '8px 16px',
+              background: '#e25b7a',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            🔄 Solicitar permisos nuevamente
+          </button>
+        </div>
+      )}
+
+      {/* Indicador de ubicación obtenida */}
+      {locationObtained && !loadingLocation && (
+        <div style={{ 
+          padding: '12px', 
+          background: '#d4edda', 
+          borderRadius: '8px', 
+          marginBottom: '16px',
+          textAlign: 'center',
+          color: '#155724'
+        }}>
+          ✅ Ubicación obtenida correctamente
+        </div>
+      )}
+
+      {/* Guía de uso del mapa */}
+      <div className="map-guide">
+        <div className="guide-header">
+          <span className="guide-icon">🗺️</span>
+          <span className="guide-title">Instrucciones del mapa:</span>
+        </div>
+        <div className="guide-content">
+          <p>1. <strong>Haz clic</strong> en el mapa para colocar tu ubicación</p>
+          <p>2. <strong>Arrastra</strong> el marcador para ajustar la posición</p>
+          <p>3. <strong>Usa el zoom</strong> para mayor precisión</p>
+          <p>4. <strong>Verifica</strong> que la dirección sea correcta</p>
+        </div>
+      </div>
+
       <div className="input-group">
         <label className="input-label">Dirección de tu negocio</label>
         <div className="input-with-icon">
           <input
             type="text"
-            placeholder="Tu negocio"
+            placeholder="Ingresa la dirección completa de tu negocio"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             className="address-input"
           />
           <span className="icon-location">📍</span>
         </div>
-        <div>
-          <div style={{ height: 300, marginTop: 8 }}>
-            <MapPicker
-              value={pickedLocation}
-              onChange={handlePickChange}
-              center={center}
-              zoom={14}
-              height="100%"
-              width="100%"
-              markerColor="#e25b7a"
-              radius={mode === 'domicilio' ? radius : null}
-            />
-          </div>
+        <div className="map-container">
+          <MapPicker
+            key={`${center.lat}-${center.lng}`}
+            value={pickedLocation}
+            onChange={handlePickChange}
+            center={center}
+            zoom={locationObtained ? 16 : 14}
+            height="100%"
+            width="100%"
+            markerColor="#e25b7a"
+            radius={mode === 'domicilio' ? radius * 1000 : null}
+          />
         </div>
+        {pickedLocation && (
+          <div style={{ 
+            marginTop: '8px', 
+            fontSize: '12px', 
+            color: '#666',
+            textAlign: 'center'
+          }}>
+            Coordenadas: Lat: {pickedLocation.lat.toFixed(6)}, Lng: {pickedLocation.lng.toFixed(6)}
+          </div>
+        )}
       </div>
 
       {mode === 'domicilio' && (
@@ -133,12 +353,12 @@ export default function BusinessLocation({ onNext, onBack, setMessage, setType, 
               min="0.1"
               max="50"
               step="0.1"
-              value={radius / 1000}
-              onChange={(e) => setRadius(Math.round(parseFloat(e.target.value) * 1000))}
+              value={radius}
+              onChange={(e) => setRadius(parseFloat(e.target.value))}
             />
-            <div style={{ minWidth: 72 }}>{(radius / 1000).toFixed(1)} km</div>
-            <small style={{ color: '#e25b7a' }}>Selecciona el radio de atención a domicilio</small>
+            <div style={{ minWidth: 72 }}>{radius.toFixed(1)} km</div>
           </div>
+          <small style={{ color: '#e25b7a' }}>Selecciona el radio de atención a domicilio</small>
         </div>
       )}
 

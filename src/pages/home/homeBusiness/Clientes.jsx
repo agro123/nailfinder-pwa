@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import './css/Clientes.css'
 import { Plus, Search, Edit2, Trash2, Camera, X } from 'lucide-react'
 import { useAuth } from '../../../context/AuthContext'
+import Swal from "sweetalert2";
 
 export default function Clientes() {
   const { user } = useAuth()
@@ -85,7 +86,7 @@ export default function Clientes() {
       if (cliente.foto.startsWith('http') || cliente.foto.startsWith('/')) return cliente.foto
       return `data:image/png;base64,${cliente.foto}`
     }
-    return '/img/default-user.jpg'
+    return '/img/photo_default.jpg'
   }
 
   // Abrir modal
@@ -169,7 +170,18 @@ export default function Clientes() {
   }
 
   const eliminarCliente = async (id) => {
-    if (!window.confirm('¿Seguro que deseas eliminar este cliente?')) return
+    const result = await Swal.fire({
+      title: "¿Eliminar esta cliente?",
+      text: "Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#E25B7A",
+      cancelButtonColor: "#9dadbbff",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const res = await fetch(`http://localhost:3000/api/private/company/customer/${id}`, { method: 'DELETE' })
@@ -239,9 +251,12 @@ export default function Clientes() {
       )}
 
       {/* Botón flotante */}
-      <button className="floating-add-btn" onClick={() => abrirModal()}>
-        <Plus size={24} />
-      </button>
+      <div className="floating-buttons">
+        <button className="floating-add-btn tooltip" onClick={() => abrirModal()}>
+          <Plus size={24} />
+          <span className="tooltip-text">Crear cliente</span>
+        </button>
+      </div>
 
       {/* Modal */}
       {showModal && (

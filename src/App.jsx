@@ -12,6 +12,7 @@ import AddService from './pages/home/homeBusiness/AddService'
 import EditService from './pages/home/homeBusiness/EditService'
 import AddCategoria from './pages/home/homeBusiness/AddCategoria'
 import Gallery from './pages/home/homeBusiness/Gallery'
+import GalleryService from './pages/home/homeBusiness/GalleryService'
 import Profesionales from './pages/home/homeBusiness/Profesionales'
 import Historial from './pages/home/homeBusiness/HistorialCitas'
 
@@ -103,6 +104,7 @@ export default function App() {
             <Route path="/edit_service" element={<EditService />} />
             <Route path="/add_categoria" element={<AddCategoria />} />
             <Route path="/gallery" element={<Gallery />} />
+            <Route path="/galleryService" element={<GalleryService />} />
             <Route path="/profesionales" element={<Profesionales />} />
             <Route path="/historial" element={<Historial />} />
             {/* Client */}

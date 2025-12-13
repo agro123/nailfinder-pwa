@@ -196,15 +196,6 @@ export default function PerfilUsuario() {
 
       <div className="perfilusuario-map-section">
         <h3 className="perfilusuario-map-title">🗺️ Mapa de Negocios</h3>
-        
-        <div className="map-stats">
-          <span className="stat-badge">
-            📍 Tu ubicación
-          </span>
-          <span className="stat-badge other-companies-badge">
-            🏪 {companies.length} {companies.length === 1 ? 'negocio registrado' : 'negocios registrados'}
-          </span>
-        </div>
 
         {(loadingLocation || loadingCompanies) && (
           <div className="location-loading">
@@ -221,6 +212,16 @@ export default function PerfilUsuario() {
 
         {currentLocation && !loadingCompanies && (
           <>
+            <div className="map-legend">
+              <div className="legend-item">
+                <span className="legend-dot user-location-dot"></span>
+                <span>Tu ubicación actual</span>
+              </div>
+              <div className="legend-item">
+                <span className="legend-dot other-business-dot"></span>
+                <span>Negocios registrados</span>
+              </div>
+            </div>
             <div className="perfilusuario-map-container">
               <MapComponent
                 coordinates={coordinates}
@@ -233,18 +234,6 @@ export default function PerfilUsuario() {
                 <small>
                   Tu posición: Lat: {currentLocation.lat.toFixed(6)}, Lng: {currentLocation.lng.toFixed(6)}
                 </small>
-              </div>
-            </div>
-
-            {/* Leyenda del mapa */}
-            <div className="map-legend">
-              <div className="legend-item">
-                <span className="legend-dot user-location-dot"></span>
-                <span>Tu ubicación actual</span>
-              </div>
-              <div className="legend-item">
-                <span className="legend-dot other-business-dot"></span>
-                <span>Negocios registrados</span>
               </div>
             </div>
           </>

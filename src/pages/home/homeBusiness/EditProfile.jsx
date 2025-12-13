@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { ChevronLeft } from "lucide-react";
 import MapComponent, { MapPicker, MapStatic } from '../../../components/Map'
 import './css/EditProfile.css'
 
@@ -12,6 +13,7 @@ export default function EditProfile() {
   const [companyData, setCompanyData] = useState(null)
   const [formData, setFormData] = useState({
     companyname: '',
+    description: '',
     companytype: '',
     phone: '',
     address: '',
@@ -120,24 +122,28 @@ export default function EditProfile() {
   };
 
   const center = useMemo(() => {
-    // Si ya tenemos datos del negocio con ubicación, usamos esa
+    // PRIORIDAD 1: Si el usuario ha clickeado en el mapa recientemente
+    if (pickedLocation) {
+      return pickedLocation;
+    }
+    
+    // PRIORIDAD 2: Si ya tenemos datos del negocio guardado con ubicación
     if (companyData?.latitude && companyData?.longitude) {
       return {
         lat: Number(companyData.latitude),
         lng: Number(companyData.longitude)
       };
     }
-    // Si el usuario ha seleccionado una ubicación en el mapa
-    if (pickedLocation) {
-      return pickedLocation;
-    }
-    // Si tenemos la ubicación del usuario
+    
+    // PRIORIDAD 3: Si tenemos la ubicación del usuario (solo si no hay nada guardado)
     if (userLocation) {
       return userLocation;
     }
-    // Por defecto
+    
+    // PRIORIDAD 4: Por defecto
     return { lat: 3.37, lng: -76.53 };
-  }, [companyData, pickedLocation, userLocation]);
+    return { lat: 3.37, lng: -76.53 };
+  }, [pickedLocation, companyData, userLocation]);
 
   // 🔥 NUEVO: Determinar si es un negocio de domicilio
   const isDomicilioBusiness = useMemo(() => {
@@ -211,6 +217,7 @@ export default function EditProfile() {
             setCompanyData(companyDataCompleta)
             setFormData({
               companyname: companyDataCompleta.company_name || '',
+              description: companyDataCompleta.company_description || '',
               companytype: companyDataCompleta.business_type || '',
               phone: companyDataCompleta.company_phone || '',
               address: companyDataCompleta.address || '',
@@ -218,10 +225,8 @@ export default function EditProfile() {
               longitude: companyDataCompleta.longitude || '',
             })
 
-            // 🔥 NUEVO: Cargar radio de trabajo si existe
-            if (companyDataCompleta.work_radius) {
-              setWorkRadius(companyDataCompleta.work_radius);
-            }
+            setWorkRadius(companyDataCompleta.radio || 5);
+            console.log('🎯 Radio cargado desde BD:', companyDataCompleta.radio);
 
             if (companyDataCompleta.logo_uri) setLogoPreview(companyDataCompleta.logo_uri)
 
@@ -241,6 +246,7 @@ export default function EditProfile() {
             setCompanyData(company)
             setFormData({
               companyname: company.company_name || '',
+              description: company.description || '',
               companytype: company.business_type || '',
               phone: company.company_phone || '',
               address: company.address || '',
@@ -248,6 +254,8 @@ export default function EditProfile() {
               longitude: company.longitude || '',
             })
             if (company.logo_uri) setLogoPreview(company.logo_uri)
+            setWorkRadius(company.radio || 5);
+            console.log('🎯 Radio cargado desde BD (fallback):', company.radio);
             if (company.latitude && company.longitude) {
               setPickedLocation({
                 lat: Number(company.latitude),
@@ -313,13 +321,13 @@ export default function EditProfile() {
       const body = {
         id_company: companyData?.company_id || null,
         companyname: formData.companyname.trim(),
+        description: formData.description.trim(),
         companytype: formData.companytype.trim(),
         phone: formData.phone.trim(),
         address: formData.address.trim(),
         latitude: formData.latitude || null,
         longitude: formData.longitude || null,
-        // 🔥 NUEVO: Incluir radio de trabajo solo si es negocio a domicilio
-        ...(isDomicilioBusiness && { work_radius: workRadius }),
+        ...(isDomicilioBusiness && { radio: workRadius }),
       }
 
       // Convertir logo a base64 si hay archivo nuevo
@@ -457,26 +465,38 @@ export default function EditProfile() {
     }
   };
 
-  const handleToggleHorario = async (horarioId) => {
+  const handleToggleHorario = async (horarioId, currentStatus) => {
     try {
+      // 🔥 CORRECCIÓN: Cambiar "horario_id" por "id_horario" y enviar el nuevo status
+      const body = {
+        id_horario: horarioId,
+        status: !currentStatus, // Invertir el estado actual
+        id_company: companyData?.company_id // Agregar company_id que espera el backend
+      };
+
+      console.log("📤 Enviando datos para activar/desactivar:", body);
+
       const resp = await fetch('http://localhost:3000/api/public/activeInactiveHorario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ horario_id: horarioId }),
-      })
-      const data = await resp.json()
+        body: JSON.stringify(body),
+      });
+
+      const data = await resp.json();
+      console.log("📥 Respuesta del servidor:", data);
+
       if (data.success) {
-        showAlert("Horario actualizado correctamente", "success")
+        showAlert("Horario actualizado correctamente", "success");
         // Recargar horarios
         if (companyData?.company_id) {
-          fetchHorarios(companyData.company_id)
+          fetchHorarios(companyData.company_id);
         }
       } else {
-        showAlert("Error al actualizar el horario", "error")
+        showAlert(`Error al actualizar el horario: ${data.message || 'Error desconocido'}`, "error");
       }
     } catch (error) {
-      console.error('Error activando/desactivando horario:', error)
-      showAlert("Error al actualizar el horario", "error")
+      console.error('Error activando/desactivando horario:', error);
+      showAlert("Error de conexión al actualizar el horario", "error");
     }
   }
 
@@ -484,10 +504,7 @@ export default function EditProfile() {
     <div className="edit-profile-container">
       {/* Flecha para volver */}
       <button className="back-button" onClick={() => navigate('/settings')}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
-        Volver
+        <ChevronLeft size={28} strokeWidth={2} />
       </button>
 
       {/* Sistema de Alertas - CORREGIDO */}
@@ -533,9 +550,22 @@ export default function EditProfile() {
         <input type="text" name="companyname" value={formData.companyname} onChange={handleChange} />
       </div>
       <div className="form-group">
-        <label>Tipo de negocio</label>
-        <input type="text" name="companytype" value={formData.companytype} onChange={handleChange} />
+        <label>Descripcion del negocio</label>
+        <textarea type="text" name="description" value={formData.description} onChange={handleChange} />
       </div>
+      <div className="form-group">
+        <label>Tipo de negocio</label>
+        <select
+          name="companytype"
+          value={formData.companytype}
+          onChange={handleChange}
+        >
+          <option value="">Selecciona una opción</option>
+          <option value="local">Local</option>
+          <option value="domicilio">Domicilio</option>
+        </select>
+      </div>
+
       <div className="form-group">
         <label>Teléfono</label>
         <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
@@ -545,79 +575,73 @@ export default function EditProfile() {
         <input type="text" name="address" value={formData.address} onChange={handleChange} />
       </div>
 
-      {/* 🔥 MAPA PARA ELEGIR UBICACIÓN */}
-      <h3>Ubicación del negocio</h3>
-      <p>Haz click en el mapa para seleccionar latitud/longitud.</p>
-
-      <div style={{ height: 300, borderRadius: 12, overflow: "hidden" }}>
-        <MapPicker
-          value={pickedLocation}
-          onChange={handlePickChange}
-          center={center}
-          zoom={15}
-          height="100%"
-          width="100%"
-          markerColor="#e25b7a"
-        />
-      </div>
-
-      <div className="form-group-inline">
-        <div className="form-group">
-          <label>Latitud</label>
-          <input type="text" name="latitude" value={formData.latitude} readOnly />
-        </div>
-        <div className="form-group">
-          <label>Longitud</label>
-          <input type="text" name="longitude" value={formData.longitude} readOnly />
-        </div>
-      </div>
-
-      {/* 🔥 NUEVO: RADIO DE TRABAJO SOLO PARA DOMICILIO */}
-      {isDomicilioBusiness && (
-        <div className="work-radius-section">
-          <h3>Radio de Trabajo</h3>
-          <p>Define el área de cobertura para tus servicios a domicilio</p>
-          
-          <div className="form-group">
-            <label>Radio de trabajo (kilómetros)</label>
-            <input
-              type="range"
-              min="1"
-              max="50"
-              value={workRadius}
-              onChange={handleRadiusChange}
-              className="radius-slider"
-            />
-            <div className="radius-value">
-              <span>{workRadius} km</span>
+      {/* 🔥 MAPA ÚNICO PARA UBICACIÓN Y RADIO */}
+      <div className="work-radius-section">
+        <h3>Ubicación del negocio</h3>
+        <p>Haz click en el mapa para seleccionar latitud/longitud.</p>
+        
+        {/* Mostrar barra de radio SOLO para negocios a domicilio */}
+        {isDomicilioBusiness && (
+          <>
+            <h4 style={{ marginTop: '20px' }}>Radio de Trabajo</h4>
+            <p>Define el área de cobertura para tus servicios a domicilio</p>
+            
+            <div className="form-group">
+              <label>Radio de trabajo (kilómetros)</label>
+              <input
+                type="range"
+                min="1"
+                max="50"
+                value={workRadius}
+                onChange={handleRadiusChange}
+                className="radius-slider"
+                style={{ "--value-percent": `${(workRadius / 50) * 100}%` }}
+              />
+              <div className="radius-value">
+                <span>{workRadius} km</span>
+              </div>
             </div>
-          </div>
+          </>
+        )}
 
-          {/* Mapa para visualizar el radio de trabajo */}
-          <div style={{ height: 300, borderRadius: 12, overflow: "hidden", marginTop: '15px' }}>
-            <MapPicker
-              value={pickedLocation}
-              onChange={handlePickChange}
-              center={center}
-              zoom={12}
-              height="100%"
-              width="100%"
-              markerColor="#e25b7a"
-              showRadius={true}
-              radius={workRadius * 1000} // Convertir a metros
-              radiusColor="#e25b7a33"
-            />
-          </div>
+        {/* Mapa único - muestra radio solo si es domicilio */}
+        <div style={{ height: 300, borderRadius: 12, overflow: "hidden", marginTop: '15px' }}>
+          <MapPicker
+            key={`${center.lat}-${center.lng}`}
+            value={pickedLocation}
+            onChange={handlePickChange}
+            center={center}
+            zoom={isDomicilioBusiness ? 14 : 15}
+            height="100%"
+            width="100%"
+            markerColor="#e25b7a"
+            showRadius={isDomicilioBusiness}
+            radius={isDomicilioBusiness ? workRadius * 1000 : 0}
+            radiusColor="#e25b7a33"
+          />
+        </div>
 
+        {/* Mostrar info del radio SOLO para domicilio */}
+        {isDomicilioBusiness && (
           <div className="radius-info">
             <p>🗺️ Tu área de cobertura se muestra en el mapa. Los clientes dentro de este radio podrán solicitarte servicios a domicilio.</p>
           </div>
-        </div>
-      )}
+        )}
 
-      <button className="save-button" onClick={handleGuardar}>
-        {companyData ? 'Guardar Cambios' : 'Crear Negocio'}
-      </button>
+        {/* Inputs de latitud/longitud */}
+        <div className="form-group-inline" style={{ marginTop: '15px' }}>
+          <div className="form-group">
+            <label>Latitud</label>
+            <input type="text" name="latitude" value={formData.latitude} readOnly />
+          </div>
+          <div className="form-group">
+            <label>Longitud</label>
+            <input type="text" name="longitude" value={formData.longitude} readOnly />
+          </div>
+        </div>
+      </div>
+
+      
 
       {/* Horarios */}
       <div className="horarios-section">
@@ -636,7 +660,7 @@ export default function EditProfile() {
                 </div>
                 <button 
                   className={`toggle-button ${h.isopen ? 'btn-inactive' : 'btn-active'}`}
-                  onClick={() => handleToggleHorario(h.id)}
+                  onClick={() => handleToggleHorario(h.id, h.isopen)}
                 >
                   {h.isopen ? "Desactivar" : "Activar"}
                 </button>
@@ -655,13 +679,20 @@ export default function EditProfile() {
           <div className="horario-form">
             <div className="form-group">
               <label>Día de la semana</label>
-              <input
-                type="text"
-                placeholder="Ej: Lunes, Martes..."
+              <select
+                name="companytype"
                 value={newHorario.day}
                 onChange={(e) => setNewHorario({ ...newHorario, day: e.target.value })}
-                className="horario-input"
-              />
+              >
+                <option value="">Selecciona una opción</option>
+                <option value="Lunes">Lunes</option>
+                <option value="Martes">Martes</option>
+                <option value="Miercoles">Miercoles</option>
+                <option value="Jueves">Jueves</option>
+                <option value="Viernes">Viernes</option>
+                <option value="Sabado">Sabado</option>
+                <option value="Domingo">Domingo</option>
+              </select>   
             </div>
             
             <div className="form-group">
@@ -696,6 +727,11 @@ export default function EditProfile() {
           </div>
         </div>
       </div>
+      
+      {/* Boton para guardar los cambios */}
+      <button className="save-button" onClick={handleGuardar}>
+        {companyData ? 'Guardar Cambios' : 'Crear Negocio'}
+      </button>
     </div>
   )
 }
