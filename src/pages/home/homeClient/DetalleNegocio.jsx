@@ -493,7 +493,7 @@ export default function DetalleNegocio() {
                         }
                         style={{ cursor: "pointer" }}
                     >
-                        <div className="servicio-header">
+                        <div className="servicio-header" style={{width: '100%'}}>
                             {serv.images?.length > 0 ? (
                                 <img
                                     src={serv.images[0].uri}
