@@ -408,7 +408,12 @@ export default function Citas() {
               <div className="acciones">
                 {cita.estado === 'pendiente' ? (
                   <>
-                    <button
+                    {isOfflineMode ? (
+                      <button className="btn-disabled" disabled>
+                        Acción no disponible en modo offline
+                      </button>
+                    ) : <>
+                      <button
                       className="btn-confirmar"
                       onClick={() => cambiarEstadoCita(cita.id, 2)}
                       disabled={accionEnProceso}
@@ -422,6 +427,9 @@ export default function Citas() {
                     >
                       Cancelar
                     </button>
+                    
+                    </>}
+                    
                   </>
                 ) : (
                   <button className="btn-disabled" disabled>
