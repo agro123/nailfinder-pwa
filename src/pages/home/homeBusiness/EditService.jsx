@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
-import "./css/AddService.css"; 
+import "./css/AddService.css";
+import { API_URL } from "../../../constants";
 
 export default function EditService() {
   const navigate = useNavigate();
@@ -62,7 +63,7 @@ export default function EditService() {
     };
 
     try {
-      const res = await fetch("http://localhost:3000/api/public/editServicio", {
+      const res = await fetch(API_URL + "/api/public/editServicio", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

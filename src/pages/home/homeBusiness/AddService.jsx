@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from '../../../context/AuthContext'
 import "./css/AddService.css";
+import { API_URL } from "../../../constants";
 
 export default function NuevoServicioForm() {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export default function NuevoServicioForm() {
   useEffect(() => {
     const loadCategorias = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/public/showCategorias");
+        const res = await fetch(API_URL + "/api/public/showCategorias");
         const data = await res.json();
         if (data.success && data.data?.categorias) {
           setCategorias(data.data.categorias);
@@ -199,7 +200,7 @@ export default function NuevoServicioForm() {
     };
 
     try {
-      const res = await fetch("http://localhost:3000/api/public/createServicio", {
+      const res = await fetch(API_URL + "/api/public/createServicio", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -230,7 +231,7 @@ export default function NuevoServicioForm() {
       for (const professionalId of personalSeleccionado) {
         console.log("id profefional: ", professionalId)
         console.log("id service: ", serviceId)
-        await fetch("http://localhost:3000/api/private/addProfessionalService", {
+        await fetch(API_URL + "/api/private/addProfessionalService", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

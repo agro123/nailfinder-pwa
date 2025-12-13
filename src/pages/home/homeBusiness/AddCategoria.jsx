@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { API_URL } from '../../../constants'
 
 export default function AddCategoria() {
   const navigate = useNavigate()
@@ -15,7 +16,7 @@ export default function AddCategoria() {
         if (!authUser) return
 
         const userId = authUser.id
-        const res = await fetch('http://localhost:3000/api/public/getCompanys', {
+        const res = await fetch(`${API_URL}/api/public/getCompanys`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
         })
@@ -50,7 +51,7 @@ export default function AddCategoria() {
     }
 
     try {
-      const res = await fetch('http://localhost:3000/api/public/createCategoria', {
+      const res = await fetch('API_URL/api/public/createCategoria', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

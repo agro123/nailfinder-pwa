@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { ChevronLeft } from "lucide-react";
 import MapComponent, { MapPicker, MapStatic } from '../../../components/Map'
 import './css/EditProfile.css'
+import { API_URL } from "../../../constants";
 
 export default function EditProfile() {
   const { user } = useAuth()
@@ -433,7 +434,7 @@ export default function EditProfile() {
 
       console.log("📦 Body enviado:", JSON.stringify(body, null, 2));
 
-      const resp = await fetch("http://localhost:3000/api/public/createHorarios", {
+      const resp = await fetch(API_URL + "/api/public/createHorarios", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),

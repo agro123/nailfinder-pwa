@@ -5,6 +5,7 @@ import "react-calendar/dist/Calendar.css";
 import "./css/Agenda.css";
 import { ChevronLeft } from "lucide-react";
 import Swal from 'sweetalert2';
+import { API_URL } from "../../../constants";
 
 export default function Agenda() {
     const { idProfesional } = useParams();
@@ -146,7 +147,7 @@ export default function Agenda() {
 
             console.log("📤 Enviando cita:", body);
 
-            const response = await fetch("http://localhost:3000/api/public/createAppointment", {
+            const response = await fetch(API_URL + "/api/public/createAppointment", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

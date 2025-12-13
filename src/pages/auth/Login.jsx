@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "./css/Login.css";
+import { API_URL } from "../../constants";
 
 export default function Login() {
   const { login } = useAuth();
@@ -30,7 +31,7 @@ export default function Login() {
 
     try {
       // Petición al backend
-      const response = await fetch("http://localhost:3000/api/public/login", {
+      const response = await fetch(API_URL + "/api/public/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,15 +1,27 @@
 import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useOffline } from '../../context/OfflineContext'
 import './Footer.css'
 
 export default function FooterNav({ tipo }) {
   const navigate = useNavigate()
   const location = useLocation()
+  const { isOfflineMode } = useOffline()
 
   const go = (path) => navigate(path)
 
   // 🔹 Footer del NEGOCIO
   if (tipo === 'business') {
+    // En modo offline, solo mostrar Citas
+    if (isOfflineMode) {
+      return (
+        <footer className="footer-nav">
+          <button onClick={() => go('/citas')} className={location.pathname === '/citas' ? 'active' : ''}>📅<span>Citas</span></button>
+        </footer>
+      )
+    }
+    
+    // Modo normal - mostrar todos los botones
     return (
       <footer className="footer-nav">
         <button onClick={() => go('/citas')} className={location.pathname === '/citas' ? 'active' : ''}>📅<span>Citas</span></button>

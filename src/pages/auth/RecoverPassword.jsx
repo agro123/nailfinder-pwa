@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { findUserByEmail } from "../../services/localDB";
 import "./css/RecoverPassword.css";
+import { API_URL } from "../../constants";
 
 export default function Login() {
   const { login } = useAuth();
@@ -23,7 +24,7 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/public/forgotPassword", {
+      const response = await fetch(API_URL + "/api/public/forgotPassword", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_URL } from "../../../constants";
 import { Plus, Edit2, Trash2, ChevronLeft, X, Camera } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import "./css/Profesionales.css";
@@ -50,7 +51,7 @@ export default function Profesionales() {
     const fetchData = async () => {
       try {
         const negociosResp = await fetch(
-          "http://localhost:3000/api/public/getCompanys"
+          API_URL + "/api/public/getCompanys"
         );
         const negociosData = await negociosResp.json();
 
@@ -197,7 +198,7 @@ export default function Profesionales() {
       };
 
       const res = await fetch(
-        "http://localhost:3000/api/private/signup-professional",
+        API_URL + "/api/private/signup-professional",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -238,7 +239,7 @@ export default function Profesionales() {
     try {
       // 1️⃣ ACTUALIZAR INFO DEL PROFESIONAL
       const updateInfoRes = await fetch(
-        "http://localhost:3000/api/private/editInformationProfessional",
+        API_URL + "/api/private/editInformationProfessional",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -261,7 +262,7 @@ export default function Profesionales() {
       // 2️⃣ ELIMINAR SERVICIOS ANTERIORES
       if (Array.isArray(editing.services)) {
         for (const oldService of editing.services) {
-          await fetch("http://localhost:3000/api/private/removeProfessionalService", {
+          await fetch(API_URL + "/api/private/removeProfessionalService", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -275,7 +276,7 @@ export default function Profesionales() {
       // 3️⃣ AGREGAR NUEVOS SERVICIOS
       for (const serviceId of newProfessional.services) {
         const addRes = await fetch(
-          "http://localhost:3000/api/private/addProfessionalService",
+          API_URL + "/api/private/addProfessionalService",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -316,7 +317,7 @@ export default function Profesionales() {
 
     try {
       const res = await fetch(
-        "http://localhost:3000/api/private/deleteProfessional",
+        API_URL + "/api/private/deleteProfessional",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
