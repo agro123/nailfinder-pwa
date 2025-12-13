@@ -200,7 +200,7 @@ export default function EditProfile() {
         }
 
         // Primero obtenemos la lista de empresas para encontrar el ID
-        const respLista = await fetch('http://localhost:3000/api/public/getCompanys')
+        const respLista = await fetch(API_URL + '/api/public/getCompanys')
         const dataLista = await respLista.json()
 
         const company = dataLista?.data?.negocios?.find((c) => c.user_id === authUser.id)
@@ -208,7 +208,7 @@ export default function EditProfile() {
           console.log('🏢 Empresa encontrada en lista:', company)
           
           // Ahora obtenemos los datos completos usando getCompanyById
-          const respCompleta = await fetch(`http://localhost:3000/api/public/getCompanyById?id=${company.company_id}`)
+          const respCompleta = await fetch(`${API_URL}/api/public/getCompanyById?id=${company.company_id}`)
           const dataCompleta = await respCompleta.json()
           console.log('📋 Datos :', dataCompleta)
           if (dataCompleta.success && dataCompleta.data) {
@@ -350,8 +350,8 @@ export default function EditProfile() {
       })
 
       const url = isEdit
-        ? 'http://localhost:3000/api/public/editCompany'
-        : 'http://localhost:3000/api/public/setCompanys'
+        ? API_URL + '/api/public/editCompany'
+        : API_URL + '/api/public/setCompanys'
 
       console.log('📤 Enviando datos:', body)
       
@@ -385,7 +385,7 @@ export default function EditProfile() {
     try {
       console.log("📡 Intentando cargar horarios para companyId:", id_company);
 
-      const resp = await fetch(`http://localhost:3000/api/public/getCompanyHorarios?id_company=${encodeURIComponent(id_company)}`);
+      const resp = await fetch(`${API_URL}/api/public/getCompanyHorarios?id_company=${encodeURIComponent(id_company)}`);
 
       if (!resp.ok) throw new Error(`HTTP error ${resp.status}`);
 
@@ -477,7 +477,7 @@ export default function EditProfile() {
 
       console.log("📤 Enviando datos para activar/desactivar:", body);
 
-      const resp = await fetch('http://localhost:3000/api/public/activeInactiveHorario', {
+      const resp = await fetch(API_URL + '/api/public/activeInactiveHorario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "./css/HistorialCitas.css";
 import { useAuth } from "../../../context/AuthContext";
 import { ChevronLeft } from "lucide-react";
+import { API_URL } from "../../../constants";
 
 const HistorialCitas = () => {
   const { user } = useAuth();
@@ -88,10 +89,10 @@ const HistorialCitas = () => {
               continue;
             }
 
-            url = `http://localhost:3000/api/private/companyAppointments?companyId=${companyId}&date=${fecha}&branchId=${branchId}`;
+            url = `${API_URL}/api/private/companyAppointments?companyId=${companyId}&date=${fecha}&branchId=${branchId}`;
 
           } else {
-            url = `http://localhost:3000/api/private/clientAppointments?clientId=${clientId}&date=${fecha}`;
+            url = `${API_URL}/api/private/clientAppointments?clientId=${clientId}&date=${fecha}`;
           }
 
           console.log("📡 Fetch URL:", url);

@@ -79,7 +79,7 @@ export default function Home() {
     const promesas = empresas.map(async (empresa) => {
       try {
         const resp = await fetch(
-          `http://localhost:3000/api/public/getCompanyHorarios?id_company=${encodeURIComponent(empresa.company_id)}`
+          `${API_URL}/api/public/getCompanyHorarios?id_company=${encodeURIComponent(empresa.company_id)}`
         );
 
         if (!resp.ok) {

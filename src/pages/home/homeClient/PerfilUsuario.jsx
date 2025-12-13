@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import MapComponent from "../../../components/Map/Map";
 import "./css/PerfilUsuario.css";
+import { API_URL } from '../../../constants';
 
 export default function PerfilUsuario() {
   const { user, logout } = useAuth(); 
@@ -100,7 +101,7 @@ export default function PerfilUsuario() {
     const fetchCompanies = async () => {
       try {
         // Endpoint para obtener todas las compañías
-        const response = await fetch('http://localhost:3000/api/public/getCompanys', {
+        const response = await fetch(API_URL + '/api/public/getCompanys', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'

@@ -64,7 +64,7 @@ export default function NuevoServicioForm() {
         if (!authUser) return;
 
         const userId = authUser.id;
-        const resp = await fetch('http://localhost:3000/api/public/getCompanys');
+        const resp = await fetch(API_URL + '/api/public/getCompanys');
         const data = await resp.json();
 
         const company = data?.data?.negocios?.find(c => c.user_id === userId);
@@ -94,7 +94,7 @@ export default function NuevoServicioForm() {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/public/listProfessionals?id_company=${companyId}`
+        `${API_URL}/api/public/listProfessionals?id_company=${companyId}`
       );
       const data = await res.json();
 

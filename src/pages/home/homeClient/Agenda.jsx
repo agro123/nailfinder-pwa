@@ -45,7 +45,7 @@ export default function Agenda() {
                 return;
             }
 
-            const url = `http://localhost:3000/api/public/getAvailableHours?date=${fechaISO}&serviceId=${servicio.service_id}&userId=${profesional.id}&companyId=${negocio.company_id}`;
+            const url = `${API_URL}/api/public/getAvailableHours?date=${fechaISO}&serviceId=${servicio.service_id}&userId=${profesional.id}&companyId=${negocio.company_id}`;
 
             console.log("🗓️ Solicitando disponibilidad:", url);
 
