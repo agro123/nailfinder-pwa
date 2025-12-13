@@ -13,6 +13,8 @@ export default defineConfig({
         short_name: 'NailFinder',
         description: 'A Vite + React progressive web app starter',
         theme_color: '#ffffff',
+        start_url: '/',
+        scope: '/',
         icons: [
           {
             src: 'pwa-192x192.png',
@@ -25,6 +27,10 @@ export default defineConfig({
             type: 'image/png'
           }
         ]
+      },
+      workbox: {
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/]
       }
     })
   ]
